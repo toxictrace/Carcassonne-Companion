@@ -63,6 +63,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val games: StateFlow<List<GameEntity>> = repo.allGames
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
+    val allGamePlayers: StateFlow<List<com.carcassonne.companion.data.entity.GamePlayerEntity>> = repo.allGamePlayers
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
     private val _globalStats = MutableStateFlow(GlobalStats())
     val globalStats: StateFlow<GlobalStats> = _globalStats
 
@@ -258,6 +261,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _message.emit("Game updated!")
         onDone()
     }
+
+    // ─── Settings ───────────────────────────────────────────────
     fun clearAllData() = viewModelScope.launch {
         repo.clearAll()
         _message.emit("All records cleared")

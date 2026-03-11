@@ -81,6 +81,7 @@ fun CarcassonneApp() {
     val pStats  by vm.playerStats.collectAsState()
     val liveGame by vm.liveGame.collectAsState()
     val sortNewestFirst by vm.sortNewestFirst.collectAsState()
+    val allGamePlayers by vm.allGamePlayers.collectAsState()
 
     val currentBackStack by navController.currentBackStackEntryAsState()
     val currentRoute = currentBackStack?.destination?.route
@@ -321,6 +322,7 @@ fun CarcassonneApp() {
                     stats = stats,
                     games = games,
                     players = players,
+                    allGamePlayers = allGamePlayers,
                     sortNewestFirst = sortNewestFirst,
                     onToggleSort = { vm.toggleSortOrder() },
                     onViewAll = {
@@ -337,6 +339,7 @@ fun CarcassonneApp() {
                 HistoryScreen(
                     games = games,
                     players = players,
+                    allGamePlayers = allGamePlayers,
                     sortNewestFirst = sortNewestFirst,
                     onToggleSort = { vm.toggleSortOrder() },
                     onGameClick = { navController.navigate(Routes.matchDetail(it)) },
@@ -406,7 +409,12 @@ fun CarcassonneApp() {
             }
             composable(Routes.MATCH_DETAIL) { back ->
                 val gameId = back.arguments?.getString("gameId")?.toIntOrNull() ?: return@composable
-                MatchDetailScreen(gameId = gameId, viewModel = vm, players = players)
+                MatchDetailScreen(
+                    gameId = gameId,
+                    viewModel = vm,
+                    players = players,
+                    onEdit = { navController.navigate(Routes.editGame(gameId)) }
+                )
             }
             composable(Routes.PLAYER_PROFILE) { back ->
                 val playerId = back.arguments?.getString("playerId")?.toIntOrNull() ?: return@composable

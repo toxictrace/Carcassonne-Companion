@@ -63,6 +63,7 @@ class CarcassonneRepository(
 
     suspend fun getPlayersForGame(gameId: Int) = gamePlayerDao.getPlayersForGame(gameId)
     fun getGamesForPlayer(playerId: Int) = gamePlayerDao.getGamesForPlayer(playerId)
+    val allGamePlayers: Flow<List<GamePlayerEntity>> = gamePlayerDao.getAllGamePlayers()
 
     // ─── Stats ──────────────────────────────────────────────────
     suspend fun getHighestScore() = gamePlayerDao.getHighestScore() ?: 0

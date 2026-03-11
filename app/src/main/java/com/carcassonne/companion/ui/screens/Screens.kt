@@ -35,6 +35,7 @@ fun DashboardScreen(
     stats: GlobalStats,
     games: List<GameEntity>,
     players: List<PlayerEntity>,
+    allGamePlayers: List<com.carcassonne.companion.data.entity.GamePlayerEntity> = emptyList(),
     sortNewestFirst: Boolean,
     onToggleSort: () -> Unit,
     onViewAll: () -> Unit,
@@ -105,7 +106,8 @@ fun DashboardScreen(
             }
         } else {
             items(recentGames) { game ->
-                DashboardGameRow(game, players) { onGameClick(game.id) }
+                val gps = allGamePlayers.filter { it.gameId == game.id }
+                DashboardGameRow(game, players, gps) { onGameClick(game.id) }
                 Spacer(Modifier.height(10.dp))
             }
         }
@@ -117,11 +119,15 @@ fun DashboardScreen(
 fun DashboardGameRow(
     game: GameEntity,
     players: List<PlayerEntity>,
+    gamePlayers: List<com.carcassonne.companion.data.entity.GamePlayerEntity> = emptyList(),
     onClick: () -> Unit
 ) {
     val date = remember(game.date) {
         SimpleDateFormat("MMM d", Locale.getDefault()).format(Date(game.date))
     }
+    // Sort by placement to show winner first
+    val sortedGP = remember(gamePlayers) { gamePlayers.sortedBy { it.placement } }
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -144,6 +150,26 @@ fun DashboardGameRow(
             Column(Modifier.weight(1f)) {
                 Text(game.name ?: "Game #${game.id}", fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
                 Text(date, fontSize = 12.sp, color = CarcText3, modifier = Modifier.padding(top = 2.dp))
+                if (sortedGP.isNotEmpty()) {
+                    Spacer(Modifier.height(6.dp))
+                    Row(horizontalArrangement = Arrangement.spacedBy((-8).dp)) {
+                        sortedGP.take(5).forEach { gp ->
+                            val p = players.find { it.id == gp.playerId }
+                            Box {
+                                PlayerAvatar(
+                                    name = p?.name ?: "?",
+                                    color = gp.meepleColor,
+                                    size = 28.dp,
+                                    modifier = Modifier.border(1.5.dp, CarcBg, CircleShape)
+                                )
+                                if (gp.placement == 1) {
+                                    Text("👑", fontSize = 8.sp,
+                                        modifier = Modifier.align(Alignment.TopEnd).offset(x = 2.dp, y = (-2).dp))
+                                }
+                            }
+                        }
+                    }
+                }
             }
             Icon(Icons.Default.ChevronRight, null, tint = CarcText3)
         }
@@ -155,6 +181,7 @@ fun DashboardGameRow(
 fun HistoryScreen(
     games: List<GameEntity>,
     players: List<PlayerEntity>,
+    allGamePlayers: List<com.carcassonne.companion.data.entity.GamePlayerEntity> = emptyList(),
     sortNewestFirst: Boolean,
     onToggleSort: () -> Unit,
     onGameClick: (Int) -> Unit,
@@ -208,7 +235,14 @@ fun HistoryScreen(
             }
         } else {
             items(filtered) { game ->
-                HistoryGameCard(game, onClick = { onGameClick(game.id) }, onEdit = { onEditGame(game.id) })
+                val gps = allGamePlayers.filter { it.gameId == game.id }
+                HistoryGameCard(
+                    game = game,
+                    gamePlayers = gps,
+                    players = players,
+                    onClick = { onGameClick(game.id) },
+                    onEdit = { onEditGame(game.id) }
+                )
             }
         }
         item { Spacer(Modifier.height(72.dp)) }
@@ -216,10 +250,18 @@ fun HistoryScreen(
 }
 
 @Composable
-fun HistoryGameCard(game: GameEntity, onClick: () -> Unit, onEdit: () -> Unit = {}) {
+fun HistoryGameCard(
+    game: GameEntity,
+    gamePlayers: List<com.carcassonne.companion.data.entity.GamePlayerEntity> = emptyList(),
+    players: List<PlayerEntity> = emptyList(),
+    onClick: () -> Unit,
+    onEdit: () -> Unit = {}
+) {
     val date = remember(game.date) {
         SimpleDateFormat("MMM d, yyyy", Locale.getDefault()).format(Date(game.date))
     }
+    val sortedGP = remember(gamePlayers) { gamePlayers.sortedBy { it.placement } }
+
     Card(
         modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
         shape = RoundedCornerShape(14.dp),
@@ -249,6 +291,26 @@ fun HistoryGameCard(game: GameEntity, onClick: () -> Unit, onEdit: () -> Unit = 
                 }
                 Spacer(Modifier.height(4.dp))
                 Text(date, fontSize = 12.sp, color = CarcText3)
+                if (sortedGP.isNotEmpty()) {
+                    Spacer(Modifier.height(6.dp))
+                    Row(horizontalArrangement = Arrangement.spacedBy((-8).dp)) {
+                        sortedGP.take(6).forEach { gp ->
+                            val p = players.find { it.id == gp.playerId }
+                            Box {
+                                PlayerAvatar(
+                                    name = p?.name ?: "?",
+                                    color = gp.meepleColor,
+                                    size = 26.dp,
+                                    modifier = Modifier.border(1.5.dp, CarcBg, CircleShape)
+                                )
+                                if (gp.placement == 1) {
+                                    Text("👑", fontSize = 7.sp,
+                                        modifier = Modifier.align(Alignment.TopEnd).offset(x = 2.dp, y = (-2).dp))
+                                }
+                            }
+                        }
+                    }
+                }
             }
             IconButton(onClick = onEdit, modifier = Modifier.size(36.dp)) {
                 Text("✎", fontSize = 18.sp, color = CarcText3)
@@ -1018,7 +1080,8 @@ fun ScoreInputField(label: String, value: String, onValue: (String) -> Unit, mod
 fun MatchDetailScreen(
     gameId: Int,
     viewModel: MainViewModel,
-    players: List<PlayerEntity>
+    players: List<PlayerEntity>,
+    onEdit: () -> Unit = {}
 ) {
     var gamePlayers by remember { mutableStateOf<List<com.carcassonne.companion.data.entity.GamePlayerEntity>>(emptyList()) }
     var game by remember { mutableStateOf<GameEntity?>(null) }
@@ -1053,6 +1116,17 @@ fun MatchDetailScreen(
                     Text("📅 $date", fontSize = 13.sp, color = CarcText3, modifier = Modifier.padding(top = 4.dp))
                 }
                 StatusBadge("COMPLETED")
+                Spacer(Modifier.width(8.dp))
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(CarcCard2)
+                        .border(1.dp, CarcBorder, RoundedCornerShape(8.dp))
+                        .clickable { onEdit() }
+                        .padding(horizontal = 12.dp, vertical = 6.dp)
+                ) {
+                    Text("✎ Edit", fontSize = 13.sp, color = CarcGreen, fontWeight = FontWeight.SemiBold)
+                }
             }
             Spacer(Modifier.height(16.dp))
         }

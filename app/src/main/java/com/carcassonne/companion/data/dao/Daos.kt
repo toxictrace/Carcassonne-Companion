@@ -53,6 +53,9 @@ interface GamePlayerDao {
     @Query("SELECT * FROM game_players WHERE gameId = :gameId")
     suspend fun getPlayersForGame(gameId: Int): List<GamePlayerEntity>
 
+    @Query("SELECT * FROM game_players")
+    fun getAllGamePlayers(): Flow<List<GamePlayerEntity>>
+
     @Query("SELECT * FROM game_players WHERE playerId = :playerId ORDER BY gameId DESC")
     fun getGamesForPlayer(playerId: Int): Flow<List<GamePlayerEntity>>
 
