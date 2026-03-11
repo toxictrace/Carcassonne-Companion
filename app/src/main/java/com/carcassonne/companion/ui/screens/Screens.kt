@@ -125,13 +125,10 @@ fun DashboardGameRow(
     val date = remember(game.date) {
         SimpleDateFormat("MMM d", Locale.getDefault()).format(Date(game.date))
     }
-    // Sort by placement to show winner first
     val sortedGP = remember(gamePlayers) { gamePlayers.sortedBy { it.placement } }
 
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick),
+        modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
         shape = RoundedCornerShape(14.dp),
         colors = CardDefaults.cardColors(containerColor = CarcCard)
     ) {
@@ -152,19 +149,19 @@ fun DashboardGameRow(
                 Text(date, fontSize = 12.sp, color = CarcText3, modifier = Modifier.padding(top = 2.dp))
                 if (sortedGP.isNotEmpty()) {
                     Spacer(Modifier.height(6.dp))
-                    Row(horizontalArrangement = Arrangement.spacedBy((-8).dp)) {
+                    Row(horizontalArrangement = Arrangement.spacedBy((-6).dp)) {
                         sortedGP.take(5).forEach { gp ->
                             val p = players.find { it.id == gp.playerId }
                             Box {
-                                PlayerAvatar(
+                                CardAvatar(
                                     name = p?.name ?: "?",
-                                    color = gp.meepleColor,
-                                    size = 28.dp,
-                                    modifier = Modifier.border(1.5.dp, CarcBg, CircleShape)
+                                    meepleColor = gp.meepleColor,
+                                    size = 26.dp,
+                                    modifier = Modifier.border(1.5.dp, CarcCard, CircleShape)
                                 )
                                 if (gp.placement == 1) {
-                                    Text("👑", fontSize = 8.sp,
-                                        modifier = Modifier.align(Alignment.TopEnd).offset(x = 2.dp, y = (-2).dp))
+                                    Text("👑", fontSize = 7.sp,
+                                        modifier = Modifier.align(Alignment.TopEnd).offset(x = 2.dp, y = (-3).dp))
                                 }
                             }
                         }
@@ -274,38 +271,33 @@ fun HistoryGameCard(
         ) {
             Box(
                 modifier = Modifier
-                    .size(64.dp)
+                    .size(56.dp)
                     .clip(RoundedCornerShape(10.dp))
                     .background(CarcBg3),
                 contentAlignment = Alignment.Center
-            ) { Text("🗺️", fontSize = 28.sp) }
+            ) { Text("🗺️", fontSize = 26.sp) }
             Column(Modifier.weight(1f)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        game.name ?: "Game #${game.id}",
-                        fontSize = 15.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        modifier = Modifier.weight(1f)
-                    )
-                    StatusBadge("DONE")
-                }
-                Spacer(Modifier.height(4.dp))
-                Text(date, fontSize = 12.sp, color = CarcText3)
+                Text(
+                    game.name ?: "Game #${game.id}",
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.SemiBold
+                )
+                Text(date, fontSize = 12.sp, color = CarcText3, modifier = Modifier.padding(top = 2.dp))
                 if (sortedGP.isNotEmpty()) {
-                    Spacer(Modifier.height(6.dp))
-                    Row(horizontalArrangement = Arrangement.spacedBy((-8).dp)) {
+                    Spacer(Modifier.height(8.dp))
+                    Row(horizontalArrangement = Arrangement.spacedBy((-6).dp)) {
                         sortedGP.take(6).forEach { gp ->
                             val p = players.find { it.id == gp.playerId }
                             Box {
-                                PlayerAvatar(
+                                CardAvatar(
                                     name = p?.name ?: "?",
-                                    color = gp.meepleColor,
-                                    size = 26.dp,
-                                    modifier = Modifier.border(1.5.dp, CarcBg, CircleShape)
+                                    meepleColor = gp.meepleColor,
+                                    size = 30.dp,
+                                    modifier = Modifier.border(1.5.dp, CarcCard, CircleShape)
                                 )
                                 if (gp.placement == 1) {
-                                    Text("👑", fontSize = 7.sp,
-                                        modifier = Modifier.align(Alignment.TopEnd).offset(x = 2.dp, y = (-2).dp))
+                                    Text("👑", fontSize = 8.sp,
+                                        modifier = Modifier.align(Alignment.TopEnd).offset(x = 2.dp, y = (-3).dp))
                                 }
                             }
                         }
@@ -1115,8 +1107,6 @@ fun MatchDetailScreen(
                     Text("Match #$gameId", fontSize = 20.sp, fontWeight = FontWeight.Bold)
                     Text("📅 $date", fontSize = 13.sp, color = CarcText3, modifier = Modifier.padding(top = 4.dp))
                 }
-                StatusBadge("COMPLETED")
-                Spacer(Modifier.width(8.dp))
                 Box(
                     modifier = Modifier
                         .clip(RoundedCornerShape(8.dp))
@@ -1336,6 +1326,7 @@ fun getLevelTitle(games: Int) = when {
 fun placeSuffix(n: Int) = when (n) { 1 -> "st"; 2 -> "nd"; 3 -> "rd"; else -> "th" }
 
 // ─── Edit Game Screen ─────────────────────────────────────────────────────────
+@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
 @Composable
 fun EditGameScreen(
     gameId: Int,
@@ -1345,9 +1336,7 @@ fun EditGameScreen(
 ) {
     var game by remember { mutableStateOf<com.carcassonne.companion.data.entity.GameEntity?>(null) }
     var gamePlayers by remember { mutableStateOf<List<com.carcassonne.companion.data.entity.GamePlayerEntity>>(emptyList()) }
-    val scope = rememberCoroutineScope()
 
-    // Load existing data
     LaunchedEffect(gameId) {
         val (g, gps) = viewModel.getGameWithPlayers(gameId)
         game = g
@@ -1359,21 +1348,61 @@ fun EditGameScreen(
         return
     }
 
-    // Editable state
     var gameName by remember(game) { mutableStateOf(game?.name ?: "") }
 
-    // Date picker state
-    val cal = remember(game) { Calendar.getInstance().apply { timeInMillis = game?.date ?: System.currentTimeMillis() } }
-    var day   by remember(game) { mutableIntStateOf(cal.get(Calendar.DAY_OF_MONTH)) }
-    var month by remember(game) { mutableIntStateOf(cal.get(Calendar.MONTH) + 1) }
-    var year  by remember(game) { mutableIntStateOf(cal.get(Calendar.YEAR)) }
+    // DatePicker state
+    val initialMs = game?.date ?: System.currentTimeMillis()
+    val datePickerState = rememberDatePickerState(initialSelectedDateMillis = initialMs)
+    var showDatePicker by remember { mutableStateOf(false) }
+    val selectedDateMs = datePickerState.selectedDateMillis ?: initialMs
+    val displayDate = remember(selectedDateMs) {
+        SimpleDateFormat("d MMM yyyy", Locale.getDefault()).format(Date(selectedDateMs))
+    }
 
-    // Player scores state — map playerId -> (score, city, road, monastery, farm, color)
+    if (showDatePicker) {
+        DatePickerDialog(
+            onDismissRequest = { showDatePicker = false },
+            confirmButton = {
+                TextButton(onClick = { showDatePicker = false }) {
+                    Text("OK", color = CarcGreen)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDatePicker = false }) {
+                    Text("Cancel", color = CarcText3)
+                }
+            },
+            colors = DatePickerDefaults.colors(containerColor = CarcCard2)
+        ) {
+            DatePicker(
+                state = datePickerState,
+                colors = DatePickerDefaults.colors(
+                    containerColor = CarcCard2,
+                    titleContentColor = CarcText,
+                    headlineContentColor = CarcGreen,
+                    weekdayContentColor = CarcText3,
+                    subheadContentColor = CarcText2,
+                    navigationContentColor = CarcText,
+                    yearContentColor = CarcText,
+                    currentYearContentColor = CarcGreen,
+                    selectedYearContentColor = CarcBg,
+                    selectedYearContainerColor = CarcGreen,
+                    dayContentColor = CarcText,
+                    selectedDayContentColor = CarcBg,
+                    selectedDayContainerColor = CarcGreen,
+                    todayContentColor = CarcGreen,
+                    todayDateBorderColor = CarcGreen
+                )
+            )
+        }
+    }
+
+    // Player state
     data class EditPlayerState(
         val playerId: Int,
         val name: String,
         var color: String,
-        var score: String,
+        var total: String,   // если заполнено — используется напрямую
         var city: String,
         var road: String,
         var monastery: String,
@@ -1387,7 +1416,7 @@ fun EditGameScreen(
                 playerId = gp.playerId,
                 name = p?.name ?: "Player ${gp.playerId}",
                 color = gp.meepleColor,
-                score = gp.finalScore.toString(),
+                total = gp.finalScore.takeIf { it > 0 }?.toString() ?: "",
                 city = gp.cityPoints.takeIf { it > 0 }?.toString() ?: "",
                 road = gp.roadPoints.takeIf { it > 0 }?.toString() ?: "",
                 monastery = gp.monasteryPoints.takeIf { it > 0 }?.toString() ?: "",
@@ -1401,7 +1430,6 @@ fun EditGameScreen(
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        // Game name
         item {
             Text("GAME INFO", fontSize = 11.sp, color = CarcText3, letterSpacing = 1.sp)
             Spacer(Modifier.height(8.dp))
@@ -1417,51 +1445,27 @@ fun EditGameScreen(
             )
         }
 
-        // Date picker
         item {
             Text("DATE", fontSize = 11.sp, color = CarcText3, letterSpacing = 1.sp)
             Spacer(Modifier.height(8.dp))
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedTextField(
-                    value = day.toString(),
-                    onValueChange = { day = it.toIntOrNull()?.coerceIn(1, 31) ?: day },
-                    label = { Text("Day", color = CarcText3, fontSize = 12.sp) },
-                    modifier = Modifier.weight(1f),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    singleLine = true,
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = CarcGreenDeep, unfocusedBorderColor = CarcBorder,
-                        focusedTextColor = CarcText, unfocusedTextColor = CarcText, cursorColor = CarcGreen
-                    )
-                )
-                OutlinedTextField(
-                    value = month.toString(),
-                    onValueChange = { month = it.toIntOrNull()?.coerceIn(1, 12) ?: month },
-                    label = { Text("Month", color = CarcText3, fontSize = 12.sp) },
-                    modifier = Modifier.weight(1f),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    singleLine = true,
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = CarcGreenDeep, unfocusedBorderColor = CarcBorder,
-                        focusedTextColor = CarcText, unfocusedTextColor = CarcText, cursorColor = CarcGreen
-                    )
-                )
-                OutlinedTextField(
-                    value = year.toString(),
-                    onValueChange = { year = it.toIntOrNull() ?: year },
-                    label = { Text("Year", color = CarcText3, fontSize = 12.sp) },
-                    modifier = Modifier.weight(1.5f),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    singleLine = true,
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = CarcGreenDeep, unfocusedBorderColor = CarcBorder,
-                        focusedTextColor = CarcText, unfocusedTextColor = CarcText, cursorColor = CarcGreen
-                    )
-                )
+            Card(
+                modifier = Modifier.fillMaxWidth().clickable { showDatePicker = true },
+                shape = RoundedCornerShape(12.dp),
+                colors = CardDefaults.cardColors(containerColor = CarcCard),
+                border = androidx.compose.foundation.BorderStroke(1.dp, CarcBorder)
+            ) {
+                Row(
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text("📅", fontSize = 18.sp)
+                    Spacer(Modifier.width(12.dp))
+                    Text(displayDate, fontSize = 15.sp, color = CarcText, modifier = Modifier.weight(1f))
+                    Text("›", fontSize = 20.sp, color = CarcGreen)
+                }
             }
         }
 
-        // Players
         item {
             Text("PLAYERS & SCORES", fontSize = 11.sp, color = CarcText3, letterSpacing = 1.sp)
         }
@@ -1470,8 +1474,10 @@ fun EditGameScreen(
             val state = editPlayers[i].value
             val takenColors = editPlayers
                 .filterIndexed { idx, _ -> idx != i }
-                .map { it.value.color }
-                .toSet()
+                .map { it.value.color }.toSet()
+            val catSum = (state.city.toIntOrNull() ?: 0) + (state.road.toIntOrNull() ?: 0) +
+                         (state.monastery.toIntOrNull() ?: 0) + (state.farm.toIntOrNull() ?: 0)
+            val displayTotal = state.total.toIntOrNull() ?: catSum
 
             Card(
                 shape = RoundedCornerShape(14.dp),
@@ -1482,11 +1488,7 @@ fun EditGameScreen(
                         PlayerAvatar(state.name, state.color)
                         Spacer(Modifier.width(10.dp))
                         Text(state.name, fontSize = 15.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
-                        Text(
-                            "Total: ${(state.city.toIntOrNull() ?: 0) + (state.road.toIntOrNull() ?: 0) +
-                                (state.monastery.toIntOrNull() ?: 0) + (state.farm.toIntOrNull() ?: 0)}",
-                            fontSize = 13.sp, color = CarcGreen, fontWeight = FontWeight.Bold
-                        )
+                        Text("$displayTotal pts", fontSize = 15.sp, color = CarcGreen, fontWeight = FontWeight.Bold)
                     }
                     Spacer(Modifier.height(10.dp))
                     Text("MEEPLE COLOR", fontSize = 10.sp, color = CarcText3, letterSpacing = 0.5.sp)
@@ -1496,15 +1498,28 @@ fun EditGameScreen(
                         onSelect = { editPlayers[i].value = state.copy(color = it) },
                         disabledColors = takenColors
                     )
-                    Spacer(Modifier.height(10.dp))
+                    Spacer(Modifier.height(12.dp))
+                    // Total override
+                    ScoreInputField(
+                        "🏅 Total (override)",
+                        state.total,
+                        { editPlayers[i].value = state.copy(total = it) },
+                        Modifier.fillMaxWidth()
+                    )
+                    Spacer(Modifier.height(4.dp))
+                    Text(
+                        "Или введите по категориям:",
+                        fontSize = 11.sp, color = CarcText3,
+                        modifier = Modifier.padding(vertical = 4.dp)
+                    )
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        ScoreInputField("🏰 City", state.city, { editPlayers[i].value = state.copy(city = it) }, Modifier.weight(1f))
-                        ScoreInputField("🛤️ Road", state.road, { editPlayers[i].value = state.copy(road = it) }, Modifier.weight(1f))
+                        ScoreInputField("🏰 City", state.city, { editPlayers[i].value = state.copy(city = it, total = "") }, Modifier.weight(1f))
+                        ScoreInputField("🛤️ Road", state.road, { editPlayers[i].value = state.copy(road = it, total = "") }, Modifier.weight(1f))
                     }
                     Spacer(Modifier.height(8.dp))
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        ScoreInputField("⛪ Mon.", state.monastery, { editPlayers[i].value = state.copy(monastery = it) }, Modifier.weight(1f))
-                        ScoreInputField("🌾 Farm", state.farm, { editPlayers[i].value = state.copy(farm = it) }, Modifier.weight(1f))
+                        ScoreInputField("⛪ Mon.", state.monastery, { editPlayers[i].value = state.copy(monastery = it, total = "") }, Modifier.weight(1f))
+                        ScoreInputField("🌾 Farm", state.farm, { editPlayers[i].value = state.copy(farm = it, total = "") }, Modifier.weight(1f))
                     }
                 }
             }
@@ -1513,20 +1528,17 @@ fun EditGameScreen(
         item {
             Spacer(Modifier.height(8.dp))
             PrimaryButton("✓  SAVE CHANGES", onClick = {
-                val newCal = Calendar.getInstance().apply {
-                    set(year, month - 1, day, 12, 0, 0)
-                    set(Calendar.MILLISECOND, 0)
-                }
                 val results = editPlayers.map { ep ->
                     val s = ep.value
                     val city = s.city.toIntOrNull() ?: 0
                     val road = s.road.toIntOrNull() ?: 0
                     val mon  = s.monastery.toIntOrNull() ?: 0
                     val farm = s.farm.toIntOrNull() ?: 0
+                    val finalScore = s.total.toIntOrNull() ?: (city + road + mon + farm)
                     com.carcassonne.companion.data.repository.PlayerResult(
                         playerId = s.playerId,
                         meepleColor = s.color,
-                        finalScore = city + road + mon + farm,
+                        finalScore = finalScore,
                         cityPoints = city,
                         roadPoints = road,
                         monasteryPoints = mon,
@@ -1536,7 +1548,7 @@ fun EditGameScreen(
                 viewModel.updateGame(
                     gameId = gameId,
                     name = gameName.ifBlank { null },
-                    date = newCal.timeInMillis,
+                    date = selectedDateMs,
                     playerResults = results,
                     onDone = onDone
                 )

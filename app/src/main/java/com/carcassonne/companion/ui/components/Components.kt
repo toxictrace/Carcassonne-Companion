@@ -19,7 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.carcassonne.companion.ui.theme.*
 
-// ─── Player Avatar ───────────────────────────────────────────────────────────
+// ─── Player Avatar (в профиле/таблице) ───────────────────────────────────────
 @Composable
 fun PlayerAvatar(
     name: String,
@@ -41,6 +41,44 @@ fun PlayerAvatar(
             color = c,
             fontSize = (size.value * 0.45f).sp,
             fontWeight = FontWeight.Bold
+        )
+    }
+}
+
+// ─── Card Avatar (на карточках игр — нейтральный фон + цветная точка мипла) ──
+@Composable
+fun CardAvatar(
+    name: String,
+    meepleColor: String,
+    size: Dp = 28.dp,
+    modifier: Modifier = Modifier
+) {
+    val dotSize = (size.value * 0.32f).dp
+    Box(modifier = modifier.size(size)) {
+        // Нейтральный аватар
+        Box(
+            modifier = Modifier
+                .size(size)
+                .clip(CircleShape)
+                .background(CarcBg3)
+                .border(1.5.dp, CarcBorder, CircleShape),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = name.firstOrNull()?.uppercaseChar()?.toString() ?: "?",
+                color = CarcText2,
+                fontSize = (size.value * 0.42f).sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
+        // Точка цвета мипла снизу справа
+        Box(
+            modifier = Modifier
+                .size(dotSize)
+                .clip(CircleShape)
+                .background(com.carcassonne.companion.ui.theme.meepleColor(meepleColor))
+                .border(1.dp, CarcBg, CircleShape)
+                .align(Alignment.BottomEnd)
         )
     }
 }
