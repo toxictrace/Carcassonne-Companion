@@ -36,9 +36,11 @@ object Routes {
     const val LIVE_GAME      = "live_game"
     const val MATCH_DETAIL   = "match_detail/{gameId}"
     const val PLAYER_PROFILE = "player_profile/{playerId}"
+    const val EDIT_GAME      = "edit_game/{gameId}"
 
     fun matchDetail(id: Int) = "match_detail/$id"
     fun playerProfile(id: Int) = "player_profile/$id"
+    fun editGame(id: Int) = "edit_game/$id"
 }
 
 data class BottomNavItem(val route: String, val icon: ImageVector, val label: String)
@@ -74,10 +76,11 @@ fun CarcassonneApp() {
     val snackbarHostState = remember { SnackbarHostState() }
 
     val players by vm.players.collectAsState()
-    val games   by vm.games.collectAsState()
+    val games   by vm.sortedGames.collectAsState()
     val stats   by vm.globalStats.collectAsState()
     val pStats  by vm.playerStats.collectAsState()
     val liveGame by vm.liveGame.collectAsState()
+    val sortNewestFirst by vm.sortNewestFirst.collectAsState()
 
     val currentBackStack by navController.currentBackStackEntryAsState()
     val currentRoute = currentBackStack?.destination?.route
@@ -240,11 +243,17 @@ fun CarcassonneApp() {
                     },
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = CarcBg)
                 )
-                else -> if (currentRoute?.startsWith("match_detail") == true || currentRoute?.startsWith("player_profile") == true) {
+                else -> if (currentRoute?.startsWith("match_detail") == true ||
+                           currentRoute?.startsWith("player_profile") == true ||
+                           currentRoute?.startsWith("edit_game") == true) {
                     TopAppBar(
                         title = {
                             Text(
-                                if (currentRoute.startsWith("match_detail")) "Match Details" else "Profile",
+                                when {
+                                    currentRoute.startsWith("match_detail") -> "Match Details"
+                                    currentRoute.startsWith("edit_game")    -> "Edit Game"
+                                    else -> "Profile"
+                                },
                                 fontWeight = FontWeight.Bold, color = CarcText
                             )
                         },
@@ -267,7 +276,10 @@ fun CarcassonneApp() {
                             selected = selected,
                             onClick = {
                                 navController.navigate(item.route) {
-                                    popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                                    popUpTo(navController.graph.findStartDestination().id) {
+                                        saveState = true
+                                        inclusive = false
+                                    }
                                     launchSingleTop = true
                                     restoreState = true
                                 }
@@ -309,7 +321,15 @@ fun CarcassonneApp() {
                     stats = stats,
                     games = games,
                     players = players,
-                    onViewAll = { navController.navigate(Routes.HISTORY) },
+                    sortNewestFirst = sortNewestFirst,
+                    onToggleSort = { vm.toggleSortOrder() },
+                    onViewAll = {
+                        navController.navigate(Routes.HISTORY) {
+                            popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    },
                     onGameClick = { navController.navigate(Routes.matchDetail(it)) }
                 )
             }
@@ -317,7 +337,10 @@ fun CarcassonneApp() {
                 HistoryScreen(
                     games = games,
                     players = players,
-                    onGameClick = { navController.navigate(Routes.matchDetail(it)) }
+                    sortNewestFirst = sortNewestFirst,
+                    onToggleSort = { vm.toggleSortOrder() },
+                    onGameClick = { navController.navigate(Routes.matchDetail(it)) },
+                    onEditGame = { navController.navigate(Routes.editGame(it)) }
                 )
             }
             composable(Routes.PLAYERS) {
@@ -388,6 +411,15 @@ fun CarcassonneApp() {
             composable(Routes.PLAYER_PROFILE) { back ->
                 val playerId = back.arguments?.getString("playerId")?.toIntOrNull() ?: return@composable
                 PlayerProfileScreen(playerId = playerId, viewModel = vm)
+            }
+            composable(Routes.EDIT_GAME) { back ->
+                val gameId = back.arguments?.getString("gameId")?.toIntOrNull() ?: return@composable
+                EditGameScreen(
+                    gameId = gameId,
+                    viewModel = vm,
+                    allPlayers = players,
+                    onDone = { navController.popBackStack() }
+                )
             }
         }
     }

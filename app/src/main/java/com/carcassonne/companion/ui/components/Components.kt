@@ -229,26 +229,32 @@ fun StatusBadge(text: String, color: Color = CarcGreen) {
 @Composable
 fun MeepleColorPicker(
     selected: String,
-    onSelect: (String) -> Unit
+    onSelect: (String) -> Unit,
+    disabledColors: Set<String> = emptySet()
 ) {
     val colors = listOf("red", "blue", "green", "yellow", "black", "gray")
     Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
         colors.forEach { c ->
             val isSelected = c == selected
+            val isDisabled = c in disabledColors && !isSelected
             Box(
                 modifier = Modifier
                     .size(36.dp)
                     .clip(CircleShape)
-                    .background(meepleColor(c))
+                    .background(if (isDisabled) meepleColor(c).copy(alpha = 0.25f) else meepleColor(c))
                     .then(
                         if (isSelected) Modifier.border(3.dp, Color.White, CircleShape)
                         else Modifier.border(2.dp, Color.Transparent, CircleShape)
                     )
-                    .clickable { onSelect(c) },
+                    .then(
+                        if (!isDisabled) Modifier.clickable { onSelect(c) } else Modifier
+                    ),
                 contentAlignment = Alignment.Center
             ) {
                 if (isSelected) {
                     Text("✓", color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                } else if (isDisabled) {
+                    Text("✕", color = Color.White.copy(alpha = 0.5f), fontSize = 12.sp)
                 }
             }
         }

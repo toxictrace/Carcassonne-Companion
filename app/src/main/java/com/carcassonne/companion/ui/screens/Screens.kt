@@ -35,6 +35,8 @@ fun DashboardScreen(
     stats: GlobalStats,
     games: List<GameEntity>,
     players: List<PlayerEntity>,
+    sortNewestFirst: Boolean,
+    onToggleSort: () -> Unit,
     onViewAll: () -> Unit,
     onGameClick: (Int) -> Unit
 ) {
@@ -65,7 +67,22 @@ fun DashboardScreen(
             }
         }
         item {
-            SectionHeader("Recent Activity", "View All", onViewAll)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text("Recent Activity", fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    // Sort toggle
+                    IconButton(onClick = onToggleSort, modifier = Modifier.size(32.dp)) {
+                        Text(if (sortNewestFirst) "↓" else "↑", fontSize = 18.sp, color = CarcGreen)
+                    }
+                    TextButton(onClick = onViewAll) {
+                        Text("View All", fontSize = 13.sp, color = CarcGreen)
+                    }
+                }
+            }
             Spacer(Modifier.height(12.dp))
         }
 
@@ -138,12 +155,15 @@ fun DashboardGameRow(
 fun HistoryScreen(
     games: List<GameEntity>,
     players: List<PlayerEntity>,
-    onGameClick: (Int) -> Unit
+    sortNewestFirst: Boolean,
+    onToggleSort: () -> Unit,
+    onGameClick: (Int) -> Unit,
+    onEditGame: (Int) -> Unit
 ) {
     var query by remember { mutableStateOf("") }
     val filtered = remember(games, query) {
         if (query.isBlank()) games
-        else games.filter { (it.name ?: "").contains(query, ignoreCase = true) }
+        else games.filter { (it.name ?: "Game #${it.id}").contains(query, ignoreCase = true) }
     }
 
     LazyColumn(
@@ -158,6 +178,11 @@ fun HistoryScreen(
                 modifier = Modifier.fillMaxWidth(),
                 placeholder = { Text("Search games...", color = CarcText3) },
                 leadingIcon = { Icon(Icons.Default.Search, null, tint = CarcText3) },
+                trailingIcon = {
+                    IconButton(onClick = onToggleSort) {
+                        Text(if (sortNewestFirst) "↓" else "↑", fontSize = 18.sp, color = CarcGreen)
+                    }
+                },
                 shape = RoundedCornerShape(50.dp),
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = CarcGreenDeep,
@@ -183,7 +208,7 @@ fun HistoryScreen(
             }
         } else {
             items(filtered) { game ->
-                HistoryGameCard(game, onClick = { onGameClick(game.id) })
+                HistoryGameCard(game, onClick = { onGameClick(game.id) }, onEdit = { onEditGame(game.id) })
             }
         }
         item { Spacer(Modifier.height(72.dp)) }
@@ -191,7 +216,7 @@ fun HistoryScreen(
 }
 
 @Composable
-fun HistoryGameCard(game: GameEntity, onClick: () -> Unit) {
+fun HistoryGameCard(game: GameEntity, onClick: () -> Unit, onEdit: () -> Unit = {}) {
     val date = remember(game.date) {
         SimpleDateFormat("MMM d, yyyy", Locale.getDefault()).format(Date(game.date))
     }
@@ -224,6 +249,9 @@ fun HistoryGameCard(game: GameEntity, onClick: () -> Unit) {
                 }
                 Spacer(Modifier.height(4.dp))
                 Text(date, fontSize = 12.sp, color = CarcText3)
+            }
+            IconButton(onClick = onEdit, modifier = Modifier.size(36.dp)) {
+                Text("✎", fontSize = 18.sp, color = CarcText3)
             }
         }
     }
@@ -687,6 +715,11 @@ fun NewGameScreen(
             items(players) { player ->
                 val isSelected = player.id in selected
                 val assignedColor = liveGame.selectedPlayers.find { it.playerId == player.id }?.meepleColor ?: player.meepleColor
+                // Colors taken by OTHER selected players
+                val takenColors = liveGame.selectedPlayers
+                    .filter { it.playerId != player.id }
+                    .map { it.meepleColor }
+                    .toSet()
 
                 Card(
                     modifier = Modifier.fillMaxWidth(),
@@ -717,7 +750,11 @@ fun NewGameScreen(
                             Spacer(Modifier.height(10.dp))
                             Text("SELECT MEEPLE COLOR", fontSize = 11.sp, color = CarcText3, letterSpacing = 0.5.sp)
                             Spacer(Modifier.height(8.dp))
-                            MeepleColorPicker(selected = assignedColor, onSelect = { onSetPlayerColor(player.id, it) })
+                            MeepleColorPicker(
+                                selected = assignedColor,
+                                onSelect = { onSetPlayerColor(player.id, it) },
+                                disabledColors = takenColors
+                            )
                         }
                     }
                 }
@@ -1223,3 +1260,214 @@ fun getLevelTitle(games: Int) = when {
 }
 
 fun placeSuffix(n: Int) = when (n) { 1 -> "st"; 2 -> "nd"; 3 -> "rd"; else -> "th" }
+
+// ─── Edit Game Screen ─────────────────────────────────────────────────────────
+@Composable
+fun EditGameScreen(
+    gameId: Int,
+    viewModel: MainViewModel,
+    allPlayers: List<PlayerEntity>,
+    onDone: () -> Unit
+) {
+    var game by remember { mutableStateOf<com.carcassonne.companion.data.entity.GameEntity?>(null) }
+    var gamePlayers by remember { mutableStateOf<List<com.carcassonne.companion.data.entity.GamePlayerEntity>>(emptyList()) }
+    val scope = rememberCoroutineScope()
+
+    // Load existing data
+    LaunchedEffect(gameId) {
+        val (g, gps) = viewModel.getGameWithPlayers(gameId)
+        game = g
+        gamePlayers = gps
+    }
+
+    if (game == null) {
+        Box(Modifier.fillMaxSize(), Alignment.Center) { CircularProgressIndicator(color = CarcGreen) }
+        return
+    }
+
+    // Editable state
+    var gameName by remember(game) { mutableStateOf(game?.name ?: "") }
+
+    // Date picker state
+    val cal = remember(game) { Calendar.getInstance().apply { timeInMillis = game?.date ?: System.currentTimeMillis() } }
+    var day   by remember(game) { mutableIntStateOf(cal.get(Calendar.DAY_OF_MONTH)) }
+    var month by remember(game) { mutableIntStateOf(cal.get(Calendar.MONTH) + 1) }
+    var year  by remember(game) { mutableIntStateOf(cal.get(Calendar.YEAR)) }
+
+    // Player scores state — map playerId -> (score, city, road, monastery, farm, color)
+    data class EditPlayerState(
+        val playerId: Int,
+        val name: String,
+        var color: String,
+        var score: String,
+        var city: String,
+        var road: String,
+        var monastery: String,
+        var farm: String
+    )
+
+    val editPlayers = remember(gamePlayers, allPlayers) {
+        gamePlayers.map { gp ->
+            val p = allPlayers.find { it.id == gp.playerId }
+            mutableStateOf(EditPlayerState(
+                playerId = gp.playerId,
+                name = p?.name ?: "Player ${gp.playerId}",
+                color = gp.meepleColor,
+                score = gp.finalScore.toString(),
+                city = gp.cityPoints.takeIf { it > 0 }?.toString() ?: "",
+                road = gp.roadPoints.takeIf { it > 0 }?.toString() ?: "",
+                monastery = gp.monasteryPoints.takeIf { it > 0 }?.toString() ?: "",
+                farm = gp.farmPoints.takeIf { it > 0 }?.toString() ?: ""
+            ))
+        }
+    }
+
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        // Game name
+        item {
+            Text("GAME INFO", fontSize = 11.sp, color = CarcText3, letterSpacing = 1.sp)
+            Spacer(Modifier.height(8.dp))
+            OutlinedTextField(
+                value = gameName,
+                onValueChange = { gameName = it },
+                label = { Text("Game Name", color = CarcText3) },
+                modifier = Modifier.fillMaxWidth(),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = CarcGreenDeep, unfocusedBorderColor = CarcBorder,
+                    focusedTextColor = CarcText, unfocusedTextColor = CarcText, cursorColor = CarcGreen
+                )
+            )
+        }
+
+        // Date picker
+        item {
+            Text("DATE", fontSize = 11.sp, color = CarcText3, letterSpacing = 1.sp)
+            Spacer(Modifier.height(8.dp))
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedTextField(
+                    value = day.toString(),
+                    onValueChange = { day = it.toIntOrNull()?.coerceIn(1, 31) ?: day },
+                    label = { Text("Day", color = CarcText3, fontSize = 12.sp) },
+                    modifier = Modifier.weight(1f),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    singleLine = true,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = CarcGreenDeep, unfocusedBorderColor = CarcBorder,
+                        focusedTextColor = CarcText, unfocusedTextColor = CarcText, cursorColor = CarcGreen
+                    )
+                )
+                OutlinedTextField(
+                    value = month.toString(),
+                    onValueChange = { month = it.toIntOrNull()?.coerceIn(1, 12) ?: month },
+                    label = { Text("Month", color = CarcText3, fontSize = 12.sp) },
+                    modifier = Modifier.weight(1f),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    singleLine = true,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = CarcGreenDeep, unfocusedBorderColor = CarcBorder,
+                        focusedTextColor = CarcText, unfocusedTextColor = CarcText, cursorColor = CarcGreen
+                    )
+                )
+                OutlinedTextField(
+                    value = year.toString(),
+                    onValueChange = { year = it.toIntOrNull() ?: year },
+                    label = { Text("Year", color = CarcText3, fontSize = 12.sp) },
+                    modifier = Modifier.weight(1.5f),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    singleLine = true,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = CarcGreenDeep, unfocusedBorderColor = CarcBorder,
+                        focusedTextColor = CarcText, unfocusedTextColor = CarcText, cursorColor = CarcGreen
+                    )
+                )
+            }
+        }
+
+        // Players
+        item {
+            Text("PLAYERS & SCORES", fontSize = 11.sp, color = CarcText3, letterSpacing = 1.sp)
+        }
+
+        items(editPlayers.size) { i ->
+            val state = editPlayers[i].value
+            val takenColors = editPlayers
+                .filterIndexed { idx, _ -> idx != i }
+                .map { it.value.color }
+                .toSet()
+
+            Card(
+                shape = RoundedCornerShape(14.dp),
+                colors = CardDefaults.cardColors(containerColor = CarcCard)
+            ) {
+                Column(modifier = Modifier.padding(14.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        PlayerAvatar(state.name, state.color)
+                        Spacer(Modifier.width(10.dp))
+                        Text(state.name, fontSize = 15.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
+                        Text(
+                            "Total: ${(state.city.toIntOrNull() ?: 0) + (state.road.toIntOrNull() ?: 0) +
+                                (state.monastery.toIntOrNull() ?: 0) + (state.farm.toIntOrNull() ?: 0)}",
+                            fontSize = 13.sp, color = CarcGreen, fontWeight = FontWeight.Bold
+                        )
+                    }
+                    Spacer(Modifier.height(10.dp))
+                    Text("MEEPLE COLOR", fontSize = 10.sp, color = CarcText3, letterSpacing = 0.5.sp)
+                    Spacer(Modifier.height(6.dp))
+                    MeepleColorPicker(
+                        selected = state.color,
+                        onSelect = { editPlayers[i].value = state.copy(color = it) },
+                        disabledColors = takenColors
+                    )
+                    Spacer(Modifier.height(10.dp))
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        ScoreInputField("🏰 City", state.city, { editPlayers[i].value = state.copy(city = it) }, Modifier.weight(1f))
+                        ScoreInputField("🛤️ Road", state.road, { editPlayers[i].value = state.copy(road = it) }, Modifier.weight(1f))
+                    }
+                    Spacer(Modifier.height(8.dp))
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        ScoreInputField("⛪ Mon.", state.monastery, { editPlayers[i].value = state.copy(monastery = it) }, Modifier.weight(1f))
+                        ScoreInputField("🌾 Farm", state.farm, { editPlayers[i].value = state.copy(farm = it) }, Modifier.weight(1f))
+                    }
+                }
+            }
+        }
+
+        item {
+            Spacer(Modifier.height(8.dp))
+            PrimaryButton("✓  SAVE CHANGES", onClick = {
+                val newCal = Calendar.getInstance().apply {
+                    set(year, month - 1, day, 12, 0, 0)
+                    set(Calendar.MILLISECOND, 0)
+                }
+                val results = editPlayers.map { ep ->
+                    val s = ep.value
+                    val city = s.city.toIntOrNull() ?: 0
+                    val road = s.road.toIntOrNull() ?: 0
+                    val mon  = s.monastery.toIntOrNull() ?: 0
+                    val farm = s.farm.toIntOrNull() ?: 0
+                    com.carcassonne.companion.data.repository.PlayerResult(
+                        playerId = s.playerId,
+                        meepleColor = s.color,
+                        finalScore = city + road + mon + farm,
+                        cityPoints = city,
+                        roadPoints = road,
+                        monasteryPoints = mon,
+                        farmPoints = farm
+                    )
+                }
+                viewModel.updateGame(
+                    gameId = gameId,
+                    name = gameName.ifBlank { null },
+                    date = newCal.timeInMillis,
+                    playerResults = results,
+                    onDone = onDone
+                )
+            })
+            Spacer(Modifier.height(72.dp))
+        }
+    }
+}

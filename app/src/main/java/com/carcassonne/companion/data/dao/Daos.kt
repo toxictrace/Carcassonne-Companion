@@ -38,6 +38,9 @@ interface GameDao {
     @Insert
     suspend fun insertGame(game: GameEntity): Long
 
+    @Update
+    suspend fun updateGame(game: GameEntity)
+
     @Query("SELECT COUNT(*) FROM games")
     suspend fun getGameCount(): Int
 
@@ -86,6 +89,9 @@ interface GamePlayerDao {
 
     @Query("DELETE FROM game_players")
     suspend fun deleteAll()
+
+    @Query("DELETE FROM game_players WHERE gameId = :gameId")
+    suspend fun deleteGamePlayers(gameId: Int)
 }
 
 data class WinCount(val playerId: Int, val wins: Int)

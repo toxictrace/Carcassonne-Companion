@@ -236,8 +236,28 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }.filter { it.gamesPlayed > 0 }.sortedByDescending { it.winRate }
     }
 
-    // ─── Settings ───────────────────────────────────────────────
-    fun clearAllData() = viewModelScope.launch {
+    // ─── Game sort order ─────────────────────────────────────────
+    private val _sortNewestFirst = MutableStateFlow(true)
+    val sortNewestFirst: StateFlow<Boolean> = _sortNewestFirst
+
+    fun toggleSortOrder() { _sortNewestFirst.value = !_sortNewestFirst.value }
+
+    val sortedGames: StateFlow<List<GameEntity>> = combine(games, _sortNewestFirst) { g, newest ->
+        if (newest) g.sortedByDescending { it.date } else g.sortedBy { it.date }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    // ─── Update existing game ────────────────────────────────────
+    fun updateGame(
+        gameId: Int,
+        name: String?,
+        date: Long,
+        playerResults: List<PlayerResult>,
+        onDone: () -> Unit = {}
+    ) = viewModelScope.launch {
+        repo.updateGame(gameId, name, date, playerResults)
+        _message.emit("Game updated!")
+        onDone()
+    }
         repo.clearAll()
         _message.emit("All records cleared")
     }

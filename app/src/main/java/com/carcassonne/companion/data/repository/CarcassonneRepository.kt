@@ -76,6 +76,32 @@ class CarcassonneRepository(
         gamePlayerDao.deleteAll()
         gameDao.deleteAllGames()
     }
+
+    suspend fun updateGame(
+        gameId: Int,
+        name: String?,
+        date: Long,
+        playerResults: List<PlayerResult>
+    ) {
+        val existing = gameDao.getGameById(gameId) ?: return
+        gameDao.updateGame(existing.copy(name = name, date = date))
+        gamePlayerDao.deleteGamePlayers(gameId)
+        val sorted = playerResults.sortedByDescending { it.finalScore }
+        val gamePlayers = sorted.mapIndexed { index, result ->
+            GamePlayerEntity(
+                gameId = gameId,
+                playerId = result.playerId,
+                meepleColor = result.meepleColor,
+                finalScore = result.finalScore,
+                cityPoints = result.cityPoints,
+                roadPoints = result.roadPoints,
+                monasteryPoints = result.monasteryPoints,
+                farmPoints = result.farmPoints,
+                placement = index + 1
+            )
+        }
+        gamePlayerDao.insertGamePlayers(gamePlayers)
+    }
 }
 
 data class PlayerResult(
