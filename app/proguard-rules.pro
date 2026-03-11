@@ -1,0 +1,2 @@
+-keep class com.carcassonne.companion.data.entity.** { *; }
+-keepattributes *Annotation*
