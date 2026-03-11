@@ -258,6 +258,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _message.emit("Game updated!")
         onDone()
     }
+    fun clearAllData() = viewModelScope.launch {
         repo.clearAll()
         _message.emit("All records cleared")
     }
