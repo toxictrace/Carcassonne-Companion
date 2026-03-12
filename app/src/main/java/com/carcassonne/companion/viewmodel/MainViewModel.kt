@@ -48,8 +48,8 @@ data class LivePlayerState(
 
 data class LiveGameState(
     val selectedPlayers: List<LivePlayerState> = emptyList(),
-    val expansions: Set<String> = setOf("inns"),
-    val riverLayout: Boolean = true,
+    val expansions: Set<String> = emptySet(),   // всё выключено по умолчанию
+    val riverLayout: Boolean = false,           // выключено по умолчанию
     val timedTurns: Boolean = false,
     val startTimeMs: Long = 0L,
     val isActive: Boolean = false
@@ -129,6 +129,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     // ─── Live Game Setup ────────────────────────────────────────
     fun initLiveGame(players: List<PlayerEntity>, playerColors: Map<Int, String>) {
+        // Сохраняем текущие настройки если игра уже настраивается (isActive=false)
+        val current = _liveGame.value
         _liveGame.value = LiveGameState(
             selectedPlayers = players.map { p ->
                 LivePlayerState(
@@ -138,6 +140,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     avatarPath = p.avatarPath
                 )
             },
+            expansions = current.expansions,      // сохраняем выбранные дополнения
+            riverLayout = current.riverLayout,    // сохраняем River Layout
+            timedTurns = current.timedTurns,      // сохраняем Timed Turns
             startTimeMs = System.currentTimeMillis(),
             isActive = true
         )

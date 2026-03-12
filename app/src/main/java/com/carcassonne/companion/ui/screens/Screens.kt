@@ -126,7 +126,7 @@ fun DashboardGameRow(
     onClick: () -> Unit
 ) {
     val date = remember(game.date) {
-        SimpleDateFormat("MMM d", Locale.getDefault()).format(Date(game.date))
+        SimpleDateFormat("MMM d, yyyy", Locale.getDefault()).format(Date(game.date))
     }
     val sortedGP = remember(gamePlayers) { gamePlayers.sortedBy { it.placement } }
 
@@ -1071,13 +1071,19 @@ fun AddObjectSheet(
     androidx.compose.material3.ModalBottomSheet(
         onDismissRequest = onDismiss,
         containerColor = CarcCard2,
+        sheetState = androidx.compose.material3.rememberModalBottomSheetState(skipPartiallyExpanded = true),
         dragHandle = {
             Box(Modifier.fillMaxWidth().padding(top = 12.dp, bottom = 4.dp), Alignment.Center) {
                 Box(Modifier.size(36.dp, 4.dp).clip(RoundedCornerShape(2.dp)).background(CarcBorder))
             }
         }
     ) {
-        Column(Modifier.padding(horizontal = 20.dp).padding(bottom = 32.dp)) {
+        Column(
+            Modifier
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 20.dp)
+                .padding(bottom = 32.dp)
+        ) {
             // Header
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Box(Modifier.size(10.dp).clip(CircleShape).background(accent))
