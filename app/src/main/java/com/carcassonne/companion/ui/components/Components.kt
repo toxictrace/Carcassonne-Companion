@@ -38,7 +38,8 @@ fun PlayerAvatar(
 
     val bitmap: ImageBitmap? = remember(avatarPath) {
         if (avatarPath != null && java.io.File(avatarPath).exists()) {
-            BitmapFactory.decodeFile(avatarPath)?.asImageBitmap()
+            val bmp = BitmapFactory.decodeFile(avatarPath)
+            bmp?.asImageBitmap()
         } else null
     }
 
