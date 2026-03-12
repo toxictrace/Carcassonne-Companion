@@ -1284,16 +1284,12 @@ fun MatchDetailScreen(
                     border = BorderStroke(1.dp, CarcGreenDeep)
                 ) {
                     Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-                        // Нейтральный аватар
-                        Box(
-                            modifier = Modifier.size(52.dp).clip(CircleShape).background(CarcBg3).border(2.dp, meepleColor(winner.meepleColor), CircleShape),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                p?.name?.firstOrNull()?.uppercaseChar()?.toString() ?: "?",
-                                fontSize = 22.sp, fontWeight = FontWeight.Bold, color = CarcText
-                            )
-                        }
+                        PlayerAvatar(
+                            name = p?.name ?: "?",
+                            color = winner.meepleColor,
+                            size = 52.dp,
+                            avatarPath = p?.avatarPath
+                        )
                         Spacer(Modifier.width(14.dp))
                         Column(Modifier.weight(1f)) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -1322,16 +1318,12 @@ fun MatchDetailScreen(
                 Row(modifier = Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
                     RankBadge(gp.placement)
                     Spacer(Modifier.width(10.dp))
-                    // Нейтральный аватар с окантовкой цвета мипла
-                    Box(
-                        modifier = Modifier.size(40.dp).clip(CircleShape).background(CarcBg3).border(2.dp, meepleColor(gp.meepleColor), CircleShape),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            p?.name?.firstOrNull()?.uppercaseChar()?.toString() ?: "?",
-                            fontSize = 16.sp, fontWeight = FontWeight.Bold, color = CarcText
-                        )
-                    }
+                    PlayerAvatar(
+                        name = p?.name ?: "?",
+                        color = gp.meepleColor,
+                        size = 40.dp,
+                        avatarPath = p?.avatarPath
+                    )
                     Spacer(Modifier.width(10.dp))
                     Column(Modifier.weight(1f)) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
