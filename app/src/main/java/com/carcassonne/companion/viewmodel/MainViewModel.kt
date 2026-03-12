@@ -133,6 +133,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _message.emit("Game deleted")
     }
 
+    fun updateGamePhoto(gameId: Int, path: String?) = viewModelScope.launch {
+        repo.updateGamePhoto(gameId, path)
+    }
+
+    // Pending photo — set before game is saved, applied after saveGame
+    private val _pendingGamePhoto = MutableStateFlow<String?>(null)
+    val pendingGamePhoto: StateFlow<String?> = _pendingGamePhoto.asStateFlow()
+
+    fun setPendingGamePhoto(path: String?) { _pendingGamePhoto.value = path }
+    fun clearPendingGamePhoto() { _pendingGamePhoto.value = null }
+
     // ─── Live Game Setup ────────────────────────────────────────
     fun initLiveGame(players: List<PlayerEntity>, playerColors: Map<Int, String>) {
         // Сохраняем текущие настройки если игра уже настраивается (isActive=false)
@@ -269,6 +280,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             expansions = state.expansions.toList(),
             playerResults = results
         )
+        // Применяем фото поля если было добавлено
+        val photo = _pendingGamePhoto.value
+        if (photo != null) {
+            repo.updateGamePhoto(gameId, photo)
+            _pendingGamePhoto.value = null
+        }
         _liveGame.value = LiveGameState()
         _message.emit("Game saved!")
         onDone(gameId)

@@ -18,31 +18,34 @@ object ImageUtils {
             val inputStream = context.contentResolver.openInputStream(uri) ?: return null
             val bitmap = BitmapFactory.decodeStream(inputStream)
             inputStream.close()
-
-            // Resize to max 512px to save storage
             val scaled = scaleBitmap(bitmap, 512)
-
             val dir = File(context.filesDir, "avatars")
             dir.mkdirs()
             val file = File(dir, "player_${playerId}_${System.currentTimeMillis()}.jpg")
-
-            FileOutputStream(file).use { out ->
-                scaled.compress(Bitmap.CompressFormat.JPEG, 85, out)
-            }
+            FileOutputStream(file).use { out -> scaled.compress(Bitmap.CompressFormat.JPEG, 85, out) }
             file.absolutePath
-        } catch (e: Exception) {
-            e.printStackTrace()
-            null
-        }
+        } catch (e: Exception) { e.printStackTrace(); null }
     }
 
-    /**
-     * Creates a temp file for camera capture and returns its URI.
-     */
-    fun createTempImageFile(context: Context): File {
-        val dir = File(context.filesDir, "avatars")
+    fun saveGamePhotoFromUri(context: Context, uri: Uri, gameId: Int): String? {
+        return try {
+            val inputStream = context.contentResolver.openInputStream(uri) ?: return null
+            val bitmap = BitmapFactory.decodeStream(inputStream)
+            inputStream.close()
+            // Для фото поля — сохраняем в хорошем качестве, 1280px
+            val scaled = scaleBitmap(bitmap, 1280)
+            val dir = File(context.filesDir, "game_photos")
+            dir.mkdirs()
+            val file = File(dir, "game_${gameId}_${System.currentTimeMillis()}.jpg")
+            FileOutputStream(file).use { out -> scaled.compress(Bitmap.CompressFormat.JPEG, 90, out) }
+            file.absolutePath
+        } catch (e: Exception) { e.printStackTrace(); null }
+    }
+
+    fun createTempGamePhotoFile(context: Context): File {
+        val dir = File(context.filesDir, "game_photos")
         dir.mkdirs()
-        return File(dir, "temp_capture_${System.currentTimeMillis()}.jpg")
+        return File(dir, "temp_game_${System.currentTimeMillis()}.jpg")
     }
 
     fun deleteAvatarFile(path: String?) {

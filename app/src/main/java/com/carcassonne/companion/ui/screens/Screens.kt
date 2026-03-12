@@ -32,9 +32,171 @@ import com.carcassonne.companion.viewmodel.PlayerStats
 import com.carcassonne.companion.viewmodel.ScoringObjectType
 import com.carcassonne.companion.viewmodel.EndgamePlayerInput
 import com.carcassonne.companion.viewmodel.LivePlayerState
+import com.carcassonne.companion.util.ImageUtils
+import android.Manifest
+import android.graphics.BitmapFactory
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
+import androidx.core.content.FileProvider
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
+
+// ─── Game Photo Box ───────────────────────────────────────────────────────────
+// Универсальный блок для показа/выбора фото партии.
+// editable=true — показывает кнопки камера/галерея; editable=false — только просмотр.
+@Composable
+fun GamePhotoBox(
+    photoPath: String?,
+    editable: Boolean = false,
+    context: android.content.Context = androidx.compose.ui.platform.LocalContext.current,
+    onPhotoSaved: (String) -> Unit = {},
+    modifier: Modifier = Modifier
+) {
+    var currentPath by remember(photoPath) { mutableStateOf(photoPath) }
+    var showSheet by remember { mutableStateOf(false) }
+    var tempCameraFile by remember { mutableStateOf<java.io.File?>(null) }
+
+    val bitmap = remember(currentPath) {
+        if (currentPath != null && java.io.File(currentPath!!).exists()) {
+            val bmp = BitmapFactory.decodeFile(currentPath!!)
+            bmp?.asImageBitmap()
+        } else null
+    }
+
+    val galleryLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.GetContent()
+    ) { uri ->
+        if (uri != null) {
+            val path = ImageUtils.saveGamePhotoFromUri(context, uri, System.currentTimeMillis().toInt())
+            if (path != null) { currentPath = path; onPhotoSaved(path) }
+        }
+    }
+
+    val cameraLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.TakePicture()
+    ) { success ->
+        if (success) {
+            val file = tempCameraFile ?: return@rememberLauncherForActivityResult
+            val path = ImageUtils.saveGamePhotoFromUri(
+                context,
+                FileProvider.getUriForFile(context, "${context.packageName}.provider", file),
+                System.currentTimeMillis().toInt()
+            )
+            if (path != null) { currentPath = path; onPhotoSaved(path) }
+        }
+    }
+
+    val cameraPermission = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        if (granted) {
+            val file = ImageUtils.createTempGamePhotoFile(context)
+            tempCameraFile = file
+            val uri = FileProvider.getUriForFile(context, "${context.packageName}.provider", file)
+            cameraLauncher.launch(uri)
+        }
+    }
+
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(if (bitmap != null) 200.dp else 100.dp)
+            .clip(RoundedCornerShape(14.dp))
+            .background(CarcBg3)
+            .then(if (editable) Modifier.clickable { showSheet = true } else Modifier),
+        contentAlignment = Alignment.Center
+    ) {
+        if (bitmap != null) {
+            androidx.compose.foundation.Image(
+                bitmap = bitmap,
+                contentDescription = "Game photo",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
+            )
+            // Полупрозрачный оверлей снизу если editable
+            if (editable) {
+                Box(
+                    Modifier
+                        .align(Alignment.BottomCenter)
+                        .fillMaxWidth()
+                        .background(Color.Black.copy(alpha = 0.45f))
+                        .padding(vertical = 8.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("📷 Change photo", fontSize = 12.sp, color = Color.White, fontWeight = FontWeight.SemiBold)
+                }
+            }
+        } else {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text("🗺️", fontSize = 36.sp)
+                if (editable) {
+                    Spacer(Modifier.height(4.dp))
+                    Text("Tap to add board photo", fontSize = 12.sp, color = CarcText3)
+                }
+            }
+        }
+    }
+
+    if (showSheet && editable) {
+        androidx.compose.material3.ModalBottomSheet(
+            onDismissRequest = { showSheet = false },
+            containerColor = CarcCard2
+        ) {
+            Column(Modifier.padding(horizontal = 20.dp).padding(bottom = 40.dp)) {
+                Text("Board Photo", fontWeight = FontWeight.Bold, fontSize = 17.sp)
+                Spacer(Modifier.height(16.dp))
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    // Камера
+                    Box(
+                        Modifier.weight(1f).clip(RoundedCornerShape(12.dp))
+                            .background(CarcCard)
+                            .border(1.dp, CarcBorder, RoundedCornerShape(12.dp))
+                            .clickable { showSheet = false; cameraPermission.launch(Manifest.permission.CAMERA) }
+                            .padding(vertical = 20.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text("📷", fontSize = 28.sp)
+                            Spacer(Modifier.height(6.dp))
+                            Text("Camera", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                        }
+                    }
+                    // Галерея
+                    Box(
+                        Modifier.weight(1f).clip(RoundedCornerShape(12.dp))
+                            .background(CarcCard)
+                            .border(1.dp, CarcBorder, RoundedCornerShape(12.dp))
+                            .clickable { showSheet = false; galleryLauncher.launch("image/*") }
+                            .padding(vertical = 20.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text("🖼️", fontSize = 28.sp)
+                            Spacer(Modifier.height(6.dp))
+                            Text("Gallery", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                        }
+                    }
+                }
+                if (currentPath != null) {
+                    Spacer(Modifier.height(12.dp))
+                    Box(
+                        Modifier.fillMaxWidth().clip(RoundedCornerShape(10.dp))
+                            .background(Color(0xFFEF4444).copy(alpha = 0.12f))
+                            .border(1.dp, Color(0xFFEF4444).copy(alpha = 0.4f), RoundedCornerShape(10.dp))
+                            .clickable { currentPath = null; onPhotoSaved(""); showSheet = false }
+                            .padding(vertical = 12.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text("🗑 Remove photo", fontSize = 13.sp, color = Color(0xFFEF4444), fontWeight = FontWeight.SemiBold)
+                    }
+                }
+            }
+        }
+    }
+}
 
 // ─── Dashboard Screen ────────────────────────────────────────────────────────
 @Composable
@@ -145,11 +307,26 @@ fun DashboardGameRow(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Box(
                     modifier = Modifier
-                        .size(36.dp)
+                        .size(40.dp)
                         .clip(RoundedCornerShape(8.dp))
                         .background(CarcBg3),
                     contentAlignment = Alignment.Center
-                ) { Text("🗺️", fontSize = 18.sp) }
+                ) {
+                    val bmp = remember(game.photoPath) {
+                        if (game.photoPath != null && java.io.File(game.photoPath).exists())
+                            BitmapFactory.decodeFile(game.photoPath)?.asImageBitmap()
+                        else null
+                    }
+                    if (bmp != null) {
+                        androidx.compose.foundation.Image(
+                            bitmap = bmp, contentDescription = null,
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(8.dp))
+                        )
+                    } else {
+                        Text("🗺️", fontSize = 18.sp)
+                    }
+                }
                 Spacer(Modifier.width(10.dp))
                 Text(game.name ?: "Game #${game.id}", fontSize = 15.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
                 Text(date, fontSize = 12.sp, color = CarcText3)
@@ -419,7 +596,22 @@ fun HistoryGameCard(
                         .clip(RoundedCornerShape(8.dp))
                         .background(CarcBg3),
                     contentAlignment = Alignment.Center
-                ) { Text("🗺️", fontSize = 20.sp) }
+                ) {
+                    val bmp = remember(game.photoPath) {
+                        if (game.photoPath != null && java.io.File(game.photoPath).exists())
+                            BitmapFactory.decodeFile(game.photoPath)?.asImageBitmap()
+                        else null
+                    }
+                    if (bmp != null) {
+                        androidx.compose.foundation.Image(
+                            bitmap = bmp, contentDescription = null,
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(8.dp))
+                        )
+                    } else {
+                        Text("🗺️", fontSize = 20.sp)
+                    }
+                }
                 Spacer(Modifier.width(10.dp))
                 Column(Modifier.weight(1f)) {
                     Text(game.name ?: "Game #${game.id}", fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
@@ -1839,7 +2031,9 @@ fun EndgameScreen(
     liveGame: LiveGameState,
     onApply: (Map<Int, EndgamePlayerInput>) -> Unit,
     onSave: (String) -> Unit,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    pendingPhotoPath: String? = null,
+    onSetPhoto: (String?) -> Unit = {}
 ) {
     val players = liveGame.selectedPlayers
     val inputs = remember {
@@ -2028,6 +2222,16 @@ fun EndgameScreen(
                 }
                 item { Spacer(Modifier.height(4.dp)) }
                 item {
+                    // Фото поля партии
+                    Text("📷 Board Photo", fontSize = 13.sp, color = CarcText3, modifier = Modifier.padding(bottom = 8.dp))
+                    GamePhotoBox(
+                        photoPath = pendingPhotoPath,
+                        editable = true,
+                        onPhotoSaved = { path -> onSetPhoto(if (path.isEmpty()) null else path) }
+                    )
+                    Spacer(Modifier.height(12.dp))
+                }
+                item {
                     OutlinedTextField(
                         value = gameName, onValueChange = { gameName = it },
                         label = { Text("Game name (optional)", color = CarcText3) },
@@ -2112,15 +2316,25 @@ fun MatchDetailScreen(
     val sorted = gamePlayers.sortedBy { it.placement }
     val date = game?.let { SimpleDateFormat("MMM d, yyyy", Locale.getDefault()).format(Date(it.date)) } ?: ""
 
+    val context = androidx.compose.ui.platform.LocalContext.current
+
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(16.dp)
     ) {
         item {
-            Box(
-                modifier = Modifier.fillMaxWidth().height(100.dp).clip(RoundedCornerShape(14.dp)).background(CarcBg3),
-                contentAlignment = Alignment.Center
-            ) { Text("🗺️", fontSize = 48.sp) }
+            GamePhotoBox(
+                photoPath = game?.photoPath,
+                editable = true,
+                context = context,
+                onPhotoSaved = { path ->
+                    game?.let { g ->
+                        val newPath = if (path.isEmpty()) null else path
+                        game = g.copy(photoPath = newPath)
+                        viewModel.updateGamePhoto(g.id, newPath)
+                    }
+                }
+            )
             Spacer(Modifier.height(12.dp))
         }
         item {

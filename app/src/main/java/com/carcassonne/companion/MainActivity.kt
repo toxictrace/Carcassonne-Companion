@@ -347,6 +347,7 @@ fun CarcassonneApp() {
                 )
             }
             composable(Routes.ENDGAME) {
+                val pendingPhoto by vm.pendingGamePhoto.collectAsState()
                 EndgameScreen(
                     liveGame = liveGame,
                     onApply = { results ->
@@ -360,7 +361,9 @@ fun CarcassonneApp() {
                             }
                         }
                     },
-                    onBack = { navController.popBackStack() }
+                    onBack = { navController.popBackStack() },
+                    pendingPhotoPath = pendingPhoto,
+                    onSetPhoto = { vm.setPendingGamePhoto(it) }
                 )
             }
             composable(Routes.MATCH_DETAIL) { back ->

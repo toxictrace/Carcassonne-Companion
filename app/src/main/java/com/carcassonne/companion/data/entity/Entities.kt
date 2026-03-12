@@ -21,7 +21,8 @@ data class GameEntity(
     val name: String?,
     val date: Long = System.currentTimeMillis(),
     val durationSeconds: Long? = null,
-    val expansions: String = "" // comma-separated: "inns,traders,dragon,abbey"
+    val expansions: String = "", // comma-separated: "inns,traders,dragon,abbey"
+    val photoPath: String? = null  // path to board photo
 )
 
 // Stores each player's result within a game

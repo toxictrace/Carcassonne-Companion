@@ -47,6 +47,9 @@ interface GameDao {
     @Delete
     suspend fun deleteGame(game: GameEntity)
 
+    @Query("UPDATE games SET photoPath = :path WHERE id = :gameId")
+    suspend fun updateGamePhoto(gameId: Int, path: String?)
+
     @Query("DELETE FROM games")
     suspend fun deleteAllGames()
 }
