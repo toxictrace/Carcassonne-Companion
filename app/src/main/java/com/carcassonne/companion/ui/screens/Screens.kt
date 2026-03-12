@@ -1045,11 +1045,13 @@ fun NewGameScreen(
 fun AddObjectSheet(
     playerName: String,
     meepleCol: String,
+    startTab: Int = 0,
+    hasInns: Boolean = true,
     onDismiss: () -> Unit,
     onScore: (ScoringObjectType, Int, String) -> Unit
 ) {
     val accent = meepleColor(meepleCol)
-    var tab by remember { mutableStateOf(0) }
+    var tab by remember { mutableStateOf(startTab) }
 
     // City state
     var cityTiles by remember { mutableStateOf(2) }
@@ -1148,29 +1150,32 @@ fun AddObjectSheet(
                     Spacer(Modifier.height(12.dp))
 
                     // Cathedral checkbox (Inns & Cathedrals)
-                    Row(
-                        Modifier.fillMaxWidth()
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(if (cityCathedral) accent.copy(alpha = 0.10f) else CarcBg3)
-                            .border(1.dp, if (cityCathedral) accent.copy(alpha = 0.5f) else CarcBorder, RoundedCornerShape(8.dp))
-                            .clickable { cityCathedral = !cityCathedral }
-                            .padding(horizontal = 12.dp, vertical = 10.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(10.dp)
-                    ) {
-                        Text("⛪", fontSize = 18.sp)
-                        Column(Modifier.weight(1f)) {
-                            Text("Cathedral in city", fontSize = 13.sp, fontWeight = FontWeight.Medium)
-                            Text("Tiles ×3 instead of ×2", fontSize = 11.sp, color = CarcText3)
+                    if (hasInns) {
+                        Row(
+                            Modifier.fillMaxWidth()
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(if (cityCathedral) accent.copy(alpha = 0.10f) else CarcBg3)
+                                .border(1.dp, if (cityCathedral) accent.copy(alpha = 0.5f) else CarcBorder, RoundedCornerShape(8.dp))
+                                .clickable { cityCathedral = !cityCathedral }
+                                .padding(horizontal = 12.dp, vertical = 10.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            Text("⛪", fontSize = 18.sp)
+                            Column(Modifier.weight(1f)) {
+                                Text("Cathedral in city", fontSize = 13.sp, fontWeight = FontWeight.Medium)
+                                Text("Tiles ×3 instead of ×2", fontSize = 11.sp, color = CarcText3)
+                            }
+                            Box(Modifier.size(22.dp).clip(RoundedCornerShape(5.dp))
+                                .background(if (cityCathedral) accent else CarcBorder),
+                                contentAlignment = Alignment.Center) {
+                                if (cityCathedral) Text("✓", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = CarcBg)
+                            }
                         }
-                        Box(Modifier.size(22.dp).clip(RoundedCornerShape(5.dp))
-                            .background(if (cityCathedral) accent else CarcBorder),
-                            contentAlignment = Alignment.Center) {
-                            if (cityCathedral) Text("✓", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = CarcBg)
-                        }
+                        Spacer(Modifier.height(16.dp))
+                    } else {
+                        Spacer(Modifier.height(16.dp))
                     }
-
-                    Spacer(Modifier.height(16.dp))
 
                     // Formula breakdown
                     Column(
@@ -1215,28 +1220,29 @@ fun AddObjectSheet(
                     ObjectStepperRow("Tiles", roadTiles, 1, 36, { roadTiles = it })
                     Spacer(Modifier.height(14.dp))
 
-                    // Compact tavern row
-                    Row(
-                        Modifier.fillMaxWidth()
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(CarcBg3)
-                            .border(1.dp, CarcBorder, RoundedCornerShape(8.dp))
-                            .clickable { roadTavern = !roadTavern }
-                            .padding(horizontal = 12.dp, vertical = 10.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(10.dp)
-                    ) {
-                        Text("🍺", fontSize = 18.sp)
-                        Text("Inn (×2)", fontSize = 14.sp, fontWeight = FontWeight.Medium,
-                            modifier = Modifier.weight(1f))
-                        Box(Modifier.size(22.dp).clip(RoundedCornerShape(5.dp))
-                            .background(if (roadTavern) accent else CarcBorder),
-                            contentAlignment = Alignment.Center) {
-                            if (roadTavern) Text("✓", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = CarcBg)
+                    // Compact tavern row — только если дополнение включено
+                    if (hasInns) {
+                        Row(
+                            Modifier.fillMaxWidth()
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(CarcBg3)
+                                .border(1.dp, CarcBorder, RoundedCornerShape(8.dp))
+                                .clickable { roadTavern = !roadTavern }
+                                .padding(horizontal = 12.dp, vertical = 10.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            Text("🍺", fontSize = 18.sp)
+                            Text("Inn (×2)", fontSize = 14.sp, fontWeight = FontWeight.Medium,
+                                modifier = Modifier.weight(1f))
+                            Box(Modifier.size(22.dp).clip(RoundedCornerShape(5.dp))
+                                .background(if (roadTavern) accent else CarcBorder),
+                                contentAlignment = Alignment.Center) {
+                                if (roadTavern) Text("✓", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = CarcBg)
+                            }
                         }
+                        Spacer(Modifier.height(16.dp))
                     }
-
-                    Spacer(Modifier.height(16.dp))
                     ObjectScorePreview("🛤️ Road", roadPts, accent,
                         if (roadTavern) "${roadTiles}t × 2 (inn)" else "${roadTiles}t × 1")
                     Spacer(Modifier.height(14.dp))
@@ -1330,7 +1336,10 @@ fun LiveGameScreen(
     onUndoLast: (Int) -> Unit,
     onFinish: () -> Unit
 ) {
-    var addObjectFor by remember { mutableStateOf<LivePlayerState?>(null) }
+    var addObjectFor by remember { mutableStateOf<Pair<LivePlayerState, Int>?>(null) }
+    // tab: 0=city 1=road 2=monastery 3=dragon(fairy)
+    val hasDragon = "dragon" in liveGame.expansions
+    val hasInns   = "inns"   in liveGame.expansions
 
     Box(Modifier.fillMaxSize()) {
         LazyColumn(
@@ -1342,10 +1351,9 @@ fun LiveGameScreen(
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically) {
                     Text("${liveGame.selectedPlayers.size} players", fontSize = 13.sp, color = CarcText3)
-                    // Live scoreboard mini
                     val leader = liveGame.selectedPlayers.maxByOrNull { it.score }
                     if (leader != null)
-                        Text("👑 ${leader.playerName.take(8)}: ${leader.score}",
+                        Text("👑 ${leader.playerName.take(10)}: ${leader.score}",
                             fontSize = 12.sp, color = meepleColor(leader.meepleColor))
                 }
             }
@@ -1359,64 +1367,82 @@ fun LiveGameScreen(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Column(Modifier.padding(14.dp)) {
-                        // Header row
+                        // Header: avatar + name + score
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            PlayerAvatar(player.playerName, player.meepleColor, 40.dp, avatarPath = player.avatarPath)
+                            PlayerAvatar(player.playerName, player.meepleColor, 44.dp, avatarPath = player.avatarPath)
                             Spacer(Modifier.width(10.dp))
                             Column(Modifier.weight(1f)) {
-                                Text(player.playerName, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                                Text(player.playerName, fontSize = 16.sp, fontWeight = FontWeight.Bold)
                                 if (player.events.isNotEmpty()) {
                                     Text(
-                                        player.events.takeLast(2).joinToString(" · ") { it.label },
-                                        fontSize = 11.sp, color = CarcText3, maxLines = 1
+                                        player.events.takeLast(3).joinToString(" · ") { it.label },
+                                        fontSize = 11.sp, color = CarcText3, maxLines = 1,
+                                        overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
                                     )
                                 }
                             }
-                            // Score big
-                            Text(player.score.toString(), fontSize = 42.sp, fontWeight = FontWeight.Black, color = accent)
+                            Text(player.score.toString(),
+                                fontSize = 44.sp, fontWeight = FontWeight.Black, color = accent,
+                                lineHeight = 44.sp)
                         }
 
                         Spacer(Modifier.height(12.dp))
-                        HorizontalDivider(color = accent.copy(alpha = 0.2f))
+                        HorizontalDivider(color = accent.copy(alpha = 0.18f))
                         Spacer(Modifier.height(10.dp))
 
-                        // Quick score row: −1, +1, +2 and Add Object button
-                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                            // −1
-                            QuickScoreBtn("−1", false, accent, Modifier.weight(1f)) {
-                                onAdjustScore(player.playerId, -1)
+                        // Object buttons grid
+                        val baseObjects = listOf(
+                            Triple(0, "🏰", "City"),
+                            Triple(1, "🛤️", "Road"),
+                            Triple(2, "⛪", "Monastery")
+                        )
+                        // Dragon: Fairy gives +1 per turn to adjacent player
+                        val allObjects = if (hasDragon)
+                            baseObjects + Triple(3, "🧚", "Fairy +1")
+                        else baseObjects
+
+                        // Показываем в 2 строки по 2 (или в одну строку если объектов 3)
+                        val rows = allObjects.chunked(if (allObjects.size <= 3) 3 else 2)
+                        rows.forEach { rowItems ->
+                            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                                rowItems.forEach { (tabIdx, icon, label) ->
+                                    Box(
+                                        Modifier.weight(1f).height(46.dp)
+                                            .clip(RoundedCornerShape(10.dp))
+                                            .background(accent.copy(alpha = 0.12f))
+                                            .border(1.dp, accent.copy(alpha = 0.35f), RoundedCornerShape(10.dp))
+                                            .clickable {
+                                                if (tabIdx == 3) {
+                                                    // Fairy: instant +1
+                                                    onAddObject(player.playerId, ScoringObjectType.CITY, 1, "🧚 +1")
+                                                } else {
+                                                    addObjectFor = Pair(player, tabIdx)
+                                                }
+                                            },
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                            Text(icon, fontSize = 16.sp, lineHeight = 18.sp)
+                                            Text(label, fontSize = 10.sp, color = accent,
+                                                fontWeight = FontWeight.SemiBold, lineHeight = 12.sp)
+                                        }
+                                    }
+                                }
                             }
-                            // +1 (road tile / mini city)
-                            QuickScoreBtn("+1", true, accent, Modifier.weight(1f)) {
-                                onAddObject(player.playerId, ScoringObjectType.ROAD, 1, "🛤️ +1")
-                            }
-                            // +2 (city tile or shield)
-                            QuickScoreBtn("+2", true, accent, Modifier.weight(1f)) {
-                                onAddObject(player.playerId, ScoringObjectType.CITY, 2, "🏰 +2")
-                            }
-                            // Add Object
-                            Box(
-                                Modifier.weight(2f).height(40.dp)
-                                    .clip(RoundedCornerShape(8.dp))
-                                    .background(accent.copy(alpha = 0.15f))
-                                    .border(1.dp, accent.copy(alpha = 0.4f), RoundedCornerShape(8.dp))
-                                    .clickable { addObjectFor = player },
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text("＋ Object", fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = accent)
-                            }
+                            Spacer(Modifier.height(6.dp))
                         }
 
-                        // Undo last
+                        // Undo last event
                         if (player.events.isNotEmpty()) {
-                            Spacer(Modifier.height(6.dp))
                             Box(
-                                Modifier.fillMaxWidth().clip(RoundedCornerShape(6.dp))
+                                Modifier.fillMaxWidth()
+                                    .clip(RoundedCornerShape(6.dp))
+                                    .background(CarcBg3)
                                     .clickable { onUndoLast(player.playerId) }
-                                    .padding(vertical = 4.dp),
+                                    .padding(vertical = 6.dp),
                                 contentAlignment = Alignment.Center
                             ) {
-                                Text("↩ Undo: ${player.events.last().label}",
+                                Text("↩  ${player.events.last().label}",
                                     fontSize = 11.sp, color = CarcText3)
                             }
                         }
@@ -1428,8 +1454,7 @@ fun LiveGameScreen(
         // FAB Finish Game
         Box(Modifier.align(Alignment.BottomCenter).padding(bottom = 24.dp)) {
             Box(
-                Modifier
-                    .clip(RoundedCornerShape(16.dp))
+                Modifier.clip(RoundedCornerShape(16.dp))
                     .background(CarcGreen)
                     .clickable(onClick = onFinish)
                     .padding(horizontal = 32.dp, vertical = 16.dp),
@@ -1440,11 +1465,13 @@ fun LiveGameScreen(
         }
     }
 
-    // Bottom sheet for object scoring
-    addObjectFor?.let { player ->
+    // Bottom sheet — открывается на нужном табе
+    addObjectFor?.let { (player, startTab) ->
         AddObjectSheet(
             playerName = player.playerName,
             meepleCol = player.meepleColor,
+            startTab = startTab,
+            hasInns = hasInns,
             onDismiss = { addObjectFor = null },
             onScore = { type, pts, label ->
                 onAddObject(player.playerId, type, pts, label)

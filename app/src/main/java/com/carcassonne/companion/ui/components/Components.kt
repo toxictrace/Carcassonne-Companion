@@ -65,7 +65,9 @@ fun PlayerAvatar(
                 text = name.firstOrNull()?.uppercaseChar()?.toString() ?: "?",
                 color = c,
                 fontSize = (size.value * 0.45f).sp,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                lineHeight = (size.value * 0.45f).sp,
+                textAlign = TextAlign.Center
             )
         }
     }
@@ -94,7 +96,9 @@ fun CardAvatar(
                 text = name.firstOrNull()?.uppercaseChar()?.toString() ?: "?",
                 color = CarcText2,
                 fontSize = (size.value * 0.42f).sp,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                lineHeight = (size.value * 0.42f).sp,
+                textAlign = TextAlign.Center
             )
         }
         // Точка цвета мипла снизу справа
