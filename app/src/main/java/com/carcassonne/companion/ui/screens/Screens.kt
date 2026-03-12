@@ -130,45 +130,57 @@ fun DashboardGameRow(
     Card(
         modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
         shape = RoundedCornerShape(14.dp),
-        colors = CardDefaults.cardColors(containerColor = CarcCard)
+        colors = CardDefaults.cardColors(containerColor = CarcCard),
+        border = BorderStroke(1.dp, CarcBorder)
     ) {
-        Row(
-            modifier = Modifier.padding(14.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(48.dp)
-                    .clip(RoundedCornerShape(10.dp))
-                    .background(CarcBg3),
-                contentAlignment = Alignment.Center
-            ) { Text("🗺️", fontSize = 22.sp) }
-            Spacer(Modifier.width(12.dp))
-            Column(Modifier.weight(1f)) {
-                Text(game.name ?: "Game #${game.id}", fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
-                Text(date, fontSize = 12.sp, color = CarcText3, modifier = Modifier.padding(top = 2.dp))
-                if (sortedGP.isNotEmpty()) {
-                    Spacer(Modifier.height(6.dp))
-                    Row(horizontalArrangement = Arrangement.spacedBy((-6).dp)) {
-                        sortedGP.take(5).forEach { gp ->
-                            val p = players.find { it.id == gp.playerId }
-                            Box {
-                                CardAvatar(
-                                    name = p?.name ?: "?",
-                                    meepleColor = gp.meepleColor,
-                                    size = 26.dp,
-                                    modifier = Modifier.border(1.5.dp, CarcCard, CircleShape)
-                                )
-                                if (gp.placement == 1) {
-                                    Text("👑", fontSize = 7.sp,
-                                        modifier = Modifier.align(Alignment.TopEnd).offset(x = 2.dp, y = (-3).dp))
-                                }
-                            }
+        Column(modifier = Modifier.padding(12.dp)) {
+            // Заголовок
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    modifier = Modifier
+                        .size(36.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(CarcBg3),
+                    contentAlignment = Alignment.Center
+                ) { Text("🗺️", fontSize = 18.sp) }
+                Spacer(Modifier.width(10.dp))
+                Text(game.name ?: "Game #${game.id}", fontSize = 15.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
+                Text(date, fontSize = 12.sp, color = CarcText3)
+            }
+            if (sortedGP.isNotEmpty()) {
+                Spacer(Modifier.height(10.dp))
+                HorizontalDivider(color = CarcBorder, thickness = 0.5.dp)
+                Spacer(Modifier.height(10.dp))
+                // Игроки равномерно
+                Row(modifier = Modifier.fillMaxWidth()) {
+                    sortedGP.forEachIndexed { idx, gp ->
+                        val p = players.find { it.id == gp.playerId }
+                        Row(
+                            modifier = Modifier.weight(1f),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Start
+                        ) {
+                            PlayerAvatar(p?.name ?: "?", p?.meepleColor ?: "gray", size = 22.dp)
+                            Spacer(Modifier.width(4.dp))
+                            Text(
+                                p?.name?.take(6) ?: "?",
+                                fontSize = 11.sp,
+                                color = CarcText2,
+                                maxLines = 1,
+                                modifier = Modifier.weight(1f, fill = false)
+                            )
+                            Spacer(Modifier.width(3.dp))
+                            Box(
+                                modifier = Modifier
+                                    .size(8.dp)
+                                    .clip(CircleShape)
+                                    .background(meepleColor(gp.meepleColor))
+                            )
                         }
+                        if (idx < sortedGP.size - 1) Spacer(Modifier.width(4.dp))
                     }
                 }
             }
-            Icon(Icons.Default.ChevronRight, null, tint = CarcText3)
         }
     }
 }
@@ -262,50 +274,61 @@ fun HistoryGameCard(
     Card(
         modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
         shape = RoundedCornerShape(14.dp),
-        colors = CardDefaults.cardColors(containerColor = CarcCard)
+        colors = CardDefaults.cardColors(containerColor = CarcCard),
+        border = BorderStroke(1.dp, CarcBorder)
     ) {
-        Row(
-            modifier = Modifier.padding(14.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(56.dp)
-                    .clip(RoundedCornerShape(10.dp))
-                    .background(CarcBg3),
-                contentAlignment = Alignment.Center
-            ) { Text("🗺️", fontSize = 26.sp) }
-            Column(Modifier.weight(1f)) {
-                Text(
-                    game.name ?: "Game #${game.id}",
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.SemiBold
-                )
-                Text(date, fontSize = 12.sp, color = CarcText3, modifier = Modifier.padding(top = 2.dp))
-                if (sortedGP.isNotEmpty()) {
-                    Spacer(Modifier.height(8.dp))
-                    Row(horizontalArrangement = Arrangement.spacedBy((-6).dp)) {
-                        sortedGP.take(6).forEach { gp ->
-                            val p = players.find { it.id == gp.playerId }
-                            Box {
-                                CardAvatar(
-                                    name = p?.name ?: "?",
-                                    meepleColor = gp.meepleColor,
-                                    size = 30.dp,
-                                    modifier = Modifier.border(1.5.dp, CarcCard, CircleShape)
-                                )
-                                if (gp.placement == 1) {
-                                    Text("👑", fontSize = 8.sp,
-                                        modifier = Modifier.align(Alignment.TopEnd).offset(x = 2.dp, y = (-3).dp))
-                                }
-                            }
-                        }
-                    }
+        Column(modifier = Modifier.padding(12.dp)) {
+            // Заголовок
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(CarcBg3),
+                    contentAlignment = Alignment.Center
+                ) { Text("🗺️", fontSize = 20.sp) }
+                Spacer(Modifier.width(10.dp))
+                Column(Modifier.weight(1f)) {
+                    Text(game.name ?: "Game #${game.id}", fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+                    Text(date, fontSize = 12.sp, color = CarcText3, modifier = Modifier.padding(top = 2.dp))
+                }
+                IconButton(onClick = onEdit, modifier = Modifier.size(36.dp)) {
+                    Text("✎", fontSize = 18.sp, color = CarcText3)
                 }
             }
-            IconButton(onClick = onEdit, modifier = Modifier.size(36.dp)) {
-                Text("✎", fontSize = 18.sp, color = CarcText3)
+            if (sortedGP.isNotEmpty()) {
+                Spacer(Modifier.height(10.dp))
+                HorizontalDivider(color = CarcBorder, thickness = 0.5.dp)
+                Spacer(Modifier.height(10.dp))
+                // Игроки равномерно
+                Row(modifier = Modifier.fillMaxWidth()) {
+                    sortedGP.forEachIndexed { idx, gp ->
+                        val p = players.find { it.id == gp.playerId }
+                        Row(
+                            modifier = Modifier.weight(1f),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Start
+                        ) {
+                            PlayerAvatar(p?.name ?: "?", p?.meepleColor ?: "gray", size = 22.dp)
+                            Spacer(Modifier.width(4.dp))
+                            Text(
+                                p?.name?.take(6) ?: "?",
+                                fontSize = 11.sp,
+                                color = CarcText2,
+                                maxLines = 1,
+                                modifier = Modifier.weight(1f, fill = false)
+                            )
+                            Spacer(Modifier.width(3.dp))
+                            Box(
+                                modifier = Modifier
+                                    .size(8.dp)
+                                    .clip(CircleShape)
+                                    .background(meepleColor(gp.meepleColor))
+                            )
+                        }
+                        if (idx < sortedGP.size - 1) Spacer(Modifier.width(4.dp))
+                    }
+                }
             }
         }
     }
