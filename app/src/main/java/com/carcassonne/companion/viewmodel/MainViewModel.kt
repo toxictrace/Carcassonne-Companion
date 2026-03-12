@@ -17,6 +17,7 @@ data class LivePlayerState(
     val playerId: Int,
     val playerName: String,
     val meepleColor: String,
+    val avatarPath: String? = null,
     val score: Int = 0,
     val cityPoints: Int = 0,
     val roadPoints: Int = 0,
@@ -112,7 +113,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 LivePlayerState(
                     playerId = p.id,
                     playerName = p.name,
-                    meepleColor = playerColors[p.id] ?: p.meepleColor
+                    meepleColor = playerColors[p.id] ?: p.meepleColor,
+                    avatarPath = p.avatarPath
                 )
             },
             startTimeMs = System.currentTimeMillis(),

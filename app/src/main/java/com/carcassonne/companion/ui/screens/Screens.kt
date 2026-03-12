@@ -160,7 +160,7 @@ fun DashboardGameRow(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.Start
                         ) {
-                            PlayerAvatar(p?.name ?: "?", p?.meepleColor ?: "gray", size = 22.dp)
+                            PlayerAvatar(p?.name ?: "?", p?.meepleColor ?: "gray", size = 22.dp, avatarPath = p?.avatarPath)
                             Spacer(Modifier.width(4.dp))
                             Text(
                                 p?.name?.take(6) ?: "?",
@@ -309,7 +309,7 @@ fun HistoryGameCard(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.Start
                         ) {
-                            PlayerAvatar(p?.name ?: "?", p?.meepleColor ?: "gray", size = 22.dp)
+                            PlayerAvatar(p?.name ?: "?", p?.meepleColor ?: "gray", size = 22.dp, avatarPath = p?.avatarPath)
                             Spacer(Modifier.width(4.dp))
                             Text(
                                 p?.name?.take(6) ?: "?",
@@ -416,7 +416,7 @@ fun PlayerCard(player: PlayerEntity, stats: PlayerStats?, onClick: () -> Unit) {
             modifier = Modifier.padding(14.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            PlayerAvatar(player.name, player.meepleColor, size = 48.dp)
+            PlayerAvatar(player.name, player.meepleColor, size = 48.dp, avatarPath = player.avatarPath)
             Spacer(Modifier.width(12.dp))
             Column(Modifier.weight(1f)) {
                 Text(player.name, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
@@ -566,7 +566,7 @@ fun StatsPlayerRow(ps: PlayerStats) {
             modifier = Modifier.padding(14.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            PlayerAvatar(ps.player.name, ps.player.meepleColor)
+            PlayerAvatar(ps.player.name, ps.player.meepleColor, avatarPath = ps.player.avatarPath)
             Spacer(Modifier.width(12.dp))
             Column(Modifier.weight(1f)) {
                 Text(ps.player.name, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
@@ -747,6 +747,74 @@ fun AvatarPickerSection(
     }
 }
 
+// ─── Permission-aware launcher helpers ───────────────────────────────────────
+@Composable
+fun rememberGalleryLauncher(
+    onResult: (android.net.Uri?) -> Unit
+): Pair<() -> Unit, androidx.activity.result.ActivityResultLauncher<String>> {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val launcher = androidx.activity.compose.rememberLauncherForActivityResult(
+        androidx.activity.result.contract.ActivityResultContracts.GetContent(), onResult
+    )
+    val permLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
+        androidx.activity.result.contract.ActivityResultContracts.RequestPermission()
+    ) { granted -> if (granted) launcher.launch("image/*") }
+
+    val open: () -> Unit = {
+        val perm = if (android.os.Build.VERSION.SDK_INT >= 33)
+            android.Manifest.permission.READ_MEDIA_IMAGES
+        else
+            android.Manifest.permission.READ_EXTERNAL_STORAGE
+        val state = androidx.core.content.ContextCompat.checkSelfPermission(context, perm)
+        if (state == android.content.pm.PackageManager.PERMISSION_GRANTED)
+            launcher.launch("image/*")
+        else
+            permLauncher.launch(perm)
+    }
+    return Pair(open, launcher)
+}
+
+@Composable
+fun rememberCameraLauncher(
+    onImageSaved: (java.io.File) -> Unit
+): Pair<() -> Unit, () -> Unit> {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    var tempFile by remember { mutableStateOf<java.io.File?>(null) }
+
+    val cameraLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
+        androidx.activity.result.contract.ActivityResultContracts.TakePicture()
+    ) { success -> if (success) tempFile?.let { onImageSaved(it) } }
+
+    val permLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
+        androidx.activity.result.contract.ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        if (granted) {
+            val file = com.carcassonne.companion.util.ImageUtils.createTempImageFile(context)
+            tempFile = file
+            val uri = androidx.core.content.FileProvider.getUriForFile(
+                context, "${context.packageName}.provider", file
+            )
+            cameraLauncher.launch(uri)
+        }
+    }
+
+    val open: () -> Unit = {
+        val perm = android.Manifest.permission.CAMERA
+        val state = androidx.core.content.ContextCompat.checkSelfPermission(context, perm)
+        if (state == android.content.pm.PackageManager.PERMISSION_GRANTED) {
+            val file = com.carcassonne.companion.util.ImageUtils.createTempImageFile(context)
+            tempFile = file
+            val uri = androidx.core.content.FileProvider.getUriForFile(
+                context, "${context.packageName}.provider", file
+            )
+            cameraLauncher.launch(uri)
+        } else {
+            permLauncher.launch(perm)
+        }
+    }
+    return Pair(open, { tempFile = null })
+}
+
 // ─── Add Player Dialog ────────────────────────────────────────────────────────
 @Composable
 fun AddPlayerDialog(
@@ -757,12 +825,8 @@ fun AddPlayerDialog(
     var name by remember { mutableStateOf("") }
     var color by remember { mutableStateOf("red") }
     var avatarPath by remember { mutableStateOf<String?>(null) }
-    var tempCameraFile by remember { mutableStateOf<java.io.File?>(null) }
 
-    // Gallery picker
-    val galleryLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
-        contract = androidx.activity.result.contract.ActivityResultContracts.GetContent()
-    ) { uri ->
+    val (openGallery, _) = rememberGalleryLauncher { uri ->
         uri?.let {
             val saved = com.carcassonne.companion.util.ImageUtils.saveImageFromUri(context, it, 0)
             if (saved != null) {
@@ -771,18 +835,9 @@ fun AddPlayerDialog(
             }
         }
     }
-
-    // Camera launcher
-    val cameraLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
-        contract = androidx.activity.result.contract.ActivityResultContracts.TakePicture()
-    ) { success ->
-        if (success) {
-            tempCameraFile?.absolutePath?.let { path ->
-                com.carcassonne.companion.util.ImageUtils.deleteAvatarFile(avatarPath)
-                avatarPath = path
-                tempCameraFile = null
-            }
-        }
+    val (openCamera, _) = rememberCameraLauncher { file ->
+        com.carcassonne.companion.util.ImageUtils.deleteAvatarFile(avatarPath)
+        avatarPath = file.absolutePath
     }
 
     AlertDialog(
@@ -792,18 +847,9 @@ fun AddPlayerDialog(
         text = {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 AvatarPickerSection(
-                    name = name,
-                    color = color,
-                    avatarPath = avatarPath,
-                    onPickGallery = { galleryLauncher.launch("image/*") },
-                    onPickCamera = {
-                        val file = com.carcassonne.companion.util.ImageUtils.createTempImageFile(context)
-                        tempCameraFile = file
-                        val uri = androidx.core.content.FileProvider.getUriForFile(
-                            context, "${context.packageName}.provider", file
-                        )
-                        cameraLauncher.launch(uri)
-                    },
+                    name = name, color = color, avatarPath = avatarPath,
+                    onPickGallery = openGallery,
+                    onPickCamera = openCamera,
                     onRemoveAvatar = {
                         com.carcassonne.companion.util.ImageUtils.deleteAvatarFile(avatarPath)
                         avatarPath = null
@@ -816,11 +862,8 @@ fun AddPlayerDialog(
                     label = { Text("Player Name", color = CarcText3) },
                     modifier = Modifier.fillMaxWidth(),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = CarcGreenDeep,
-                        unfocusedBorderColor = CarcBorder,
-                        focusedTextColor = CarcText,
-                        unfocusedTextColor = CarcText,
-                        cursorColor = CarcGreen
+                        focusedBorderColor = CarcGreenDeep, unfocusedBorderColor = CarcBorder,
+                        focusedTextColor = CarcText, unfocusedTextColor = CarcText, cursorColor = CarcGreen
                     )
                 )
                 Spacer(Modifier.height(16.dp))
@@ -895,7 +938,7 @@ fun NewGameScreen(
                 ) {
                     Column(modifier = Modifier.padding(14.dp)) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            PlayerAvatar(player.name, assignedColor)
+                            PlayerAvatar(player.name, assignedColor, avatarPath = player.avatarPath)
                             Spacer(Modifier.width(12.dp))
                             Column(Modifier.weight(1f)) {
                                 Text(player.name, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
@@ -1025,7 +1068,7 @@ fun LiveGameScreen(
             ) {
                 Column(modifier = Modifier.padding(14.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        PlayerAvatar(player.playerName, player.meepleColor)
+                        PlayerAvatar(player.playerName, player.meepleColor, avatarPath = player.avatarPath)
                         Spacer(Modifier.width(12.dp))
                         Text(player.playerName, fontSize = 16.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
                         Text(
@@ -1486,11 +1529,8 @@ fun EditPlayerScreen(
     var name by remember { mutableStateOf(player.name) }
     var color by remember { mutableStateOf(player.meepleColor) }
     var avatarPath by remember { mutableStateOf(player.avatarPath) }
-    var tempCameraFile by remember { mutableStateOf<java.io.File?>(null) }
 
-    val galleryLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
-        contract = androidx.activity.result.contract.ActivityResultContracts.GetContent()
-    ) { uri ->
+    val (openGallery, _) = rememberGalleryLauncher { uri ->
         uri?.let {
             val saved = com.carcassonne.companion.util.ImageUtils.saveImageFromUri(context, it, player.id)
             if (saved != null) {
@@ -1499,17 +1539,9 @@ fun EditPlayerScreen(
             }
         }
     }
-
-    val cameraLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
-        contract = androidx.activity.result.contract.ActivityResultContracts.TakePicture()
-    ) { success ->
-        if (success) {
-            tempCameraFile?.absolutePath?.let { path ->
-                if (avatarPath != player.avatarPath) com.carcassonne.companion.util.ImageUtils.deleteAvatarFile(avatarPath)
-                avatarPath = path
-                tempCameraFile = null
-            }
-        }
+    val (openCamera, _) = rememberCameraLauncher { file ->
+        if (avatarPath != player.avatarPath) com.carcassonne.companion.util.ImageUtils.deleteAvatarFile(avatarPath)
+        avatarPath = file.absolutePath
     }
 
     LazyColumn(
@@ -1524,18 +1556,9 @@ fun EditPlayerScreen(
             Spacer(Modifier.height(8.dp))
             Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
                 AvatarPickerSection(
-                    name = name,
-                    color = color,
-                    avatarPath = avatarPath,
-                    onPickGallery = { galleryLauncher.launch("image/*") },
-                    onPickCamera = {
-                        val file = com.carcassonne.companion.util.ImageUtils.createTempImageFile(context)
-                        tempCameraFile = file
-                        val uri = androidx.core.content.FileProvider.getUriForFile(
-                            context, "${context.packageName}.provider", file
-                        )
-                        cameraLauncher.launch(uri)
-                    },
+                    name = name, color = color, avatarPath = avatarPath,
+                    onPickGallery = openGallery,
+                    onPickCamera = openCamera,
                     onRemoveAvatar = {
                         if (avatarPath != player.avatarPath) com.carcassonne.companion.util.ImageUtils.deleteAvatarFile(avatarPath)
                         avatarPath = null
@@ -1654,11 +1677,12 @@ fun EditGameScreen(
         val playerId: Int,
         val name: String,
         var color: String,
-        var total: String,   // если заполнено — используется напрямую
+        var total: String,
         var city: String,
         var road: String,
         var monastery: String,
-        var farm: String
+        var farm: String,
+        val avatarPath: String? = null
     )
 
     val editPlayers = remember(gamePlayers, allPlayers) {
@@ -1672,7 +1696,8 @@ fun EditGameScreen(
                 city = gp.cityPoints.takeIf { it > 0 }?.toString() ?: "",
                 road = gp.roadPoints.takeIf { it > 0 }?.toString() ?: "",
                 monastery = gp.monasteryPoints.takeIf { it > 0 }?.toString() ?: "",
-                farm = gp.farmPoints.takeIf { it > 0 }?.toString() ?: ""
+                farm = gp.farmPoints.takeIf { it > 0 }?.toString() ?: "",
+                avatarPath = p?.avatarPath
             ))
         }
     }
@@ -1737,7 +1762,7 @@ fun EditGameScreen(
             ) {
                 Column(modifier = Modifier.padding(14.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        PlayerAvatar(state.name, state.color)
+                        PlayerAvatar(state.name, state.color, avatarPath = state.avatarPath)
                         Spacer(Modifier.width(10.dp))
                         Text(state.name, fontSize = 15.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
                         Text("$displayTotal pts", fontSize = 15.sp, color = CarcGreen, fontWeight = FontWeight.Bold)
