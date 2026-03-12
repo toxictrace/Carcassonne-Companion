@@ -1,9 +1,10 @@
 package com.carcassonne.companion.ui.components
 
+import android.graphics.BitmapFactory
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -14,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
@@ -33,43 +35,39 @@ fun PlayerAvatar(
     avatarPath: String? = null
 ) {
     val c = meepleColor(color)
-    if (avatarPath != null) {
-        val file = java.io.File(avatarPath)
-        if (file.exists()) {
-            val bitmap = remember(avatarPath) {
-                android.graphics.BitmapFactory.decodeFile(avatarPath)?.let {
-                    androidx.compose.ui.graphics.asImageBitmap(it)
-                }
-            }
-            if (bitmap != null) {
-                androidx.compose.foundation.Image(
-                    bitmap = bitmap,
-                    contentDescription = name,
-                    contentScale = androidx.compose.ui.layout.ContentScale.Crop,
-                    modifier = modifier
-                        .size(size)
-                        .clip(CircleShape)
-                        .border(2.dp, c, CircleShape)
-                )
-                return
-            }
-        }
+
+    val bitmap: ImageBitmap? = remember(avatarPath) {
+        if (avatarPath != null && java.io.File(avatarPath).exists()) {
+            BitmapFactory.decodeFile(avatarPath)?.asImageBitmap()
+        } else null
     }
-    // Fallback — буква
-    Box(
-        modifier = modifier
-            .size(size)
-            .clip(CircleShape)
-            .background(c.copy(alpha = 0.15f))
-            .border(1.dp, c.copy(alpha = 0.4f), CircleShape),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = name.firstOrNull()?.uppercaseChar()?.toString() ?: "?",
-            color = c,
-            fontSize = (size.value * 0.45f).sp,
-            fontWeight = FontWeight.Bold
+
+    if (bitmap != null) {
+        Image(
+            bitmap = bitmap,
+            contentDescription = name,
+            contentScale = ContentScale.Crop,
+            modifier = modifier
+                .size(size)
+                .clip(CircleShape)
+                .border(2.dp, c, CircleShape)
         )
+    } else {
+        Box(
+            modifier = modifier
+                .size(size)
+                .clip(CircleShape)
+                .background(c.copy(alpha = 0.15f))
+                .border(1.dp, c.copy(alpha = 0.4f), CircleShape),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = name.firstOrNull()?.uppercaseChar()?.toString() ?: "?",
+                color = c,
+                fontSize = (size.value * 0.45f).sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
     }
 }
 
