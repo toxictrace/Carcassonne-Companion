@@ -42,6 +42,12 @@ object ImageUtils {
         } catch (e: Exception) { e.printStackTrace(); null }
     }
 
+    fun createTempImageFile(context: Context): File {
+        val dir = java.io.File(context.filesDir, "avatars")
+        dir.mkdirs()
+        return java.io.File(dir, "temp_capture_${System.currentTimeMillis()}.jpg")
+    }
+
     fun createTempGamePhotoFile(context: Context): File {
         val dir = File(context.filesDir, "game_photos")
         dir.mkdirs()

@@ -47,6 +47,7 @@ import java.util.*
 // ─── Game Photo Box ───────────────────────────────────────────────────────────
 // Универсальный блок для показа/выбора фото партии.
 // editable=true — показывает кнопки камера/галерея; editable=false — только просмотр.
+@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
 @Composable
 fun GamePhotoBox(
     photoPath: String?,
