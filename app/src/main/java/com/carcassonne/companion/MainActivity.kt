@@ -170,7 +170,7 @@ fun CarcassonneApp() {
                         }
                     },
                     actions = {
-                        TextButton(onClick = { showEndGame = true }) {
+                        TextButton(onClick = { navController.navigate(Routes.ENDGAME) }) {
                             Text("🏁 Finish", color = CarcGreen, fontWeight = FontWeight.Bold)
                         }
                     },

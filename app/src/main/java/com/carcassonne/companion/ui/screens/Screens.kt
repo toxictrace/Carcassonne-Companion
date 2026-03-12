@@ -27,6 +27,7 @@ import com.carcassonne.companion.viewmodel.MainViewModel
 import com.carcassonne.companion.viewmodel.PlayerStats
 import com.carcassonne.companion.viewmodel.ScoringObjectType
 import com.carcassonne.companion.viewmodel.EndgamePlayerInput
+import com.carcassonne.companion.viewmodel.LivePlayerState
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
