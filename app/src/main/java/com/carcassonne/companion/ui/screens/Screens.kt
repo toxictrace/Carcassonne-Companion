@@ -210,7 +210,7 @@ fun HistoryScreen(
         if (query.isBlank()) games
         else games.filter { (it.name ?: "Game #${it.id}").contains(query, ignoreCase = true) }
     }
-    val selected = remember { mutableStateSetOf<Int>() }
+    var selected by remember { mutableStateOf(setOf<Int>()) }
     val selecting = selected.isNotEmpty()
     var showConfirm by remember { mutableStateOf(false) }
 
@@ -222,7 +222,7 @@ fun HistoryScreen(
             text = { Text("This cannot be undone.", color = CarcText2) },
             confirmButton = {
                 Button(
-                    onClick = { onDeleteGames(selected.toSet()); selected.clear(); showConfirm = false },
+                    onClick = { onDeleteGames(selected); selected = emptySet(); showConfirm = false },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFEF4444))
                 ) { Text("Delete", fontWeight = FontWeight.Bold, color = Color.White) }
             },
@@ -250,7 +250,7 @@ fun HistoryScreen(
                     leadingIcon = { Icon(Icons.Default.Search, null, tint = CarcText3) },
                     trailingIcon = {
                         if (selecting) {
-                            TextButton(onClick = { selected.clear() }) {
+                            TextButton(onClick = { selected = emptySet() }) {
                                 Text("Cancel", color = CarcText3, fontSize = 13.sp)
                             }
                         } else {
@@ -304,13 +304,13 @@ fun HistoryScreen(
                         selecting = selecting,
                         onClick = {
                             if (selecting) {
-                                if (isSelected) selected.remove(game.id) else selected.add(game.id)
+                                if (isSelected) selected = selected - game.id else selected = selected + game.id
                             } else {
                                 onGameClick(game.id)
                             }
                         },
                         onLongClick = {
-                            if (isSelected) selected.remove(game.id) else selected.add(game.id)
+                            if (isSelected) selected = selected - game.id else selected = selected + game.id
                         },
                         onEdit = { onEditGame(game.id) }
                     )
@@ -480,7 +480,7 @@ fun PlayersScreen(
         if (query.isBlank()) players
         else players.filter { it.name.contains(query, ignoreCase = true) }
     }
-    val selected = remember { mutableStateSetOf<Int>() }
+    var selected by remember { mutableStateOf(setOf<Int>()) }
     val selecting = selected.isNotEmpty()
     var showConfirm by remember { mutableStateOf(false) }
 
@@ -494,7 +494,7 @@ fun PlayersScreen(
                 Button(
                     onClick = {
                         players.filter { it.id in selected }.forEach { onDeletePlayer(it) }
-                        selected.clear()
+                        selected = emptySet()
                         showConfirm = false
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFEF4444))
@@ -524,7 +524,7 @@ fun PlayersScreen(
                     leadingIcon = { Icon(Icons.Default.Search, null, tint = CarcText3) },
                     trailingIcon = {
                         if (selecting) {
-                            TextButton(onClick = { selected.clear() }) {
+                            TextButton(onClick = { selected = emptySet() }) {
                                 Text("Cancel", color = CarcText3, fontSize = 13.sp)
                             }
                         }
@@ -576,15 +576,15 @@ fun PlayersScreen(
                         selecting = selecting,
                         onClick = {
                             if (selecting) {
-                                if (isSelected) selected.remove(player.id)
-                                else selected.add(player.id)
+                                if (isSelected) selected = selected - player.id
+                                else selected = selected + player.id
                             } else {
                                 onPlayerClick(player.id)
                             }
                         },
                         onLongClick = {
-                            if (isSelected) selected.remove(player.id)
-                            else selected.add(player.id)
+                            if (isSelected) selected = selected - player.id
+                            else selected = selected + player.id
                         }
                     )
                 }
