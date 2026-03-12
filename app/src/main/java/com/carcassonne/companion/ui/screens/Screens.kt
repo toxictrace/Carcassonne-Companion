@@ -58,12 +58,11 @@ fun GamePhotoBox(
 ) {
     var currentPath by remember(photoPath) { mutableStateOf(photoPath) }
     var showSheet by remember { mutableStateOf(false) }
-    var tempCameraFile by remember { mutableStateOf<java.io.File?>(null) }
+    var tempCameraUri by remember { mutableStateOf<android.net.Uri?>(null) }
 
     val bitmap = remember(currentPath) {
         if (currentPath != null && java.io.File(currentPath!!).exists()) {
-            val bmp = BitmapFactory.decodeFile(currentPath!!)
-            bmp?.asImageBitmap()
+            BitmapFactory.decodeFile(currentPath!!)?.asImageBitmap()
         } else null
     }
 
@@ -80,26 +79,24 @@ fun GamePhotoBox(
         ActivityResultContracts.TakePicture()
     ) { success ->
         if (success) {
-            val file = tempCameraFile ?: return@rememberLauncherForActivityResult
-            val path = ImageUtils.saveGamePhotoFromUri(
-                context,
-                FileProvider.getUriForFile(context, "${context.packageName}.provider", file),
-                System.currentTimeMillis().toInt()
-            )
+            val uri = tempCameraUri ?: return@rememberLauncherForActivityResult
+            val path = ImageUtils.saveGamePhotoFromUri(context, uri, System.currentTimeMillis().toInt())
             if (path != null) { currentPath = path; onPhotoSaved(path) }
         }
     }
 
+    val launchCamera = {
+        try {
+            val file = ImageUtils.createTempGamePhotoFile(context)
+            val uri = FileProvider.getUriForFile(context, "${context.packageName}.provider", file)
+            tempCameraUri = uri
+            cameraLauncher.launch(uri)
+        } catch (e: Exception) { e.printStackTrace() }
+    }
+
     val cameraPermission = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
-    ) { granted ->
-        if (granted) {
-            val file = ImageUtils.createTempGamePhotoFile(context)
-            tempCameraFile = file
-            val uri = FileProvider.getUriForFile(context, "${context.packageName}.provider", file)
-            cameraLauncher.launch(uri)
-        }
-    }
+    ) { granted -> if (granted) launchCamera() }
 
     Box(
         modifier = modifier
@@ -155,7 +152,14 @@ fun GamePhotoBox(
                         Modifier.weight(1f).clip(RoundedCornerShape(12.dp))
                             .background(CarcCard)
                             .border(1.dp, CarcBorder, RoundedCornerShape(12.dp))
-                            .clickable { showSheet = false; cameraPermission.launch(Manifest.permission.CAMERA) }
+                            .clickable {
+                                showSheet = false
+                                val perm = Manifest.permission.CAMERA
+                                val granted = androidx.core.content.ContextCompat.checkSelfPermission(
+                                    context, perm
+                                ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+                                if (granted) launchCamera() else cameraPermission.launch(perm)
+                            }
                             .padding(vertical = 20.dp),
                         contentAlignment = Alignment.Center
                     ) {

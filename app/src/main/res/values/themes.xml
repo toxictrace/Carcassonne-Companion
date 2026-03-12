@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.CarcassonneCompanion" parent="Theme.AppCompat.NoActionBar">
+    <style name="Theme.CarcassonneCompanion" parent="android:Theme.Material.NoTitleBar">
         <item name="android:statusBarColor">#FF071007</item>
         <item name="android:navigationBarColor">#FF0D1F0D</item>
         <item name="android:windowBackground">#FF071007</item>
