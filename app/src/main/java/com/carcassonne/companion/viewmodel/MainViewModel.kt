@@ -125,6 +125,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun deletePlayer(player: PlayerEntity) = viewModelScope.launch {
         repo.deletePlayer(player)
+        _message.emit("Player deleted")
+    }
+
+    fun deleteGame(gameId: Int) = viewModelScope.launch {
+        repo.deleteGame(gameId)
+        _message.emit("Game deleted")
     }
 
     // ─── Live Game Setup ────────────────────────────────────────

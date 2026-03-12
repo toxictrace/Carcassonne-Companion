@@ -279,7 +279,8 @@ fun CarcassonneApp() {
                     sortNewestFirst = sortNewestFirst,
                     onToggleSort = { vm.toggleSortOrder() },
                     onGameClick = { navController.navigate(Routes.matchDetail(it)) },
-                    onEditGame = { navController.navigate(Routes.editGame(it)) }
+                    onEditGame = { navController.navigate(Routes.editGame(it)) },
+                    onDeleteGames = { ids -> ids.forEach { vm.deleteGame(it) } }
                 )
             }
             composable(Routes.PLAYERS) {
@@ -287,7 +288,8 @@ fun CarcassonneApp() {
                     players = players,
                     playerStats = pStats,
                     onPlayerClick = { navController.navigate(Routes.playerProfile(it)) },
-                    onAddPlayer = { showAddPlayer = true }
+                    onAddPlayer = { showAddPlayer = true },
+                    onDeletePlayer = { vm.deletePlayer(it) }
                 )
             }
             composable(Routes.STATS) {

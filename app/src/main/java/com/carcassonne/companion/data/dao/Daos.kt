@@ -44,6 +44,9 @@ interface GameDao {
     @Query("SELECT COUNT(*) FROM games")
     suspend fun getGameCount(): Int
 
+    @Delete
+    suspend fun deleteGame(game: GameEntity)
+
     @Query("DELETE FROM games")
     suspend fun deleteAllGames()
 }

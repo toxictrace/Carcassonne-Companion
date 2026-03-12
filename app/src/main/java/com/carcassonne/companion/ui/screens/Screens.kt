@@ -1,6 +1,10 @@
+@file:OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
+
 package com.carcassonne.companion.ui.screens
 
+import androidx.compose.animation.*
 import androidx.compose.foundation.*
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.*
 import androidx.compose.foundation.shape.*
@@ -198,67 +202,190 @@ fun HistoryScreen(
     sortNewestFirst: Boolean,
     onToggleSort: () -> Unit,
     onGameClick: (Int) -> Unit,
-    onEditGame: (Int) -> Unit
+    onEditGame: (Int) -> Unit,
+    onDeleteGames: (Set<Int>) -> Unit = {}
 ) {
     var query by remember { mutableStateOf("") }
     val filtered = remember(games, query) {
         if (query.isBlank()) games
         else games.filter { (it.name ?: "Game #${it.id}").contains(query, ignoreCase = true) }
     }
+    val selected = remember { mutableStateSetOf<Int>() }
+    val selecting = selected.isNotEmpty()
+    var showConfirm by remember { mutableStateOf(false) }
 
-    LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp)
-    ) {
-        item {
-            OutlinedTextField(
-                value = query,
-                onValueChange = { query = it },
-                modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text("Search games...", color = CarcText3) },
-                leadingIcon = { Icon(Icons.Default.Search, null, tint = CarcText3) },
-                trailingIcon = {
-                    IconButton(onClick = onToggleSort) {
-                        Text(if (sortNewestFirst) "↓" else "↑", fontSize = 18.sp, color = CarcGreen)
-                    }
-                },
-                shape = RoundedCornerShape(50.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = CarcGreenDeep,
-                    unfocusedBorderColor = CarcBorder,
-                    focusedTextColor = CarcText,
-                    unfocusedTextColor = CarcText,
-                    cursorColor = CarcGreen,
-                    focusedContainerColor = CarcCard,
-                    unfocusedContainerColor = CarcCard
-                )
-            )
-        }
+    if (showConfirm) {
+        AlertDialog(
+            onDismissRequest = { showConfirm = false },
+            containerColor = CarcCard2,
+            title = { Text("Delete ${selected.size} game${if (selected.size > 1) "s" else ""}?", fontWeight = FontWeight.Bold) },
+            text = { Text("This cannot be undone.", color = CarcText2) },
+            confirmButton = {
+                Button(
+                    onClick = { onDeleteGames(selected.toSet()); selected.clear(); showConfirm = false },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFEF4444))
+                ) { Text("Delete", fontWeight = FontWeight.Bold, color = Color.White) }
+            },
+            dismissButton = {
+                TextButton(onClick = { showConfirm = false }) { Text("Cancel", color = CarcText3) }
+            }
+        )
+    }
 
-        if (filtered.isEmpty()) {
+    Box(Modifier.fillMaxSize()) {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(
+                start = 16.dp, end = 16.dp, top = 16.dp,
+                bottom = if (selecting) 96.dp else 72.dp
+            ),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
             item {
-                Box(Modifier.fillMaxWidth().padding(40.dp), Alignment.Center) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text("📜", fontSize = 48.sp)
-                        Spacer(Modifier.height(12.dp))
-                        Text("No games found", color = CarcText2, fontWeight = FontWeight.SemiBold)
-                    }
+                OutlinedTextField(
+                    value = query,
+                    onValueChange = { query = it },
+                    modifier = Modifier.fillMaxWidth(),
+                    placeholder = { Text("Search games...", color = CarcText3) },
+                    leadingIcon = { Icon(Icons.Default.Search, null, tint = CarcText3) },
+                    trailingIcon = {
+                        if (selecting) {
+                            TextButton(onClick = { selected.clear() }) {
+                                Text("Cancel", color = CarcText3, fontSize = 13.sp)
+                            }
+                        } else {
+                            IconButton(onClick = onToggleSort) {
+                                Text(if (sortNewestFirst) "↓" else "↑", fontSize = 18.sp, color = CarcGreen)
+                            }
+                        }
+                    },
+                    shape = RoundedCornerShape(50.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = CarcGreenDeep,
+                        unfocusedBorderColor = CarcBorder,
+                        focusedTextColor = CarcText,
+                        unfocusedTextColor = CarcText,
+                        cursorColor = CarcGreen,
+                        focusedContainerColor = CarcCard,
+                        unfocusedContainerColor = CarcCard
+                    )
+                )
+            }
+
+            if (selecting) {
+                item {
+                    Text(
+                        "${selected.size} selected — long press to select more",
+                        fontSize = 11.sp, color = CarcGreen, letterSpacing = 1.sp,
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
                 }
             }
-        } else {
-            items(filtered) { game ->
-                val gps = allGamePlayers.filter { it.gameId == game.id }
-                HistoryGameCard(
-                    game = game,
-                    gamePlayers = gps,
-                    players = players,
-                    onClick = { onGameClick(game.id) },
-                    onEdit = { onEditGame(game.id) }
+
+            if (filtered.isEmpty()) {
+                item {
+                    Box(Modifier.fillMaxWidth().padding(40.dp), Alignment.Center) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text("📜", fontSize = 48.sp)
+                            Spacer(Modifier.height(12.dp))
+                            Text("No games found", color = CarcText2, fontWeight = FontWeight.SemiBold)
+                        }
+                    }
+                }
+            } else {
+                items(filtered, key = { it.id }) { game ->
+                    val gps = allGamePlayers.filter { it.gameId == game.id }
+                    val isSelected = game.id in selected
+                    SelectableHistoryCard(
+                        game = game,
+                        gamePlayers = gps,
+                        players = players,
+                        isSelected = isSelected,
+                        selecting = selecting,
+                        onClick = {
+                            if (selecting) {
+                                if (isSelected) selected.remove(game.id) else selected.add(game.id)
+                            } else {
+                                onGameClick(game.id)
+                            }
+                        },
+                        onLongClick = {
+                            if (isSelected) selected.remove(game.id) else selected.add(game.id)
+                        },
+                        onEdit = { onEditGame(game.id) }
+                    )
+                }
+            }
+        }
+
+        // Bottom delete bar
+        androidx.compose.animation.AnimatedVisibility(
+            visible = selecting,
+            modifier = Modifier.align(Alignment.BottomCenter),
+            enter = androidx.compose.animation.slideInVertically { it },
+            exit = androidx.compose.animation.slideOutVertically { it }
+        ) {
+            Box(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(Color(0xFFEF4444))
+                    .clickable { showConfirm = true }
+                    .padding(vertical = 16.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    "🗑  Delete ${selected.size} game${if (selected.size > 1) "s" else ""}",
+                    fontWeight = FontWeight.Bold, fontSize = 15.sp, color = Color.White
                 )
             }
         }
-        item { Spacer(Modifier.height(72.dp)) }
+    }
+}
+
+@Composable
+fun SelectableHistoryCard(
+    game: GameEntity,
+    gamePlayers: List<com.carcassonne.companion.data.entity.GamePlayerEntity>,
+    players: List<PlayerEntity>,
+    isSelected: Boolean,
+    selecting: Boolean,
+    onClick: () -> Unit,
+    onLongClick: () -> Unit,
+    onEdit: () -> Unit
+) {
+    Box(
+        Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(14.dp))
+            .then(if (isSelected) Modifier.border(1.5.dp, Color(0xFFEF4444).copy(alpha = 0.7f), RoundedCornerShape(14.dp)) else Modifier)
+    ) {
+        HistoryGameCard(
+            game = game,
+            gamePlayers = gamePlayers,
+            players = players,
+            onClick = onClick,
+            onLongClick = onLongClick,
+            onEdit = if (selecting) ({}) else onEdit,
+            containerColor = if (isSelected) Color(0xFFEF4444).copy(alpha = 0.10f) else null
+        )
+        // Чекбокс сверху слева
+        if (selecting) {
+            Box(
+                Modifier
+                    .padding(10.dp)
+                    .size(22.dp)
+                    .clip(RoundedCornerShape(6.dp))
+                    .background(if (isSelected) Color(0xFFEF4444) else CarcBg3)
+                    .border(1.5.dp, if (isSelected) Color(0xFFEF4444) else CarcBorder, RoundedCornerShape(6.dp))
+                    .align(Alignment.TopStart),
+                contentAlignment = Alignment.Center
+            ) {
+                if (isSelected) Text("✓", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Color.White,
+                    lineHeight = 14.sp, textAlign = TextAlign.Center)
+            }
+        }
     }
 }
 
@@ -268,7 +395,9 @@ fun HistoryGameCard(
     gamePlayers: List<com.carcassonne.companion.data.entity.GamePlayerEntity> = emptyList(),
     players: List<PlayerEntity> = emptyList(),
     onClick: () -> Unit,
-    onEdit: () -> Unit = {}
+    onLongClick: () -> Unit = {},
+    onEdit: () -> Unit = {},
+    containerColor: Color? = null
 ) {
     val date = remember(game.date) {
         SimpleDateFormat("MMM d, yyyy", Locale.getDefault()).format(Date(game.date))
@@ -276,9 +405,9 @@ fun HistoryGameCard(
     val sortedGP = remember(gamePlayers) { gamePlayers.sortedBy { it.placement } }
 
     Card(
-        modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
+        modifier = Modifier.fillMaxWidth().combinedClickable(onClick = onClick, onLongClick = onLongClick),
         shape = RoundedCornerShape(14.dp),
-        colors = CardDefaults.cardColors(containerColor = CarcCard),
+        colors = CardDefaults.cardColors(containerColor = containerColor ?: CarcCard),
         border = BorderStroke(1.dp, CarcBorder)
     ) {
         Column(modifier = Modifier.padding(12.dp)) {
@@ -343,82 +472,189 @@ fun PlayersScreen(
     players: List<PlayerEntity>,
     playerStats: List<PlayerStats>,
     onPlayerClick: (Int) -> Unit,
-    onAddPlayer: () -> Unit
+    onAddPlayer: () -> Unit,
+    onDeletePlayer: (PlayerEntity) -> Unit
 ) {
     var query by remember { mutableStateOf("") }
     val filtered = remember(players, query) {
         if (query.isBlank()) players
         else players.filter { it.name.contains(query, ignoreCase = true) }
     }
+    val selected = remember { mutableStateSetOf<Int>() }
+    val selecting = selected.isNotEmpty()
+    var showConfirm by remember { mutableStateOf(false) }
 
-    LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp)
-    ) {
-        item {
-            OutlinedTextField(
-                value = query,
-                onValueChange = { query = it },
-                modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text("Search players...", color = CarcText3) },
-                leadingIcon = { Icon(Icons.Default.Search, null, tint = CarcText3) },
-                shape = RoundedCornerShape(50.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = CarcGreenDeep,
-                    unfocusedBorderColor = CarcBorder,
-                    focusedTextColor = CarcText,
-                    unfocusedTextColor = CarcText,
-                    cursorColor = CarcGreen,
-                    focusedContainerColor = CarcCard,
-                    unfocusedContainerColor = CarcCard
-                )
-            )
-        }
-        item {
-            Text(
-                "ACTIVE PLAYERS",
-                fontSize = 11.sp,
-                color = CarcText3,
-                letterSpacing = 1.sp,
-                modifier = Modifier.padding(top = 8.dp)
-            )
-        }
+    if (showConfirm) {
+        AlertDialog(
+            onDismissRequest = { showConfirm = false },
+            containerColor = CarcCard2,
+            title = { Text("Delete ${selected.size} player(s)?", fontWeight = FontWeight.Bold) },
+            text = { Text("This cannot be undone. Game history stays.", color = CarcText2) },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        players.filter { it.id in selected }.forEach { onDeletePlayer(it) }
+                        selected.clear()
+                        showConfirm = false
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFEF4444))
+                ) { Text("Delete", fontWeight = FontWeight.Bold, color = Color.White) }
+            },
+            dismissButton = {
+                TextButton(onClick = { showConfirm = false }) { Text("Cancel", color = CarcText3) }
+            }
+        )
+    }
 
-        if (filtered.isEmpty()) {
+    Box(Modifier.fillMaxSize()) {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(
+                start = 16.dp, end = 16.dp, top = 16.dp,
+                bottom = if (selecting) 96.dp else 72.dp
+            ),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
             item {
-                Box(Modifier.fillMaxWidth().padding(40.dp), Alignment.Center) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text("👤", fontSize = 48.sp)
-                        Spacer(Modifier.height(12.dp))
-                        Text("No players yet", color = CarcText2, fontWeight = FontWeight.SemiBold)
-                        TextButton(onClick = onAddPlayer) {
-                            Text("Add your first player", color = CarcGreen)
+                OutlinedTextField(
+                    value = query,
+                    onValueChange = { query = it },
+                    modifier = Modifier.fillMaxWidth(),
+                    placeholder = { Text("Search players...", color = CarcText3) },
+                    leadingIcon = { Icon(Icons.Default.Search, null, tint = CarcText3) },
+                    trailingIcon = {
+                        if (selecting) {
+                            TextButton(onClick = { selected.clear() }) {
+                                Text("Cancel", color = CarcText3, fontSize = 13.sp)
+                            }
+                        }
+                    },
+                    shape = RoundedCornerShape(50.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = CarcGreenDeep,
+                        unfocusedBorderColor = CarcBorder,
+                        focusedTextColor = CarcText,
+                        unfocusedTextColor = CarcText,
+                        cursorColor = CarcGreen,
+                        focusedContainerColor = CarcCard,
+                        unfocusedContainerColor = CarcCard
+                    )
+                )
+            }
+            item {
+                Text(
+                    if (selecting) "${selected.size} selected — long press to select more"
+                    else "PLAYERS",
+                    fontSize = 11.sp,
+                    color = if (selecting) CarcGreen else CarcText3,
+                    letterSpacing = 1.sp,
+                    modifier = Modifier.padding(top = 8.dp)
+                )
+            }
+
+            if (filtered.isEmpty()) {
+                item {
+                    Box(Modifier.fillMaxWidth().padding(40.dp), Alignment.Center) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text("👤", fontSize = 48.sp)
+                            Spacer(Modifier.height(12.dp))
+                            Text("No players yet", color = CarcText2, fontWeight = FontWeight.SemiBold)
+                            TextButton(onClick = onAddPlayer) {
+                                Text("Add your first player", color = CarcGreen)
+                            }
                         }
                     }
                 }
-            }
-        } else {
-            items(filtered) { player ->
-                val stats = playerStats.find { it.player.id == player.id }
-                PlayerCard(player, stats, onClick = { onPlayerClick(player.id) })
+            } else {
+                items(filtered, key = { it.id }) { player ->
+                    val stats = playerStats.find { it.player.id == player.id }
+                    val isSelected = player.id in selected
+                    SelectablePlayerCard(
+                        player = player,
+                        stats = stats,
+                        isSelected = isSelected,
+                        selecting = selecting,
+                        onClick = {
+                            if (selecting) {
+                                if (isSelected) selected.remove(player.id)
+                                else selected.add(player.id)
+                            } else {
+                                onPlayerClick(player.id)
+                            }
+                        },
+                        onLongClick = {
+                            if (isSelected) selected.remove(player.id)
+                            else selected.add(player.id)
+                        }
+                    )
+                }
             }
         }
-        item { Spacer(Modifier.height(72.dp)) }
+
+        // Bottom delete bar — появляется при выделении
+        androidx.compose.animation.AnimatedVisibility(
+            visible = selecting,
+            modifier = Modifier.align(Alignment.BottomCenter),
+            enter = androidx.compose.animation.slideInVertically { it },
+            exit = androidx.compose.animation.slideOutVertically { it }
+        ) {
+            Box(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(Color(0xFFEF4444))
+                    .clickable { showConfirm = true }
+                    .padding(vertical = 16.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    "🗑  Delete ${selected.size} player${if (selected.size > 1) "s" else ""}",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 15.sp,
+                    color = Color.White
+                )
+            }
+        }
     }
 }
 
 @Composable
-fun PlayerCard(player: PlayerEntity, stats: PlayerStats?, onClick: () -> Unit) {
+fun SelectablePlayerCard(
+    player: PlayerEntity,
+    stats: PlayerStats?,
+    isSelected: Boolean,
+    selecting: Boolean,
+    onClick: () -> Unit,
+    onLongClick: () -> Unit
+) {
+    val accent = meepleColor(player.meepleColor)
     Card(
-        modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
+        modifier = Modifier
+            .fillMaxWidth()
+            .combinedClickable(onClick = onClick, onLongClick = onLongClick),
         shape = RoundedCornerShape(14.dp),
-        colors = CardDefaults.cardColors(containerColor = CarcCard)
+        colors = CardDefaults.cardColors(
+            containerColor = if (isSelected) Color(0xFFEF4444).copy(alpha = 0.12f) else CarcCard
+        ),
+        border = if (isSelected) BorderStroke(1.5.dp, Color(0xFFEF4444).copy(alpha = 0.6f)) else null
     ) {
-        Row(
-            modifier = Modifier.padding(14.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
+        Row(modifier = Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
+            // Чекбокс — появляется в режиме выделения
+            if (selecting) {
+                Box(
+                    Modifier
+                        .size(22.dp)
+                        .clip(RoundedCornerShape(6.dp))
+                        .background(if (isSelected) Color(0xFFEF4444) else CarcBg3)
+                        .border(1.5.dp, if (isSelected) Color(0xFFEF4444) else CarcBorder, RoundedCornerShape(6.dp)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (isSelected) Text("✓", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Color.White,
+                        lineHeight = 14.sp, textAlign = TextAlign.Center)
+                }
+                Spacer(Modifier.width(12.dp))
+            }
             PlayerAvatar(player.name, player.meepleColor, size = 48.dp, avatarPath = player.avatarPath)
             Spacer(Modifier.width(12.dp))
             Column(Modifier.weight(1f)) {
@@ -428,7 +664,7 @@ fun PlayerCard(player: PlayerEntity, stats: PlayerStats?, onClick: () -> Unit) {
                     WinRateBar(stats.winRate)
                 }
             }
-            if (stats != null && stats.gamesPlayed > 0) {
+            if (!selecting && stats != null && stats.gamesPlayed > 0) {
                 Column(horizontalAlignment = Alignment.End) {
                     Box(
                         modifier = Modifier
@@ -438,9 +674,7 @@ fun PlayerCard(player: PlayerEntity, stats: PlayerStats?, onClick: () -> Unit) {
                     ) {
                         Text(
                             "${stats.wins}W / ${stats.gamesPlayed - stats.wins}L",
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 13.sp,
-                            color = CarcText
+                            fontWeight = FontWeight.Bold, fontSize = 13.sp, color = CarcText
                         )
                     }
                     Text(
@@ -453,6 +687,16 @@ fun PlayerCard(player: PlayerEntity, stats: PlayerStats?, onClick: () -> Unit) {
             }
         }
     }
+}
+
+// Оставляем PlayerCard для обратной совместимости (используется в других местах)
+@Composable
+fun PlayerCard(player: PlayerEntity, stats: PlayerStats?, onClick: () -> Unit, onDeleteRequest: (() -> Unit)? = null) {
+    SelectablePlayerCard(
+        player = player, stats = stats,
+        isSelected = false, selecting = false,
+        onClick = onClick, onLongClick = {}
+    )
 }
 
 // ─── Stats Screen ────────────────────────────────────────────────────────────
@@ -2083,7 +2327,21 @@ fun PlayerProfileScreen(playerId: Int, viewModel: MainViewModel, onEdit: () -> U
                     modifier = Modifier.padding(bottom = 8.dp).fillMaxWidth()
                 ) {
                     Row(modifier = Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Text(if (gp.placement == 1) "🏆" else if (gp.placement == 2) "🥈" else "🥉", fontSize = 24.sp)
+                        // Правильное отображение места без бага с медалькой
+                        val medal = when (gp.placement) {
+                            1 -> "🏆"; 2 -> "🥈"; 3 -> "🥉"; else -> null
+                        }
+                        if (medal != null) {
+                            Text(medal, fontSize = 24.sp)
+                        } else {
+                            Box(
+                                Modifier.size(32.dp).clip(CircleShape).background(CarcBg3),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text("${gp.placement}", fontSize = 14.sp, fontWeight = FontWeight.Bold,
+                                    color = CarcText2, lineHeight = 14.sp, textAlign = TextAlign.Center)
+                            }
+                        }
                         Spacer(Modifier.width(12.dp))
                         Column(Modifier.weight(1f)) {
                             Text(if (gp.placement == 1) "1st Place" else "${gp.placement}${placeSuffix(gp.placement)} Place", fontSize = 14.sp, fontWeight = FontWeight.SemiBold)

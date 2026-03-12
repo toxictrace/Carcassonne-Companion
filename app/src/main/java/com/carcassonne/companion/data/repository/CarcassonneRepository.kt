@@ -28,6 +28,12 @@ class CarcassonneRepository(
 
     suspend fun getGameById(id: Int) = gameDao.getGameById(id)
 
+    suspend fun deleteGame(gameId: Int) {
+        gamePlayerDao.deleteGamePlayers(gameId)
+        val game = gameDao.getGameById(gameId) ?: return
+        gameDao.deleteGame(game)
+    }
+
     suspend fun saveGame(
         name: String?,
         durationSeconds: Long?,
