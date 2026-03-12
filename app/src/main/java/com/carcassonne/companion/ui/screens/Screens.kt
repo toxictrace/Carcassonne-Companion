@@ -25,6 +25,8 @@ import com.carcassonne.companion.viewmodel.GlobalStats
 import com.carcassonne.companion.viewmodel.LiveGameState
 import com.carcassonne.companion.viewmodel.MainViewModel
 import com.carcassonne.companion.viewmodel.PlayerStats
+import com.carcassonne.companion.viewmodel.ScoringObjectType
+import com.carcassonne.companion.viewmodel.EndgamePlayerInput
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
@@ -1036,100 +1038,319 @@ fun NewGameScreen(
     }
 }
 
+// ─── Add Scoring Object Bottom Sheet ─────────────────────────────────────────
+@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
+@Composable
+fun AddObjectSheet(
+    playerName: String,
+    meepleCol: String,
+    onDismiss: () -> Unit,
+    onScore: (ScoringObjectType, Int, String) -> Unit
+) {
+    val accent = meepleColor(meepleCol)
+    var tab by remember { mutableStateOf(0) }          // 0=city 1=road 2=monastery
+
+    // City state
+    var cityTiles by remember { mutableStateOf(2) }
+    var cityShields by remember { mutableStateOf(0) }
+    val cityPts = cityTiles * 2 + cityShields * 2
+
+    // Road state
+    var roadTiles by remember { mutableStateOf(2) }
+    val roadPts = roadTiles
+
+    // Monastery state
+    var monTiles by remember { mutableStateOf(9) }
+    val monPts = monTiles
+
+    androidx.compose.material3.ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        containerColor = CarcCard2,
+        dragHandle = {
+            Box(Modifier.fillMaxWidth().padding(top = 12.dp, bottom = 4.dp), Alignment.Center) {
+                Box(Modifier.size(36.dp, 4.dp).clip(RoundedCornerShape(2.dp)).background(CarcBorder))
+            }
+        }
+    ) {
+        Column(Modifier.padding(horizontal = 20.dp).padding(bottom = 32.dp)) {
+            // Header
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(Modifier.size(10.dp).clip(CircleShape).background(accent))
+                Spacer(Modifier.width(8.dp))
+                Text("$playerName — Add Object", fontWeight = FontWeight.Bold, fontSize = 17.sp)
+            }
+            Spacer(Modifier.height(16.dp))
+
+            // Tab selector
+            Row(
+                Modifier.fillMaxWidth().clip(RoundedCornerShape(10.dp)).background(CarcBg3),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                listOf("🏰 City", "🛤️ Road", "⛪ Monastery").forEachIndexed { i, label ->
+                    val sel = tab == i
+                    Box(
+                        Modifier
+                            .weight(1f)
+                            .padding(4.dp)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(if (sel) accent.copy(alpha = 0.2f) else Color.Transparent)
+                            .border(if (sel) 1.dp else 0.dp, if (sel) accent else Color.Transparent, RoundedCornerShape(8.dp))
+                            .clickable { tab = i }
+                            .padding(vertical = 10.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(label, fontSize = 13.sp, fontWeight = if (sel) FontWeight.Bold else FontWeight.Normal,
+                            color = if (sel) accent else CarcText3)
+                    }
+                }
+            }
+            Spacer(Modifier.height(20.dp))
+
+            when (tab) {
+                0 -> { // City
+                    ObjectStepperRow("Tiles", cityTiles, 1, 36, { cityTiles = it })
+                    Spacer(Modifier.height(12.dp))
+                    ObjectStepperRow("Shields", cityShields, 0, cityTiles, { cityShields = it })
+                    Spacer(Modifier.height(20.dp))
+                    ObjectScorePreview("🏰 City", cityPts, accent,
+                        "Tiles: $cityTiles × 2" + if (cityShields > 0) " + Shields: $cityShields × 2" else "")
+                    Spacer(Modifier.height(16.dp))
+                    PrimaryButton("+$cityPts pts — Add City", accent, onClick = {
+                        val lbl = "🏰 ${cityTiles}t" + if (cityShields > 0) "+${cityShields}s" else ""
+                        onScore(ScoringObjectType.CITY, cityPts, lbl)
+                        onDismiss()
+                    })
+                }
+                1 -> { // Road
+                    ObjectStepperRow("Tiles", roadTiles, 1, 36, { roadTiles = it })
+                    Spacer(Modifier.height(20.dp))
+                    ObjectScorePreview("🛤️ Road", roadPts, accent, "Tiles: $roadTiles × 1")
+                    Spacer(Modifier.height(16.dp))
+                    PrimaryButton("+$roadPts pts — Add Road", accent, onClick = {
+                        onScore(ScoringObjectType.ROAD, roadPts, "🛤️ ${roadTiles}t")
+                        onDismiss()
+                    })
+                }
+                2 -> { // Monastery
+                    Text("Completed monastery = +9", fontSize = 13.sp, color = CarcText3)
+                    Spacer(Modifier.height(8.dp))
+                    ObjectStepperRow("Tiles placed (1–9)", monTiles, 1, 9, { monTiles = it })
+                    Spacer(Modifier.height(20.dp))
+                    ObjectScorePreview("⛪ Monastery", monPts, accent,
+                        if (monTiles == 9) "Fully completed!" else "Incomplete: $monTiles tiles")
+                    Spacer(Modifier.height(16.dp))
+                    PrimaryButton("+$monPts pts — Add Monastery", accent, onClick = {
+                        onScore(ScoringObjectType.MONASTERY, monPts, "⛪ $monTiles/9")
+                        onDismiss()
+                    })
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun ObjectStepperRow(label: String, value: Int, min: Int, max: Int, onValue: (Int) -> Unit) {
+    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+        Text(label, Modifier.weight(1f), fontSize = 15.sp, fontWeight = FontWeight.Medium)
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(0.dp)) {
+            Box(
+                Modifier.size(40.dp).clip(RoundedCornerShape(topStart = 8.dp, bottomStart = 8.dp))
+                    .background(CarcBg3).border(1.dp, CarcBorder, RoundedCornerShape(topStart = 8.dp, bottomStart = 8.dp))
+                    .clickable { if (value > min) onValue(value - 1) },
+                contentAlignment = Alignment.Center
+            ) { Text("−", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = if (value > min) CarcText else CarcText3) }
+            Box(Modifier.width(52.dp).height(40.dp).background(CarcBg3).border(BorderStroke(1.dp, CarcBorder)),
+                contentAlignment = Alignment.Center) {
+                Text(value.toString(), fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            }
+            Box(
+                Modifier.size(40.dp).clip(RoundedCornerShape(topEnd = 8.dp, bottomEnd = 8.dp))
+                    .background(CarcBg3).border(1.dp, CarcBorder, RoundedCornerShape(topEnd = 8.dp, bottomEnd = 8.dp))
+                    .clickable { if (value < max) onValue(value + 1) },
+                contentAlignment = Alignment.Center
+            ) { Text("+", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = if (value < max) CarcText else CarcText3) }
+        }
+    }
+}
+
+@Composable
+fun ObjectScorePreview(title: String, pts: Int, accent: Color, formula: String) {
+    Row(
+        Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp))
+            .background(accent.copy(alpha = 0.1f))
+            .border(1.dp, accent.copy(alpha = 0.3f), RoundedCornerShape(12.dp))
+            .padding(14.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(Modifier.weight(1f)) {
+            Text(title, fontSize = 14.sp, color = accent, fontWeight = FontWeight.SemiBold)
+            Text(formula, fontSize = 12.sp, color = CarcText3)
+        }
+        Text("+$pts", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = accent)
+    }
+}
+
+@Composable
+fun PrimaryButton(label: String, accent: Color = CarcGreen, enabled: Boolean = true, onClick: () -> Unit) {
+    Box(
+        Modifier.fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .background(if (enabled) accent else CarcBg3)
+            .clickable(enabled = enabled, onClick = onClick)
+            .padding(vertical = 14.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(label, fontWeight = FontWeight.Bold, fontSize = 15.sp,
+            color = if (enabled) CarcBg else CarcText3)
+    }
+}
+
 // ─── Live Game Screen ─────────────────────────────────────────────────────────
 @Composable
 fun LiveGameScreen(
     liveGame: LiveGameState,
     onAdjustScore: (Int, Int) -> Unit,
-    onEditScore: (Int) -> Unit,
+    onAddObject: (Int, ScoringObjectType, Int, String) -> Unit,
+    onUndoLast: (Int) -> Unit,
     onFinish: () -> Unit
 ) {
-    var showEditDialog by remember { mutableStateOf<Int?>(null) }
-    val coroutineScope = rememberCoroutineScope()
+    var addObjectFor by remember { mutableStateOf<LivePlayerState?>(null) }
 
-    LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        item {
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text("${liveGame.selectedPlayers.size} Players", fontSize = 13.sp, color = CarcText3)
-                Text("Tap score to edit", fontSize = 13.sp, color = CarcText2)
+    Box(Modifier.fillMaxSize()) {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(start = 14.dp, end = 14.dp, top = 12.dp, bottom = 100.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            item {
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically) {
+                    Text("${liveGame.selectedPlayers.size} players", fontSize = 13.sp, color = CarcText3)
+                    // Live scoreboard mini
+                    val leader = liveGame.selectedPlayers.maxByOrNull { it.score }
+                    if (leader != null)
+                        Text("👑 ${leader.playerName.take(8)}: ${leader.score}",
+                            fontSize = 12.sp, color = meepleColor(leader.meepleColor))
+                }
             }
-        }
 
-        items(liveGame.selectedPlayers) { player ->
-            val c = meepleColor(player.meepleColor)
-            Card(
-                shape = RoundedCornerShape(14.dp),
-                colors = CardDefaults.cardColors(containerColor = CarcCard),
-                border = BorderStroke(1.5.dp, CarcBorder)
-            ) {
-                Column(modifier = Modifier.padding(14.dp)) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        PlayerAvatar(player.playerName, player.meepleColor, avatarPath = player.avatarPath)
-                        Spacer(Modifier.width(12.dp))
-                        Text(player.playerName, fontSize = 16.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
-                        Text(
-                            player.score.toString(),
-                            fontSize = 36.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = c,
-                            modifier = Modifier.clickable { onEditScore(player.playerId) }
-                        )
-                    }
-                    Spacer(Modifier.height(10.dp))
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        ScoreAdjustButton("−5", false, { onAdjustScore(player.playerId, -5) }, Modifier.weight(1f))
-                        ScoreAdjustButton("−1", false, { onAdjustScore(player.playerId, -1) }, Modifier.weight(1f))
-                        ScoreAdjustButton("+1", true,  { onAdjustScore(player.playerId, +1) }, Modifier.weight(1f))
-                        ScoreAdjustButton("+5", true,  { onAdjustScore(player.playerId, +5) }, Modifier.weight(1f))
-                    }
-                    Spacer(Modifier.height(6.dp))
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(6.dp)
-                    ) {
-                        listOf("+2","+3","+4","+9","+10").forEach { label ->
+            items(liveGame.selectedPlayers) { player ->
+                val accent = meepleColor(player.meepleColor)
+                Card(
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = CarcCard),
+                    border = BorderStroke(1.5.dp, accent.copy(alpha = 0.5f)),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column(Modifier.padding(14.dp)) {
+                        // Header row
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            PlayerAvatar(player.playerName, player.meepleColor, 40.dp, avatarPath = player.avatarPath)
+                            Spacer(Modifier.width(10.dp))
+                            Column(Modifier.weight(1f)) {
+                                Text(player.playerName, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                                if (player.events.isNotEmpty()) {
+                                    Text(
+                                        player.events.takeLast(2).joinToString(" · ") { it.label },
+                                        fontSize = 11.sp, color = CarcText3, maxLines = 1
+                                    )
+                                }
+                            }
+                            // Score big
+                            Text(player.score.toString(), fontSize = 42.sp, fontWeight = FontWeight.Black, color = accent)
+                        }
+
+                        Spacer(Modifier.height(12.dp))
+                        HorizontalDivider(color = accent.copy(alpha = 0.2f))
+                        Spacer(Modifier.height(10.dp))
+
+                        // Quick score row: −1, +1, +2 and Add Object button
+                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                            // −1
+                            QuickScoreBtn("−1", false, accent, Modifier.weight(1f)) {
+                                onAdjustScore(player.playerId, -1)
+                            }
+                            // +1 (road tile / mini city)
+                            QuickScoreBtn("+1", true, accent, Modifier.weight(1f)) {
+                                onAddObject(player.playerId, ScoringObjectType.ROAD, 1, "🛤️ +1")
+                            }
+                            // +2 (city tile or shield)
+                            QuickScoreBtn("+2", true, accent, Modifier.weight(1f)) {
+                                onAddObject(player.playerId, ScoringObjectType.CITY, 2, "🏰 +2")
+                            }
+                            // Add Object
                             Box(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .height(30.dp)
-                                    .clip(RoundedCornerShape(6.dp))
-                                    .background(CarcBg3)
-                                    .border(1.dp, CarcBorder, RoundedCornerShape(6.dp))
-                                    .clickable { onAdjustScore(player.playerId, label.removePrefix("+").toInt()) },
+                                Modifier.weight(2f).height(40.dp)
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .background(accent.copy(alpha = 0.15f))
+                                    .border(1.dp, accent.copy(alpha = 0.4f), RoundedCornerShape(8.dp))
+                                    .clickable { addObjectFor = player },
                                 contentAlignment = Alignment.Center
                             ) {
-                                Text(label, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = CarcText2)
+                                Text("＋ Object", fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = accent)
                             }
                         }
-                        Box(
-                            modifier = Modifier
-                                .weight(1f)
-                                .height(30.dp)
-                                .clip(RoundedCornerShape(6.dp))
-                                .background(CarcBg3)
-                                .border(1.dp, CarcBorder, RoundedCornerShape(6.dp))
-                                .clickable { onEditScore(player.playerId) },
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text("✎", fontSize = 13.sp, color = CarcText2)
+
+                        // Undo last
+                        if (player.events.isNotEmpty()) {
+                            Spacer(Modifier.height(6.dp))
+                            Box(
+                                Modifier.fillMaxWidth().clip(RoundedCornerShape(6.dp))
+                                    .clickable { onUndoLast(player.playerId) }
+                                    .padding(vertical = 4.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text("↩ Undo: ${player.events.last().label}",
+                                    fontSize = 11.sp, color = CarcText3)
+                            }
                         }
                     }
                 }
             }
         }
 
-        item {
-            Spacer(Modifier.height(8.dp))
-            PrimaryButton("🏁  FINISH GAME", onClick = onFinish)
-            Spacer(Modifier.height(72.dp))
+        // FAB Finish Game
+        Box(Modifier.align(Alignment.BottomCenter).padding(bottom = 24.dp)) {
+            Box(
+                Modifier
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(CarcGreen)
+                    .clickable(onClick = onFinish)
+                    .padding(horizontal = 32.dp, vertical = 16.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text("🏁  FINISH GAME", fontWeight = FontWeight.Bold, fontSize = 15.sp, color = CarcBg)
+            }
         }
+    }
+
+    // Bottom sheet for object scoring
+    addObjectFor?.let { player ->
+        AddObjectSheet(
+            playerName = player.playerName,
+            meepleCol = player.meepleColor,
+            onDismiss = { addObjectFor = null },
+            onScore = { type, pts, label ->
+                onAddObject(player.playerId, type, pts, label)
+            }
+        )
+    }
+}
+
+@Composable
+fun QuickScoreBtn(label: String, positive: Boolean, accent: Color, modifier: Modifier, onClick: () -> Unit) {
+    Box(
+        modifier
+            .height(40.dp)
+            .clip(RoundedCornerShape(8.dp))
+            .background(if (positive) accent.copy(alpha = 0.15f) else CarcBg3)
+            .border(1.dp, if (positive) accent.copy(alpha = 0.5f) else CarcBorder, RoundedCornerShape(8.dp))
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(label, fontSize = 14.sp, fontWeight = FontWeight.Bold,
+            color = if (positive) accent else CarcText2)
     }
 }
 
@@ -1218,6 +1439,263 @@ fun ScoreInputField(label: String, value: String, onValue: (String) -> Unit, mod
             cursorColor = CarcGreen
         )
     )
+}
+
+// ─── Endgame Screen ───────────────────────────────────────────────────────────
+@Composable
+fun EndgameScreen(
+    liveGame: LiveGameState,
+    onApply: (Map<Int, EndgamePlayerInput>) -> Unit,
+    onSave: (String) -> Unit,
+    onBack: () -> Unit
+) {
+    val players = liveGame.selectedPlayers
+    val inputs = remember {
+        players.associate { p ->
+            p.playerId to mutableStateOf(EndgamePlayerInput(p.playerId))
+        }
+    }
+    var gameName by remember { mutableStateOf("") }
+    var phase by remember { mutableStateOf(0) } // 0=incomplete 1=farms 2=confirm
+
+    val totalWithEndgame = { pid: Int ->
+        val p = players.find { it.playerId == pid }!!
+        val eg = inputs[pid]?.value ?: EndgamePlayerInput(pid)
+        p.score + eg.totalPoints()
+    }
+
+    LazyColumn(
+        Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        // Phase tabs
+        item {
+            Row(
+                Modifier.fillMaxWidth().clip(RoundedCornerShape(10.dp)).background(CarcBg3),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                listOf("Incomplete", "Farms", "Confirm").forEachIndexed { i, label ->
+                    val sel = phase == i
+                    Box(
+                        Modifier.weight(1f).padding(4.dp)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(if (sel) CarcGreen.copy(alpha = 0.2f) else Color.Transparent)
+                            .clickable { phase = i }.padding(vertical = 10.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(label, fontSize = 13.sp,
+                            fontWeight = if (sel) FontWeight.Bold else FontWeight.Normal,
+                            color = if (sel) CarcGreen else CarcText3)
+                    }
+                }
+            }
+        }
+
+        when (phase) {
+            0 -> { // Incomplete objects
+                item {
+                    Text("Incomplete objects score 1 pt per tile/shield",
+                        fontSize = 13.sp, color = CarcText3)
+                }
+                items(players) { player ->
+                    val accent = meepleColor(player.meepleColor)
+                    val inp = inputs[player.playerId]!!
+                    Card(shape = RoundedCornerShape(14.dp),
+                        colors = CardDefaults.cardColors(containerColor = CarcCard),
+                        border = BorderStroke(1.dp, accent.copy(alpha = 0.4f))) {
+                        Column(Modifier.padding(14.dp)) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                PlayerAvatar(player.playerName, player.meepleColor, 36.dp, avatarPath = player.avatarPath)
+                                Spacer(Modifier.width(10.dp))
+                                Text(player.playerName, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = accent)
+                                Spacer(Modifier.weight(1f))
+                                Text("Base: ${player.score}", fontSize = 13.sp, color = CarcText3)
+                            }
+                            Spacer(Modifier.height(12.dp))
+                            // Incomplete city tiles+shields
+                            EndgameStepperRow("🏰 City tiles+shields", inp.value.incompleteCity, 0, 99) {
+                                inp.value = inp.value.copy(incompleteCity = it)
+                            }
+                            Spacer(Modifier.height(8.dp))
+                            EndgameStepperRow("🛤️ Road tiles", inp.value.incompleteRoad, 0, 99) {
+                                inp.value = inp.value.copy(incompleteRoad = it)
+                            }
+                            Spacer(Modifier.height(8.dp))
+                            EndgameStepperRow("⛪ Monastery tiles", inp.value.incompleteMonastery, 0, 8) {
+                                inp.value = inp.value.copy(incompleteMonastery = it)
+                            }
+                            // Sub-total
+                            val sub = inp.value.incompleteCity + inp.value.incompleteRoad + inp.value.incompleteMonastery
+                            if (sub > 0) {
+                                Spacer(Modifier.height(8.dp))
+                                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                                    Text("+$sub pts from incomplete", fontSize = 12.sp, color = accent)
+                                }
+                            }
+                        }
+                    }
+                }
+                item {
+                    PrimaryButton("Next → Farms", onClick = { phase = 1 })
+                }
+            }
+
+            1 -> { // Farms
+                item {
+                    Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp))
+                        .background(CarcBg3).padding(14.dp)) {
+                        Text("🌾 Farm Scoring", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                        Spacer(Modifier.height(4.dp))
+                        Text("Count completed cities adjacent to each player's farm.",
+                            fontSize = 13.sp, color = CarcText3)
+                        Text("Formula: N cities × 3 pts", fontSize = 13.sp, color = CarcGreen,
+                            fontWeight = FontWeight.SemiBold)
+                    }
+                }
+                items(players) { player ->
+                    val accent = meepleColor(player.meepleColor)
+                    val inp = inputs[player.playerId]!!
+                    Card(shape = RoundedCornerShape(14.dp),
+                        colors = CardDefaults.cardColors(containerColor = CarcCard),
+                        border = BorderStroke(1.dp, accent.copy(alpha = 0.4f))) {
+                        Column(Modifier.padding(14.dp)) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                PlayerAvatar(player.playerName, player.meepleColor, 36.dp, avatarPath = player.avatarPath)
+                                Spacer(Modifier.width(10.dp))
+                                Text(player.playerName, fontWeight = FontWeight.Bold, color = accent)
+                            }
+                            Spacer(Modifier.height(12.dp))
+                            EndgameStepperRow("Completed cities adjacent", inp.value.farmCities, 0, 30) {
+                                inp.value = inp.value.copy(farmCities = it)
+                            }
+                            if (inp.value.farmCities > 0) {
+                                Spacer(Modifier.height(8.dp))
+                                Row(
+                                    Modifier.fillMaxWidth().clip(RoundedCornerShape(8.dp))
+                                        .background(accent.copy(alpha = 0.1f)).padding(10.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text("${inp.value.farmCities} × 3 pts", fontSize = 13.sp, color = CarcText2)
+                                    Text("+${inp.value.farmCities * 3}", fontSize = 18.sp,
+                                        fontWeight = FontWeight.Bold, color = accent)
+                                }
+                            }
+                        }
+                    }
+                }
+                item {
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                        Box(Modifier.weight(1f).clip(RoundedCornerShape(10.dp))
+                            .background(CarcBg3).border(1.dp, CarcBorder, RoundedCornerShape(10.dp))
+                            .clickable { phase = 0 }.padding(vertical = 14.dp),
+                            contentAlignment = Alignment.Center) {
+                            Text("← Back", color = CarcText2, fontWeight = FontWeight.SemiBold)
+                        }
+                        Box(Modifier.weight(2f).clip(RoundedCornerShape(10.dp))
+                            .background(CarcGreen).clickable { phase = 2 }.padding(vertical = 14.dp),
+                            contentAlignment = Alignment.Center) {
+                            Text("Next → Confirm", color = CarcBg, fontWeight = FontWeight.Bold)
+                        }
+                    }
+                }
+            }
+
+            2 -> { // Confirm & Save
+                item {
+                    Text("Final Scores", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                }
+                val sorted = players.sortedByDescending { totalWithEndgame(it.playerId) }
+                items(sorted) { player ->
+                    val accent = meepleColor(player.meepleColor)
+                    val inp = inputs[player.playerId]?.value ?: EndgamePlayerInput(player.playerId)
+                    val rank = sorted.indexOfFirst { it.playerId == player.playerId } + 1
+                    Card(shape = RoundedCornerShape(14.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = if (rank == 1) CarcGreenDeep.copy(alpha = 0.25f) else CarcCard),
+                        border = BorderStroke(if (rank == 1) 1.5.dp else 1.dp,
+                            if (rank == 1) CarcGreenDeep else accent.copy(alpha = 0.3f))) {
+                        Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
+                            Text(if (rank == 1) "🏆" else "$rank", fontSize = if (rank == 1) 24.sp else 16.sp,
+                                fontWeight = FontWeight.Bold, modifier = Modifier.width(32.dp))
+                            PlayerAvatar(player.playerName, player.meepleColor, 40.dp, avatarPath = player.avatarPath)
+                            Spacer(Modifier.width(10.dp))
+                            Column(Modifier.weight(1f)) {
+                                Text(player.playerName, fontWeight = FontWeight.Bold, color = accent)
+                                Text("Base ${player.score}" +
+                                    (if (inp.incompleteCity + inp.incompleteRoad + inp.incompleteMonastery > 0)
+                                        " + ${inp.incompleteCity + inp.incompleteRoad + inp.incompleteMonastery} incomplete" else "") +
+                                    (if (inp.farmCities > 0) " + ${inp.farmCities * 3} farms" else ""),
+                                    fontSize = 11.sp, color = CarcText3)
+                            }
+                            Text(totalWithEndgame(player.playerId).toString(),
+                                fontSize = 32.sp, fontWeight = FontWeight.Black, color = accent)
+                        }
+                    }
+                }
+                item { Spacer(Modifier.height(4.dp)) }
+                item {
+                    OutlinedTextField(
+                        value = gameName, onValueChange = { gameName = it },
+                        label = { Text("Game name (optional)", color = CarcText3) },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = CarcGreenDeep, unfocusedBorderColor = CarcBorder,
+                            focusedTextColor = CarcText, unfocusedTextColor = CarcText, cursorColor = CarcGreen
+                        )
+                    )
+                }
+                item {
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                        Box(Modifier.weight(1f).clip(RoundedCornerShape(10.dp))
+                            .background(CarcBg3).border(1.dp, CarcBorder, RoundedCornerShape(10.dp))
+                            .clickable { phase = 1 }.padding(vertical = 14.dp),
+                            contentAlignment = Alignment.Center) {
+                            Text("← Back", color = CarcText2, fontWeight = FontWeight.SemiBold)
+                        }
+                        Box(Modifier.weight(2f).clip(RoundedCornerShape(10.dp))
+                            .background(CarcGreen)
+                            .clickable {
+                                val finalInputs = inputs.mapValues { it.value.value }
+                                onApply(finalInputs)
+                                onSave(gameName)
+                            }.padding(vertical = 14.dp),
+                            contentAlignment = Alignment.Center) {
+                            Text("✓ Save Game", color = CarcBg, fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                        }
+                    }
+                }
+                item { Spacer(Modifier.height(72.dp)) }
+            }
+        }
+    }
+}
+
+@Composable
+fun EndgameStepperRow(label: String, value: Int, min: Int, max: Int, onValue: (Int) -> Unit) {
+    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+        Text(label, Modifier.weight(1f), fontSize = 13.sp, color = CarcText2)
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Box(Modifier.size(32.dp).clip(RoundedCornerShape(topStart = 6.dp, bottomStart = 6.dp))
+                .background(CarcBg3).border(1.dp, CarcBorder, RoundedCornerShape(topStart = 6.dp, bottomStart = 6.dp))
+                .clickable { if (value > min) onValue(value - 1) },
+                contentAlignment = Alignment.Center) {
+                Text("−", fontSize = 18.sp, color = if (value > min) CarcText else CarcText3)
+            }
+            Box(Modifier.width(44.dp).height(32.dp).background(CarcBg3)
+                .border(BorderStroke(1.dp, CarcBorder)),
+                contentAlignment = Alignment.Center) {
+                Text(value.toString(), fontSize = 15.sp, fontWeight = FontWeight.Bold)
+            }
+            Box(Modifier.size(32.dp).clip(RoundedCornerShape(topEnd = 6.dp, bottomEnd = 6.dp))
+                .background(CarcBg3).border(1.dp, CarcBorder, RoundedCornerShape(topEnd = 6.dp, bottomEnd = 6.dp))
+                .clickable { if (value < max) onValue(value + 1) },
+                contentAlignment = Alignment.Center) {
+                Text("+", fontSize = 18.sp, color = if (value < max) CarcText else CarcText3)
+            }
+        }
+    }
 }
 
 // ─── Match Detail Screen ──────────────────────────────────────────────────────

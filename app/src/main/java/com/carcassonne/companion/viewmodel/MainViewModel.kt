@@ -12,6 +12,26 @@ import com.carcassonne.companion.data.repository.PlayerResult
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
+// ─── Scoring object types ────────────────────────────────────────────────────
+enum class ScoringObjectType { CITY, ROAD, MONASTERY, FARM }
+
+data class ScoringEvent(
+    val type: ScoringObjectType,
+    val points: Int,
+    val label: String   // e.g. "Город 4 плитки+2щита"
+)
+
+// ─── Endgame input per player ────────────────────────────────────────────────
+data class EndgamePlayerInput(
+    val playerId: Int,
+    val incompleteCity: Int = 0,    // tiles + shields × 1pt each
+    val incompleteRoad: Int = 0,    // tiles × 1pt each
+    val incompleteMonastery: Int = 0, // 1-8 tiles around
+    val farmCities: Int = 0         // completed cities adjacent to farm × 3pt
+) {
+    fun totalPoints() = incompleteCity + incompleteRoad + incompleteMonastery + farmCities * 3
+}
+
 // ─── Live Game State ────────────────────────────────────────────────────────
 data class LivePlayerState(
     val playerId: Int,
@@ -22,7 +42,8 @@ data class LivePlayerState(
     val cityPoints: Int = 0,
     val roadPoints: Int = 0,
     val monasteryPoints: Int = 0,
-    val farmPoints: Int = 0
+    val farmPoints: Int = 0,
+    val events: List<ScoringEvent> = emptyList()   // history of scored objects
 )
 
 data class LiveGameState(
@@ -126,31 +147,76 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _liveGame.update { state ->
             state.copy(
                 selectedPlayers = state.selectedPlayers.map { p ->
-                    if (p.playerId == playerId)
-                        p.copy(score = maxOf(0, p.score + delta))
-                    else p
+                    if (p.playerId == playerId) {
+                        val event = ScoringEvent(ScoringObjectType.CITY, delta, "+$delta")
+                        p.copy(
+                            score = maxOf(0, p.score + delta),
+                            cityPoints = p.cityPoints + maxOf(0, delta),
+                            events = p.events + event
+                        )
+                    } else p
                 }
             )
         }
     }
 
-    fun setDetailedScore(
+    /** Adds a completed scoring object (city/road/monastery) during gameplay */
+    fun addScoringObject(
         playerId: Int,
-        city: Int, road: Int, monastery: Int, farm: Int
+        type: ScoringObjectType,
+        points: Int,
+        label: String
     ) {
-        val total = city + road + monastery + farm
         _liveGame.update { state ->
             state.copy(
                 selectedPlayers = state.selectedPlayers.map { p ->
-                    if (p.playerId == playerId)
-                        p.copy(
-                            score = total,
-                            cityPoints = city,
-                            roadPoints = road,
-                            monasteryPoints = monastery,
-                            farmPoints = farm
-                        )
-                    else p
+                    if (p.playerId != playerId) return@map p
+                    val event = ScoringEvent(type, points, label)
+                    p.copy(
+                        score = p.score + points,
+                        cityPoints = p.cityPoints + if (type == ScoringObjectType.CITY) points else 0,
+                        roadPoints = p.roadPoints + if (type == ScoringObjectType.ROAD) points else 0,
+                        monasteryPoints = p.monasteryPoints + if (type == ScoringObjectType.MONASTERY) points else 0,
+                        events = p.events + event
+                    )
+                }
+            )
+        }
+    }
+
+    /** Remove last scoring event for a player */
+    fun undoLastEvent(playerId: Int) {
+        _liveGame.update { state ->
+            state.copy(
+                selectedPlayers = state.selectedPlayers.map { p ->
+                    if (p.playerId != playerId || p.events.isEmpty()) return@map p
+                    val last = p.events.last()
+                    p.copy(
+                        score = maxOf(0, p.score - last.points),
+                        cityPoints = if (last.type == ScoringObjectType.CITY) maxOf(0, p.cityPoints - last.points) else p.cityPoints,
+                        roadPoints = if (last.type == ScoringObjectType.ROAD) maxOf(0, p.roadPoints - last.points) else p.roadPoints,
+                        monasteryPoints = if (last.type == ScoringObjectType.MONASTERY) maxOf(0, p.monasteryPoints - last.points) else p.monasteryPoints,
+                        events = p.events.dropLast(1)
+                    )
+                }
+            )
+        }
+    }
+
+    /** Apply endgame scoring (incomplete objects + farms) for all players */
+    fun applyEndgame(results: Map<Int, EndgamePlayerInput>) {
+        _liveGame.update { state ->
+            state.copy(
+                selectedPlayers = state.selectedPlayers.map { p ->
+                    val eg = results[p.playerId] ?: return@map p
+                    val egPoints = eg.totalPoints()
+                    p.copy(
+                        score = p.score + egPoints,
+                        cityPoints = p.cityPoints + eg.incompleteCity,
+                        roadPoints = p.roadPoints + eg.incompleteRoad,
+                        monasteryPoints = p.monasteryPoints + eg.incompleteMonastery,
+                        farmPoints = eg.farmCities * 3
+                    )
                 }
             )
         }

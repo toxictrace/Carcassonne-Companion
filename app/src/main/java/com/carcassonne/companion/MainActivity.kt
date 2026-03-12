@@ -22,7 +22,9 @@ import androidx.navigation.compose.*
 import com.carcassonne.companion.data.entity.PlayerEntity
 import com.carcassonne.companion.ui.screens.*
 import com.carcassonne.companion.ui.theme.*
+import com.carcassonne.companion.viewmodel.EndgamePlayerInput
 import com.carcassonne.companion.viewmodel.MainViewModel
+import com.carcassonne.companion.viewmodel.ScoringObjectType
 import kotlinx.coroutines.launch
 
 // ─── Navigation Routes ───────────────────────────────────────────────────────
@@ -34,6 +36,7 @@ object Routes {
     const val SETTINGS       = "settings"
     const val NEW_GAME       = "new_game"
     const val LIVE_GAME      = "live_game"
+    const val ENDGAME        = "endgame"
     const val MATCH_DETAIL   = "match_detail/{gameId}"
     const val PLAYER_PROFILE = "player_profile/{playerId}"
     const val EDIT_GAME      = "edit_game/{gameId}"
@@ -104,82 +107,9 @@ fun CarcassonneApp() {
         )
     }
 
-    // Score edit dialog state
-    var scoreEditPlayerId by remember { mutableStateOf<Int?>(null) }
-    scoreEditPlayerId?.let { pid ->
-        val lp = liveGame.selectedPlayers.find { it.playerId == pid }
-        if (lp != null) {
-            ScoreEditDialog(
-                playerName = lp.playerName,
-                initial = Triple(lp.cityPoints, lp.roadPoints, lp.monasteryPoints),
-                initialFarm = lp.farmPoints,
-                onDismiss = { scoreEditPlayerId = null },
-                onSave = { city, road, mon, farm ->
-                    vm.setDetailedScore(pid, city, road, mon, farm)
-                    scoreEditPlayerId = null
-                }
-            )
-        }
-    }
+    // Score edit dialog — убран, теперь через AddObjectSheet в LiveGameScreen
 
-    // End game dialog state
-    var showEndGame by remember { mutableStateOf(false) }
-    var endGameName by remember { mutableStateOf("") }
-    if (showEndGame) {
-        AlertDialog(
-            onDismissRequest = { showEndGame = false },
-            containerColor = CarcCard2,
-            title = { Text("🏁 Finish Game", fontWeight = FontWeight.Bold) },
-            text = {
-                Column {
-                    OutlinedTextField(
-                        value = endGameName,
-                        onValueChange = { endGameName = it },
-                        label = { Text("Game Name (optional)", color = CarcText3) },
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = CarcGreenDeep,
-                            unfocusedBorderColor = CarcBorder,
-                            focusedTextColor = CarcText,
-                            unfocusedTextColor = CarcText,
-                            cursorColor = CarcGreen
-                        )
-                    )
-                    Spacer(Modifier.height(12.dp))
-                    liveGame.selectedPlayers
-                        .sortedByDescending { it.score }
-                        .forEachIndexed { i, p ->
-                            Row(
-                                modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(if (i == 0) "🥇" else if (i == 1) "🥈" else "🥉", fontSize = 18.sp)
-                                Spacer(Modifier.width(10.dp))
-                                Text(p.playerName, modifier = Modifier.weight(1f), fontWeight = FontWeight.Medium)
-                                Text("${p.score}", fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                            }
-                        }
-                }
-            },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        showEndGame = false
-                        vm.saveGame(endGameName) { gameId ->
-                            navController.navigate(Routes.matchDetail(gameId)) {
-                                popUpTo(Routes.DASHBOARD) { inclusive = false }
-                            }
-                        }
-                        endGameName = ""
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = CarcGreen, contentColor = CarcBg)
-                ) { Text("✓ Save & Finish", fontWeight = FontWeight.Bold) }
-            },
-            dismissButton = {
-                TextButton(onClick = { showEndGame = false }) { Text("Cancel", color = CarcText3) }
-            }
-        )
-    }
+    // End game dialog — убран, теперь отдельный экран ENDGAME
 
     Scaffold(
         containerColor = CarcBg,
@@ -249,7 +179,8 @@ fun CarcassonneApp() {
                 else -> if (currentRoute?.startsWith("match_detail") == true ||
                            currentRoute?.startsWith("player_profile") == true ||
                            currentRoute?.startsWith("edit_game") == true ||
-                           currentRoute?.startsWith("edit_player") == true) {
+                           currentRoute?.startsWith("edit_player") == true ||
+                           currentRoute == Routes.ENDGAME) {
                     TopAppBar(
                         title = {
                             Text(
@@ -257,6 +188,7 @@ fun CarcassonneApp() {
                                     currentRoute.startsWith("match_detail") -> "Match Details"
                                     currentRoute.startsWith("edit_game")    -> "Edit Game"
                                     currentRoute.startsWith("edit_player")  -> "Edit Profile"
+                                    currentRoute == Routes.ENDGAME          -> "🏁 Final Scoring"
                                     else -> "Profile"
                                 },
                                 fontWeight = FontWeight.Bold, color = CarcText
@@ -407,8 +339,26 @@ fun CarcassonneApp() {
                 LiveGameScreen(
                     liveGame = liveGame,
                     onAdjustScore = { pid, delta -> vm.adjustScore(pid, delta) },
-                    onEditScore = { scoreEditPlayerId = it },
-                    onFinish = { showEndGame = true }
+                    onAddObject = { pid, type, pts, label -> vm.addScoringObject(pid, type, pts, label) },
+                    onUndoLast = { vm.undoLastEvent(it) },
+                    onFinish = { navController.navigate(Routes.ENDGAME) }
+                )
+            }
+            composable(Routes.ENDGAME) {
+                EndgameScreen(
+                    liveGame = liveGame,
+                    onApply = { results ->
+                        vm.applyEndgame(results)
+                        navController.navigate(Routes.LIVE_GAME) { popUpTo(Routes.ENDGAME) { inclusive = true } }
+                    },
+                    onSave = { name ->
+                        vm.saveGame(name) { gameId ->
+                            navController.navigate(Routes.matchDetail(gameId)) {
+                                popUpTo(Routes.DASHBOARD) { inclusive = false }
+                            }
+                        }
+                    },
+                    onBack = { navController.popBackStack() }
                 )
             }
             composable(Routes.MATCH_DETAIL) { back ->
