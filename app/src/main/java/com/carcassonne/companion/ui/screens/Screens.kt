@@ -1117,17 +1117,16 @@ fun MatchDetailScreen(
         contentPadding = PaddingValues(16.dp)
     ) {
         item {
-            // Banner
             Box(
-                modifier = Modifier.fillMaxWidth().height(120.dp).clip(RoundedCornerShape(14.dp)).background(CarcBg3),
+                modifier = Modifier.fillMaxWidth().height(100.dp).clip(RoundedCornerShape(14.dp)).background(CarcBg3),
                 contentAlignment = Alignment.Center
-            ) { Text("🗺️", fontSize = 50.sp) }
+            ) { Text("🗺️", fontSize = 48.sp) }
             Spacer(Modifier.height(12.dp))
         }
         item {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f)) {
-                    Text("Match #$gameId", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                    Text(game?.name ?: "Match #$gameId", fontSize = 20.sp, fontWeight = FontWeight.Bold)
                     Text("📅 $date", fontSize = 13.sp, color = CarcText3, modifier = Modifier.padding(top = 4.dp))
                 }
                 Box(
@@ -1143,36 +1142,45 @@ fun MatchDetailScreen(
             }
             Spacer(Modifier.height(16.dp))
         }
-        item {
-            Text("🏆 Winner", fontSize = 15.sp, color = CarcText3, modifier = Modifier.padding(bottom = 8.dp))
-        }
+
+        // Winner
         sorted.firstOrNull()?.let { winner ->
             item {
+                Text("🏆 Winner", fontSize = 13.sp, color = CarcText3, modifier = Modifier.padding(bottom = 8.dp))
                 val p = players.find { it.id == winner.playerId }
                 Card(
                     shape = RoundedCornerShape(14.dp),
                     colors = CardDefaults.cardColors(containerColor = CarcGreenDeep.copy(alpha = 0.3f)),
                     border = BorderStroke(1.dp, CarcGreenDeep)
                 ) {
-                    Row(
-                        modifier = Modifier.padding(16.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        PlayerAvatar(p?.name ?: "?", p?.meepleColor ?: "green", 56.dp)
+                    Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+                        // Нейтральный аватар
+                        Box(
+                            modifier = Modifier.size(52.dp).clip(CircleShape).background(CarcBg3).border(2.dp, meepleColor(winner.meepleColor), CircleShape),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                p?.name?.firstOrNull()?.uppercaseChar()?.toString() ?: "?",
+                                fontSize = 22.sp, fontWeight = FontWeight.Bold, color = CarcText
+                            )
+                        }
                         Spacer(Modifier.width(14.dp))
                         Column(Modifier.weight(1f)) {
-                            Text(p?.name ?: "Unknown", fontSize = 17.sp, fontWeight = FontWeight.Bold)
-                            Text("${winner.finalScore} Points • MVP", fontSize = 13.sp, color = CarcText3)
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(p?.name ?: "Unknown", fontSize = 17.sp, fontWeight = FontWeight.Bold)
+                                Spacer(Modifier.width(8.dp))
+                                Box(Modifier.size(10.dp).clip(CircleShape).background(meepleColor(winner.meepleColor)))
+                            }
+                            Text("${winner.finalScore} pts • MVP", fontSize = 13.sp, color = CarcText3)
                         }
-                        Column(horizontalAlignment = Alignment.End) {
-                            Text(winner.finalScore.toString(), fontSize = 36.sp, fontWeight = FontWeight.Bold, color = CarcGreen)
-                            Text("TOTAL", fontSize = 10.sp, color = CarcText3)
-                        }
+                        Text(winner.finalScore.toString(), fontSize = 36.sp, fontWeight = FontWeight.Bold, color = CarcGreen)
                     }
                 }
                 Spacer(Modifier.height(16.dp))
             }
         }
+
+        // Final Standings
         item { Text("Final Standings", fontSize = 18.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(bottom = 10.dp)) }
         items(sorted) { gp ->
             val p = players.find { it.id == gp.playerId }
@@ -1184,37 +1192,60 @@ fun MatchDetailScreen(
                 Row(modifier = Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
                     RankBadge(gp.placement)
                     Spacer(Modifier.width(10.dp))
-                    PlayerAvatar(p?.name ?: "?", p?.meepleColor ?: "green")
+                    // Нейтральный аватар с окантовкой цвета мипла
+                    Box(
+                        modifier = Modifier.size(40.dp).clip(CircleShape).background(CarcBg3).border(2.dp, meepleColor(gp.meepleColor), CircleShape),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            p?.name?.firstOrNull()?.uppercaseChar()?.toString() ?: "?",
+                            fontSize = 16.sp, fontWeight = FontWeight.Bold, color = CarcText
+                        )
+                    }
                     Spacer(Modifier.width(10.dp))
                     Column(Modifier.weight(1f)) {
-                        Text(p?.name ?: "Unknown", fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
-                        Text("${gp.finalScore} Points", fontSize = 12.sp, color = CarcText3)
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(p?.name ?: "Unknown", fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+                            Spacer(Modifier.width(6.dp))
+                            Box(Modifier.size(8.dp).clip(CircleShape).background(meepleColor(gp.meepleColor)))
+                        }
+                        Text("${gp.finalScore} pts", fontSize = 12.sp, color = CarcText3)
                     }
                     Text(gp.finalScore.toString(), fontSize = 22.sp, fontWeight = FontWeight.Bold)
                 }
             }
         }
-        if (sorted.any { it.cityPoints > 0 || it.roadPoints > 0 }) {
-            item {
-                Spacer(Modifier.height(8.dp))
-                Text("Points Breakdown", fontSize = 18.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(bottom = 10.dp))
-                Card(shape = RoundedCornerShape(14.dp), colors = CardDefaults.cardColors(containerColor = CarcCard)) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        sorted.forEach { gp ->
-                            val p = players.find { it.id == gp.playerId }
-                            Row(
-                                modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                MeepleDot(p?.meepleColor ?: "green")
-                                Spacer(Modifier.width(6.dp))
-                                Text(p?.name ?: "?", Modifier.weight(1f), fontWeight = FontWeight.Medium)
-                                Text("🏰${gp.cityPoints}", fontSize = 12.sp, color = CarcText3)
-                                Spacer(Modifier.width(8.dp))
-                                Text("🛤️${gp.roadPoints}", fontSize = 12.sp, color = CarcText3)
-                                Spacer(Modifier.width(8.dp))
-                                Text("🌾${gp.farmPoints}", fontSize = 12.sp, color = CarcText3)
-                            }
+
+        // Points Breakdown — всегда показываем
+        item {
+            Spacer(Modifier.height(8.dp))
+            Text("Points Breakdown", fontSize = 18.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(bottom = 10.dp))
+            Card(shape = RoundedCornerShape(14.dp), colors = CardDefaults.cardColors(containerColor = CarcCard)) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    // Заголовок колонок
+                    Row(modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)) {
+                        Spacer(Modifier.width(16.dp))
+                        Text("", Modifier.weight(1f))
+                        Text("🏰", fontSize = 13.sp, modifier = Modifier.width(36.dp), textAlign = TextAlign.Center)
+                        Text("🛤️", fontSize = 13.sp, modifier = Modifier.width(36.dp), textAlign = TextAlign.Center)
+                        Text("⛪", fontSize = 13.sp, modifier = Modifier.width(36.dp), textAlign = TextAlign.Center)
+                        Text("🌾", fontSize = 13.sp, modifier = Modifier.width(36.dp), textAlign = TextAlign.Center)
+                    }
+                    HorizontalDivider(color = CarcBorder, thickness = 0.5.dp)
+                    sorted.forEach { gp ->
+                        val p = players.find { it.id == gp.playerId }
+                        Row(
+                            modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            // Маркер цвета мипла в данной игре
+                            Box(Modifier.size(10.dp).clip(CircleShape).background(meepleColor(gp.meepleColor)))
+                            Spacer(Modifier.width(6.dp))
+                            Text(p?.name ?: "?", Modifier.weight(1f), fontWeight = FontWeight.Medium, fontSize = 14.sp)
+                            Text(gp.cityPoints.toString(), fontSize = 13.sp, color = CarcText2, modifier = Modifier.width(36.dp), textAlign = TextAlign.Center)
+                            Text(gp.roadPoints.toString(), fontSize = 13.sp, color = CarcText2, modifier = Modifier.width(36.dp), textAlign = TextAlign.Center)
+                            Text(gp.monasteryPoints.toString(), fontSize = 13.sp, color = CarcText2, modifier = Modifier.width(36.dp), textAlign = TextAlign.Center)
+                            Text(gp.farmPoints.toString(), fontSize = 13.sp, color = CarcText2, modifier = Modifier.width(36.dp), textAlign = TextAlign.Center)
                         }
                     }
                 }
