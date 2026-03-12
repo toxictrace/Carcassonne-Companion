@@ -90,14 +90,15 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     // ─── Player CRUD ────────────────────────────────────────────
-    fun addPlayer(name: String, color: String) = viewModelScope.launch {
+    fun addPlayer(name: String, color: String, avatarPath: String? = null) = viewModelScope.launch {
         if (name.isBlank()) { _message.emit("Enter a player name"); return@launch }
-        repo.addPlayer(name.trim(), color)
+        repo.addPlayer(name.trim(), color, avatarPath)
         _message.emit("${name.trim()} added!")
     }
 
     fun updatePlayer(player: PlayerEntity) = viewModelScope.launch {
         repo.updatePlayer(player)
+        _message.emit("Profile updated!")
     }
 
     fun deletePlayer(player: PlayerEntity) = viewModelScope.launch {

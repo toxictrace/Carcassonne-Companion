@@ -10,6 +10,7 @@ data class PlayerEntity(
     val id: Int = 0,
     val name: String,
     val meepleColor: String = "red", // red, blue, green, yellow, black, gray
+    val avatarPath: String? = null,   // path to saved image file
     val createdAt: Long = System.currentTimeMillis()
 )
 

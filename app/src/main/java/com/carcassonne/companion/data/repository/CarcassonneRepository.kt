@@ -16,8 +16,8 @@ class CarcassonneRepository(
     // ─── Players ────────────────────────────────────────────────
     val allPlayers: Flow<List<PlayerEntity>> = playerDao.getAllPlayers()
 
-    suspend fun addPlayer(name: String, color: String): Long =
-        playerDao.insertPlayer(PlayerEntity(name = name, meepleColor = color))
+    suspend fun addPlayer(name: String, color: String, avatarPath: String? = null): Long =
+        playerDao.insertPlayer(PlayerEntity(name = name, meepleColor = color, avatarPath = avatarPath))
 
     suspend fun updatePlayer(player: PlayerEntity) = playerDao.updatePlayer(player)
     suspend fun deletePlayer(player: PlayerEntity) = playerDao.deletePlayer(player)

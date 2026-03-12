@@ -37,10 +37,12 @@ object Routes {
     const val MATCH_DETAIL   = "match_detail/{gameId}"
     const val PLAYER_PROFILE = "player_profile/{playerId}"
     const val EDIT_GAME      = "edit_game/{gameId}"
+    const val EDIT_PLAYER    = "edit_player/{playerId}"
 
     fun matchDetail(id: Int) = "match_detail/$id"
     fun playerProfile(id: Int) = "player_profile/$id"
     fun editGame(id: Int) = "edit_game/$id"
+    fun editPlayer(id: Int) = "edit_player/$id"
 }
 
 data class BottomNavItem(val route: String, val icon: ImageVector, val label: String)
@@ -98,7 +100,7 @@ fun CarcassonneApp() {
     if (showAddPlayer) {
         AddPlayerDialog(
             onDismiss = { showAddPlayer = false },
-            onAdd = { name, color -> vm.addPlayer(name, color) }
+            onAdd = { name, color, avatarPath -> vm.addPlayer(name, color, avatarPath) }
         )
     }
 
@@ -246,13 +248,15 @@ fun CarcassonneApp() {
                 )
                 else -> if (currentRoute?.startsWith("match_detail") == true ||
                            currentRoute?.startsWith("player_profile") == true ||
-                           currentRoute?.startsWith("edit_game") == true) {
+                           currentRoute?.startsWith("edit_game") == true ||
+                           currentRoute?.startsWith("edit_player") == true) {
                     TopAppBar(
                         title = {
                             Text(
                                 when {
                                     currentRoute.startsWith("match_detail") -> "Match Details"
                                     currentRoute.startsWith("edit_game")    -> "Edit Game"
+                                    currentRoute.startsWith("edit_player")  -> "Edit Profile"
                                     else -> "Profile"
                                 },
                                 fontWeight = FontWeight.Bold, color = CarcText
@@ -418,7 +422,20 @@ fun CarcassonneApp() {
             }
             composable(Routes.PLAYER_PROFILE) { back ->
                 val playerId = back.arguments?.getString("playerId")?.toIntOrNull() ?: return@composable
-                PlayerProfileScreen(playerId = playerId, viewModel = vm)
+                PlayerProfileScreen(
+                    playerId = playerId,
+                    viewModel = vm,
+                    onEdit = { navController.navigate(Routes.editPlayer(playerId)) }
+                )
+            }
+            composable(Routes.EDIT_PLAYER) { back ->
+                val playerId = back.arguments?.getString("playerId")?.toIntOrNull() ?: return@composable
+                val player = players.find { it.id == playerId } ?: return@composable
+                EditPlayerScreen(
+                    player = player,
+                    onSave = { vm.updatePlayer(it) },
+                    onDone = { navController.popBackStack() }
+                )
             }
             composable(Routes.EDIT_GAME) { back ->
                 val gameId = back.arguments?.getString("gameId")?.toIntOrNull() ?: return@composable

@@ -704,25 +704,112 @@ fun SettingsScreen(
     }
 }
 
+// ─── Avatar Picker Section ────────────────────────────────────────────────────
+@Composable
+fun AvatarPickerSection(
+    name: String,
+    color: String,
+    avatarPath: String?,
+    onPickGallery: () -> Unit,
+    onPickCamera: () -> Unit,
+    onRemoveAvatar: () -> Unit,
+    size: Dp = 88.dp
+) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Box(contentAlignment = Alignment.BottomEnd) {
+            PlayerAvatar(name.ifBlank { "?" }, color, size = size, avatarPath = avatarPath)
+            Box(
+                modifier = Modifier
+                    .size(28.dp)
+                    .clip(CircleShape)
+                    .background(CarcGreen)
+                    .border(2.dp, CarcBg, CircleShape)
+                    .clickable { onPickGallery() },
+                contentAlignment = Alignment.Center
+            ) {
+                Text("📷", fontSize = 13.sp)
+            }
+        }
+        Spacer(Modifier.height(8.dp))
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            TextButton(onClick = onPickGallery) {
+                Text("Gallery", fontSize = 12.sp, color = CarcGreen)
+            }
+            TextButton(onClick = onPickCamera) {
+                Text("Camera", fontSize = 12.sp, color = CarcGreen)
+            }
+            if (avatarPath != null) {
+                TextButton(onClick = onRemoveAvatar) {
+                    Text("Remove", fontSize = 12.sp, color = CarcRed)
+                }
+            }
+        }
+    }
+}
+
 // ─── Add Player Dialog ────────────────────────────────────────────────────────
 @Composable
-fun AddPlayerDialog(onDismiss: () -> Unit, onAdd: (String, String) -> Unit) {
+fun AddPlayerDialog(
+    onDismiss: () -> Unit,
+    onAdd: (String, String, String?) -> Unit
+) {
+    val context = androidx.compose.ui.platform.LocalContext.current
     var name by remember { mutableStateOf("") }
     var color by remember { mutableStateOf("red") }
+    var avatarPath by remember { mutableStateOf<String?>(null) }
+    var tempCameraFile by remember { mutableStateOf<java.io.File?>(null) }
+
+    // Gallery picker
+    val galleryLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
+        contract = androidx.activity.result.contract.ActivityResultContracts.GetContent()
+    ) { uri ->
+        uri?.let {
+            val saved = com.carcassonne.companion.util.ImageUtils.saveImageFromUri(context, it, 0)
+            if (saved != null) {
+                com.carcassonne.companion.util.ImageUtils.deleteAvatarFile(avatarPath)
+                avatarPath = saved
+            }
+        }
+    }
+
+    // Camera launcher
+    val cameraLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
+        contract = androidx.activity.result.contract.ActivityResultContracts.TakePicture()
+    ) { success ->
+        if (success) {
+            tempCameraFile?.absolutePath?.let { path ->
+                com.carcassonne.companion.util.ImageUtils.deleteAvatarFile(avatarPath)
+                avatarPath = path
+                tempCameraFile = null
+            }
+        }
+    }
 
     AlertDialog(
         onDismissRequest = onDismiss,
         containerColor = CarcCard2,
         title = { Text("Add New Player", fontWeight = FontWeight.Bold) },
         text = {
-            Column {
-                // Avatar preview
-                Box(
-                    modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    PlayerAvatar(name.ifBlank { "?" }, color, size = 72.dp)
-                }
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                AvatarPickerSection(
+                    name = name,
+                    color = color,
+                    avatarPath = avatarPath,
+                    onPickGallery = { galleryLauncher.launch("image/*") },
+                    onPickCamera = {
+                        val file = com.carcassonne.companion.util.ImageUtils.createTempImageFile(context)
+                        tempCameraFile = file
+                        val uri = androidx.core.content.FileProvider.getUriForFile(
+                            context, "${context.packageName}.provider", file
+                        )
+                        cameraLauncher.launch(uri)
+                    },
+                    onRemoveAvatar = {
+                        com.carcassonne.companion.util.ImageUtils.deleteAvatarFile(avatarPath)
+                        avatarPath = null
+                    }
+                )
+                Spacer(Modifier.height(16.dp))
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
@@ -744,7 +831,7 @@ fun AddPlayerDialog(onDismiss: () -> Unit, onAdd: (String, String) -> Unit) {
         },
         confirmButton = {
             Button(
-                onClick = { if (name.isNotBlank()) { onAdd(name.trim(), color); onDismiss() } },
+                onClick = { if (name.isNotBlank()) { onAdd(name.trim(), color, avatarPath); onDismiss() } },
                 colors = ButtonDefaults.buttonColors(containerColor = CarcGreen, contentColor = CarcBg)
             ) { Text("Create Player", fontWeight = FontWeight.Bold) }
         },
@@ -1257,7 +1344,7 @@ fun MatchDetailScreen(
 
 // ─── Player Profile Screen ────────────────────────────────────────────────────
 @Composable
-fun PlayerProfileScreen(playerId: Int, viewModel: MainViewModel) {
+fun PlayerProfileScreen(playerId: Int, viewModel: MainViewModel, onEdit: () -> Unit = {}) {
     var stats by remember { mutableStateOf<PlayerStats?>(null) }
     var gameHistory by remember { mutableStateOf<List<com.carcassonne.companion.data.entity.GamePlayerEntity>>(emptyList()) }
     val scope = rememberCoroutineScope()
@@ -1280,16 +1367,25 @@ fun PlayerProfileScreen(playerId: Int, viewModel: MainViewModel) {
                 modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                PlayerAvatar(p.name, p.meepleColor, 84.dp)
+                PlayerAvatar(p.name, p.meepleColor, 88.dp, avatarPath = p.avatarPath)
                 Spacer(Modifier.height(12.dp))
                 Text(p.name, fontSize = 22.sp, fontWeight = FontWeight.Bold)
                 Text(
                     getLevelTitle(stats?.gamesPlayed ?: 0),
-                    fontSize = 12.sp,
-                    color = CarcGreen,
-                    letterSpacing = 1.sp,
+                    fontSize = 12.sp, color = CarcGreen, letterSpacing = 1.sp,
                     modifier = Modifier.padding(top = 4.dp)
                 )
+                Spacer(Modifier.height(12.dp))
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(CarcCard2)
+                        .border(1.dp, CarcBorder, RoundedCornerShape(8.dp))
+                        .clickable { onEdit() }
+                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                ) {
+                    Text("✎ Edit Profile", fontSize = 13.sp, color = CarcGreen, fontWeight = FontWeight.SemiBold)
+                }
             }
         }
         item {
@@ -1378,6 +1474,108 @@ fun getLevelTitle(games: Int) = when {
 }
 
 fun placeSuffix(n: Int) = when (n) { 1 -> "st"; 2 -> "nd"; 3 -> "rd"; else -> "th" }
+
+// ─── Edit Player Screen ───────────────────────────────────────────────────────
+@Composable
+fun EditPlayerScreen(
+    player: PlayerEntity,
+    onSave: (PlayerEntity) -> Unit,
+    onDone: () -> Unit
+) {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    var name by remember { mutableStateOf(player.name) }
+    var color by remember { mutableStateOf(player.meepleColor) }
+    var avatarPath by remember { mutableStateOf(player.avatarPath) }
+    var tempCameraFile by remember { mutableStateOf<java.io.File?>(null) }
+
+    val galleryLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
+        contract = androidx.activity.result.contract.ActivityResultContracts.GetContent()
+    ) { uri ->
+        uri?.let {
+            val saved = com.carcassonne.companion.util.ImageUtils.saveImageFromUri(context, it, player.id)
+            if (saved != null) {
+                if (avatarPath != player.avatarPath) com.carcassonne.companion.util.ImageUtils.deleteAvatarFile(avatarPath)
+                avatarPath = saved
+            }
+        }
+    }
+
+    val cameraLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
+        contract = androidx.activity.result.contract.ActivityResultContracts.TakePicture()
+    ) { success ->
+        if (success) {
+            tempCameraFile?.absolutePath?.let { path ->
+                if (avatarPath != player.avatarPath) com.carcassonne.companion.util.ImageUtils.deleteAvatarFile(avatarPath)
+                avatarPath = path
+                tempCameraFile = null
+            }
+        }
+    }
+
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        item {
+            Text("AVATAR", fontSize = 11.sp, color = CarcText3, letterSpacing = 1.sp,
+                modifier = Modifier.fillMaxWidth())
+            Spacer(Modifier.height(8.dp))
+            Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                AvatarPickerSection(
+                    name = name,
+                    color = color,
+                    avatarPath = avatarPath,
+                    onPickGallery = { galleryLauncher.launch("image/*") },
+                    onPickCamera = {
+                        val file = com.carcassonne.companion.util.ImageUtils.createTempImageFile(context)
+                        tempCameraFile = file
+                        val uri = androidx.core.content.FileProvider.getUriForFile(
+                            context, "${context.packageName}.provider", file
+                        )
+                        cameraLauncher.launch(uri)
+                    },
+                    onRemoveAvatar = {
+                        if (avatarPath != player.avatarPath) com.carcassonne.companion.util.ImageUtils.deleteAvatarFile(avatarPath)
+                        avatarPath = null
+                    },
+                    size = 100.dp
+                )
+            }
+        }
+        item {
+            Text("PLAYER NAME", fontSize = 11.sp, color = CarcText3, letterSpacing = 1.sp,
+                modifier = Modifier.fillMaxWidth())
+            Spacer(Modifier.height(8.dp))
+            OutlinedTextField(
+                value = name,
+                onValueChange = { name = it },
+                label = { Text("Name", color = CarcText3) },
+                modifier = Modifier.fillMaxWidth(),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = CarcGreenDeep, unfocusedBorderColor = CarcBorder,
+                    focusedTextColor = CarcText, unfocusedTextColor = CarcText, cursorColor = CarcGreen
+                )
+            )
+        }
+        item {
+            Text("DEFAULT MEEPLE COLOR", fontSize = 11.sp, color = CarcText3, letterSpacing = 1.sp,
+                modifier = Modifier.fillMaxWidth())
+            Spacer(Modifier.height(8.dp))
+            MeepleColorPicker(selected = color, onSelect = { color = it })
+        }
+        item {
+            Spacer(Modifier.height(8.dp))
+            PrimaryButton("✓  SAVE PROFILE", onClick = {
+                if (name.isNotBlank()) {
+                    onSave(player.copy(name = name.trim(), meepleColor = color, avatarPath = avatarPath))
+                    onDone()
+                }
+            })
+        }
+    }
+}
 
 // ─── Edit Game Screen ─────────────────────────────────────────────────────────
 @OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
