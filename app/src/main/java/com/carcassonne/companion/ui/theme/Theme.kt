@@ -27,7 +27,7 @@ val MeepleRed    = Color(0xFFEF4444)
 val MeepleBlue   = Color(0xFF3B82F6)
 val MeepleGreen  = Color(0xFF22C55E)
 val MeepleYellow = Color(0xFFEAB308)
-val MeepleBlack  = Color(0xFF1A1A1A)
+val MeepleBlack  = Color(0xFF6B7280)
 val MeepleGray   = Color(0xFF9CA3AF)
 
 fun meepleColor(name: String): Color = when (name) {

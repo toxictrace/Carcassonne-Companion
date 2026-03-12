@@ -153,34 +153,35 @@ fun DashboardGameRow(
             if (sortedGP.isNotEmpty()) {
                 Spacer(Modifier.height(10.dp))
                 HorizontalDivider(color = CarcBorder, thickness = 0.5.dp)
-                Spacer(Modifier.height(10.dp))
-                // Игроки равномерно
-                Row(modifier = Modifier.fillMaxWidth()) {
-                    sortedGP.forEachIndexed { idx, gp ->
-                        val p = players.find { it.id == gp.playerId }
-                        Row(
-                            modifier = Modifier.weight(1f),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.Start
-                        ) {
-                            PlayerAvatar(p?.name ?: "?", p?.meepleColor ?: "gray", size = 22.dp, avatarPath = p?.avatarPath)
-                            Spacer(Modifier.width(4.dp))
-                            Text(
-                                p?.name?.take(6) ?: "?",
-                                fontSize = 11.sp,
-                                color = CarcText2,
-                                maxLines = 1,
-                                modifier = Modifier.weight(1f, fill = false)
-                            )
-                            Spacer(Modifier.width(3.dp))
-                            Box(
-                                modifier = Modifier
-                                    .size(8.dp)
-                                    .clip(CircleShape)
-                                    .background(meepleColor(gp.meepleColor))
-                            )
+                Spacer(Modifier.height(8.dp))
+                // Игроки в 2 колонки
+                val rows = sortedGP.chunked(2)
+                rows.forEachIndexed { rowIdx, rowPlayers ->
+                    if (rowIdx > 0) Spacer(Modifier.height(6.dp))
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        rowPlayers.forEach { gp ->
+                            val p = players.find { it.id == gp.playerId }
+                            Row(
+                                Modifier.weight(1f),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                PlayerAvatar(p?.name ?: "?", p?.meepleColor ?: "gray", size = 24.dp, avatarPath = p?.avatarPath)
+                                Spacer(Modifier.width(5.dp))
+                                Text(
+                                    p?.name ?: "?",
+                                    fontSize = 12.sp,
+                                    color = CarcText,
+                                    maxLines = 1,
+                                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+                                    modifier = Modifier.weight(1f, fill = false)
+                                )
+                                Spacer(Modifier.width(3.dp))
+                                Box(Modifier.size(7.dp).clip(CircleShape)
+                                    .background(meepleColor(gp.meepleColor)))
+                            }
                         }
-                        if (idx < sortedGP.size - 1) Spacer(Modifier.width(4.dp))
+                        // Если нечётное количество — пустой placeholder
+                        if (rowPlayers.size == 1) Spacer(Modifier.weight(1f))
                     }
                 }
             }
@@ -302,34 +303,33 @@ fun HistoryGameCard(
             if (sortedGP.isNotEmpty()) {
                 Spacer(Modifier.height(10.dp))
                 HorizontalDivider(color = CarcBorder, thickness = 0.5.dp)
-                Spacer(Modifier.height(10.dp))
-                // Игроки равномерно
-                Row(modifier = Modifier.fillMaxWidth()) {
-                    sortedGP.forEachIndexed { idx, gp ->
-                        val p = players.find { it.id == gp.playerId }
-                        Row(
-                            modifier = Modifier.weight(1f),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.Start
-                        ) {
-                            PlayerAvatar(p?.name ?: "?", p?.meepleColor ?: "gray", size = 22.dp, avatarPath = p?.avatarPath)
-                            Spacer(Modifier.width(4.dp))
-                            Text(
-                                p?.name?.take(6) ?: "?",
-                                fontSize = 11.sp,
-                                color = CarcText2,
-                                maxLines = 1,
-                                modifier = Modifier.weight(1f, fill = false)
-                            )
-                            Spacer(Modifier.width(3.dp))
-                            Box(
-                                modifier = Modifier
-                                    .size(8.dp)
-                                    .clip(CircleShape)
-                                    .background(meepleColor(gp.meepleColor))
-                            )
+                Spacer(Modifier.height(8.dp))
+                val rows = sortedGP.chunked(2)
+                rows.forEachIndexed { rowIdx, rowPlayers ->
+                    if (rowIdx > 0) Spacer(Modifier.height(6.dp))
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        rowPlayers.forEach { gp ->
+                            val p = players.find { it.id == gp.playerId }
+                            Row(
+                                Modifier.weight(1f),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                PlayerAvatar(p?.name ?: "?", p?.meepleColor ?: "gray", size = 24.dp, avatarPath = p?.avatarPath)
+                                Spacer(Modifier.width(5.dp))
+                                Text(
+                                    p?.name ?: "?",
+                                    fontSize = 12.sp,
+                                    color = CarcText,
+                                    maxLines = 1,
+                                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+                                    modifier = Modifier.weight(1f, fill = false)
+                                )
+                                Spacer(Modifier.width(3.dp))
+                                Box(Modifier.size(7.dp).clip(CircleShape)
+                                    .background(meepleColor(gp.meepleColor)))
+                            }
                         }
-                        if (idx < sortedGP.size - 1) Spacer(Modifier.width(4.dp))
+                        if (rowPlayers.size == 1) Spacer(Modifier.weight(1f))
                     }
                 }
             }
@@ -1049,7 +1049,7 @@ fun AddObjectSheet(
     onScore: (ScoringObjectType, Int, String) -> Unit
 ) {
     val accent = meepleColor(meepleCol)
-    var tab by remember { mutableStateOf(0) }          // 0=city 1=road 2=monastery
+    var tab by remember { mutableStateOf(0) }
 
     // City state
     var cityTiles by remember { mutableStateOf(2) }
@@ -1058,7 +1058,8 @@ fun AddObjectSheet(
 
     // Road state
     var roadTiles by remember { mutableStateOf(2) }
-    val roadPts = roadTiles
+    var roadTavern by remember { mutableStateOf(false) }
+    val roadPts = if (roadTavern) roadTiles * 2 else roadTiles
 
     // Monastery state
     var monTiles by remember { mutableStateOf(9) }
@@ -1090,9 +1091,7 @@ fun AddObjectSheet(
                 listOf("🏰 City", "🛤️ Road", "⛪ Monastery").forEachIndexed { i, label ->
                     val sel = tab == i
                     Box(
-                        Modifier
-                            .weight(1f)
-                            .padding(4.dp)
+                        Modifier.weight(1f).padding(4.dp)
                             .clip(RoundedCornerShape(8.dp))
                             .background(if (sel) accent.copy(alpha = 0.2f) else Color.Transparent)
                             .border(if (sel) 1.dp else 0.dp, if (sel) accent else Color.Transparent, RoundedCornerShape(8.dp))
@@ -1100,7 +1099,8 @@ fun AddObjectSheet(
                             .padding(vertical = 10.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(label, fontSize = 13.sp, fontWeight = if (sel) FontWeight.Bold else FontWeight.Normal,
+                        Text(label, fontSize = 13.sp,
+                            fontWeight = if (sel) FontWeight.Bold else FontWeight.Normal,
                             color = if (sel) accent else CarcText3)
                     }
                 }
@@ -1110,25 +1110,80 @@ fun AddObjectSheet(
             when (tab) {
                 0 -> { // City
                     ObjectStepperRow("Tiles", cityTiles, 1, 36, { cityTiles = it })
-                    Spacer(Modifier.height(12.dp))
-                    ObjectStepperRow("Shields", cityShields, 0, cityTiles, { cityShields = it })
+                    Spacer(Modifier.height(16.dp))
+
+                    // Shields as checkboxes
+                    Text("Shields", fontSize = 15.sp, fontWeight = FontWeight.Medium, color = CarcText2)
+                    Spacer(Modifier.height(8.dp))
+                    // Up to cityTiles shields, show as toggle chips
+                    val maxShields = minOf(cityTiles, 6)
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        for (n in 1..maxShields) {
+                            val selected = cityShields >= n
+                            Box(
+                                Modifier
+                                    .size(40.dp)
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .background(if (selected) accent.copy(alpha = 0.25f) else CarcBg3)
+                                    .border(1.dp, if (selected) accent else CarcBorder, RoundedCornerShape(8.dp))
+                                    .clickable { cityShields = if (cityShields == n) n - 1 else n },
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text("🛡", fontSize = 18.sp)
+                            }
+                        }
+                    }
+                    if (maxShields == 0) Text("Add more tiles to enable shields",
+                        fontSize = 12.sp, color = CarcText3)
+
                     Spacer(Modifier.height(20.dp))
                     ObjectScorePreview("🏰 City", cityPts, accent,
-                        "Tiles: $cityTiles × 2" + if (cityShields > 0) " + Shields: $cityShields × 2" else "")
+                        "${cityTiles}t × 2" + if (cityShields > 0) " + ${cityShields}🛡 × 2" else "")
                     Spacer(Modifier.height(16.dp))
                     PrimaryButton("+$cityPts pts — Add City", accent, onClick = {
-                        val lbl = "🏰 ${cityTiles}t" + if (cityShields > 0) "+${cityShields}s" else ""
+                        val lbl = "🏰 ${cityTiles}t" + if (cityShields > 0) "+${cityShields}🛡" else ""
                         onScore(ScoringObjectType.CITY, cityPts, lbl)
                         onDismiss()
                     })
                 }
                 1 -> { // Road
                     ObjectStepperRow("Tiles", roadTiles, 1, 36, { roadTiles = it })
+                    Spacer(Modifier.height(16.dp))
+
+                    // Tavern (Inns & Cathedrals) checkbox
+                    Row(
+                        Modifier.fillMaxWidth()
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(if (roadTavern) accent.copy(alpha = 0.12f) else CarcBg3)
+                            .border(1.dp, if (roadTavern) accent.copy(alpha = 0.5f) else CarcBorder, RoundedCornerShape(10.dp))
+                            .clickable { roadTavern = !roadTavern }
+                            .padding(horizontal = 14.dp, vertical = 12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text("🍺", fontSize = 20.sp)
+                        Spacer(Modifier.width(10.dp))
+                        Column(Modifier.weight(1f)) {
+                            Text("Tavern (Inns & Cathedrals)", fontSize = 14.sp, fontWeight = FontWeight.Medium)
+                            Text("Road passes a tavern — doubles score", fontSize = 12.sp, color = CarcText3)
+                        }
+                        Spacer(Modifier.width(8.dp))
+                        Box(
+                            Modifier.size(24.dp)
+                                .clip(RoundedCornerShape(6.dp))
+                                .background(if (roadTavern) accent else CarcBorder),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            if (roadTavern) Text("✓", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = CarcBg)
+                        }
+                    }
+
                     Spacer(Modifier.height(20.dp))
-                    ObjectScorePreview("🛤️ Road", roadPts, accent, "Tiles: $roadTiles × 1")
+                    ObjectScorePreview("🛤️ Road", roadPts, accent,
+                        if (roadTavern) "${roadTiles}t × 2 (tavern)" else "${roadTiles}t × 1")
                     Spacer(Modifier.height(16.dp))
                     PrimaryButton("+$roadPts pts — Add Road", accent, onClick = {
-                        onScore(ScoringObjectType.ROAD, roadPts, "🛤️ ${roadTiles}t")
+                        val lbl = "🛤️ ${roadTiles}t" + if (roadTavern) "+🍺" else ""
+                        onScore(ScoringObjectType.ROAD, roadPts, lbl)
                         onDismiss()
                     })
                 }
