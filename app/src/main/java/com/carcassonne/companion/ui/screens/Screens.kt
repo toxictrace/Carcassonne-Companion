@@ -1054,7 +1054,8 @@ fun AddObjectSheet(
     // City state
     var cityTiles by remember { mutableStateOf(2) }
     var cityShields by remember { mutableStateOf(0) }
-    val cityPts = cityTiles * 2 + cityShields * 2
+    var cityCathedral by remember { mutableStateOf(false) }
+    val cityPts = cityTiles * (if (cityCathedral) 3 else 2) + cityShields * 2
 
     // Road state
     var roadTiles by remember { mutableStateOf(2) }
@@ -1109,78 +1110,136 @@ fun AddObjectSheet(
 
             when (tab) {
                 0 -> { // City
-                    ObjectStepperRow("Tiles", cityTiles, 1, 36, { cityTiles = it })
+                    // City state vars are declared above: cityTiles, cityShields, cityCathedral
+                    ObjectStepperRow("Tiles", cityTiles, 1, 36, { cityTiles = it; if (cityShields > it * 2) cityShields = it * 2 })
                     Spacer(Modifier.height(16.dp))
 
-                    // Shields as checkboxes
-                    Text("Shields", fontSize = 15.sp, fontWeight = FontWeight.Medium, color = CarcText2)
-                    Spacer(Modifier.height(8.dp))
-                    // Up to cityTiles shields, show as toggle chips
-                    val maxShields = minOf(cityTiles, 6)
-                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        for (n in 1..maxShields) {
-                            val selected = cityShields >= n
-                            Box(
-                                Modifier
-                                    .size(40.dp)
-                                    .clip(RoundedCornerShape(8.dp))
-                                    .background(if (selected) accent.copy(alpha = 0.25f) else CarcBg3)
-                                    .border(1.dp, if (selected) accent else CarcBorder, RoundedCornerShape(8.dp))
-                                    .clickable { cityShields = if (cityShields == n) n - 1 else n },
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text("🛡", fontSize = 18.sp)
+                    // Shields — каждый тайл может нести 1 или 2 щита
+                    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                        Column(Modifier.weight(1f)) {
+                            Text("🛡 Shields", fontSize = 15.sp, fontWeight = FontWeight.Medium)
+                            Text("Up to 2 per tile (Traders & Builders)", fontSize = 11.sp, color = CarcText3)
+                        }
+                        // compact +/- stepper inline
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Box(Modifier.size(36.dp).clip(RoundedCornerShape(topStart = 8.dp, bottomStart = 8.dp))
+                                .background(CarcBg3).border(1.dp, CarcBorder, RoundedCornerShape(topStart = 8.dp, bottomStart = 8.dp))
+                                .clickable { if (cityShields > 0) cityShields-- },
+                                contentAlignment = Alignment.Center) {
+                                Text("−", fontSize = 18.sp, fontWeight = FontWeight.Bold,
+                                    color = if (cityShields > 0) CarcText else CarcText3)
+                            }
+                            Box(Modifier.width(44.dp).height(36.dp).background(CarcBg3)
+                                .border(BorderStroke(1.dp, CarcBorder)),
+                                contentAlignment = Alignment.Center) {
+                                Text(cityShields.toString(), fontSize = 16.sp, fontWeight = FontWeight.Bold,
+                                    color = if (cityShields > 0) accent else CarcText3)
+                            }
+                            Box(Modifier.size(36.dp).clip(RoundedCornerShape(topEnd = 8.dp, bottomEnd = 8.dp))
+                                .background(CarcBg3).border(1.dp, CarcBorder, RoundedCornerShape(topEnd = 8.dp, bottomEnd = 8.dp))
+                                .clickable { if (cityShields < cityTiles * 2) cityShields++ },
+                                contentAlignment = Alignment.Center) {
+                                Text("+", fontSize = 18.sp, fontWeight = FontWeight.Bold,
+                                    color = if (cityShields < cityTiles * 2) CarcText else CarcText3)
                             }
                         }
                     }
-                    if (maxShields == 0) Text("Add more tiles to enable shields",
-                        fontSize = 12.sp, color = CarcText3)
 
-                    Spacer(Modifier.height(20.dp))
-                    ObjectScorePreview("🏰 City", cityPts, accent,
-                        "${cityTiles}t × 2" + if (cityShields > 0) " + ${cityShields}🛡 × 2" else "")
+                    Spacer(Modifier.height(12.dp))
+
+                    // Cathedral checkbox (Inns & Cathedrals)
+                    Row(
+                        Modifier.fillMaxWidth()
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(if (cityCathedral) accent.copy(alpha = 0.10f) else CarcBg3)
+                            .border(1.dp, if (cityCathedral) accent.copy(alpha = 0.5f) else CarcBorder, RoundedCornerShape(8.dp))
+                            .clickable { cityCathedral = !cityCathedral }
+                            .padding(horizontal = 12.dp, vertical = 10.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        Text("⛪", fontSize = 18.sp)
+                        Column(Modifier.weight(1f)) {
+                            Text("Cathedral in city", fontSize = 13.sp, fontWeight = FontWeight.Medium)
+                            Text("Tiles ×3 instead of ×2", fontSize = 11.sp, color = CarcText3)
+                        }
+                        Box(Modifier.size(22.dp).clip(RoundedCornerShape(5.dp))
+                            .background(if (cityCathedral) accent else CarcBorder),
+                            contentAlignment = Alignment.Center) {
+                            if (cityCathedral) Text("✓", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = CarcBg)
+                        }
+                    }
+
                     Spacer(Modifier.height(16.dp))
+
+                    // Formula breakdown
+                    Column(
+                        Modifier.fillMaxWidth().clip(RoundedCornerShape(10.dp))
+                            .background(accent.copy(alpha = 0.08f))
+                            .border(1.dp, accent.copy(alpha = 0.25f), RoundedCornerShape(10.dp))
+                            .padding(12.dp),
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        val tileMult = if (cityCathedral) 3 else 2
+                        val tilePts = cityTiles * tileMult
+                        val shieldPts = cityShields * 2
+                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                            Text("🏰 ${cityTiles} tiles × $tileMult", fontSize = 13.sp, color = CarcText2)
+                            Text("$tilePts", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                        }
+                        if (cityShields > 0) {
+                            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                                Text("🛡 ${cityShields} shields × 2", fontSize = 13.sp, color = CarcText2)
+                                Text("$shieldPts", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                            }
+                        }
+                        HorizontalDivider(color = accent.copy(alpha = 0.2f), thickness = 0.5.dp)
+                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                            Text("Total", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = accent)
+                            Text("+$cityPts", fontSize = 22.sp, fontWeight = FontWeight.Black, color = accent)
+                        }
+                    }
+
+                    Spacer(Modifier.height(14.dp))
                     PrimaryButton("+$cityPts pts — Add City", accent, onClick = {
-                        val lbl = "🏰 ${cityTiles}t" + if (cityShields > 0) "+${cityShields}🛡" else ""
+                        val lbl = buildString {
+                            append("🏰 ${cityTiles}t")
+                            if (cityShields > 0) append("+${cityShields}🛡")
+                            if (cityCathedral) append("+⛪")
+                        }
                         onScore(ScoringObjectType.CITY, cityPts, lbl)
                         onDismiss()
                     })
                 }
                 1 -> { // Road
                     ObjectStepperRow("Tiles", roadTiles, 1, 36, { roadTiles = it })
-                    Spacer(Modifier.height(16.dp))
+                    Spacer(Modifier.height(14.dp))
 
-                    // Tavern (Inns & Cathedrals) checkbox
+                    // Compact tavern row
                     Row(
                         Modifier.fillMaxWidth()
-                            .clip(RoundedCornerShape(10.dp))
-                            .background(if (roadTavern) accent.copy(alpha = 0.12f) else CarcBg3)
-                            .border(1.dp, if (roadTavern) accent.copy(alpha = 0.5f) else CarcBorder, RoundedCornerShape(10.dp))
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(CarcBg3)
+                            .border(1.dp, CarcBorder, RoundedCornerShape(8.dp))
                             .clickable { roadTavern = !roadTavern }
-                            .padding(horizontal = 14.dp, vertical = 12.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                            .padding(horizontal = 12.dp, vertical = 10.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
-                        Text("🍺", fontSize = 20.sp)
-                        Spacer(Modifier.width(10.dp))
-                        Column(Modifier.weight(1f)) {
-                            Text("Tavern (Inns & Cathedrals)", fontSize = 14.sp, fontWeight = FontWeight.Medium)
-                            Text("Road passes a tavern — doubles score", fontSize = 12.sp, color = CarcText3)
-                        }
-                        Spacer(Modifier.width(8.dp))
-                        Box(
-                            Modifier.size(24.dp)
-                                .clip(RoundedCornerShape(6.dp))
-                                .background(if (roadTavern) accent else CarcBorder),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            if (roadTavern) Text("✓", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = CarcBg)
+                        Text("🍺", fontSize = 18.sp)
+                        Text("Inn (×2)", fontSize = 14.sp, fontWeight = FontWeight.Medium,
+                            modifier = Modifier.weight(1f))
+                        Box(Modifier.size(22.dp).clip(RoundedCornerShape(5.dp))
+                            .background(if (roadTavern) accent else CarcBorder),
+                            contentAlignment = Alignment.Center) {
+                            if (roadTavern) Text("✓", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = CarcBg)
                         }
                     }
 
-                    Spacer(Modifier.height(20.dp))
-                    ObjectScorePreview("🛤️ Road", roadPts, accent,
-                        if (roadTavern) "${roadTiles}t × 2 (tavern)" else "${roadTiles}t × 1")
                     Spacer(Modifier.height(16.dp))
+                    ObjectScorePreview("🛤️ Road", roadPts, accent,
+                        if (roadTavern) "${roadTiles}t × 2 (inn)" else "${roadTiles}t × 1")
+                    Spacer(Modifier.height(14.dp))
                     PrimaryButton("+$roadPts pts — Add Road", accent, onClick = {
                         val lbl = "🛤️ ${roadTiles}t" + if (roadTavern) "+🍺" else ""
                         onScore(ScoringObjectType.ROAD, roadPts, lbl)
