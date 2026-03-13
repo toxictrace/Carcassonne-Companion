@@ -1395,25 +1395,13 @@ fun ComparePlayersSection(
                             modifier = Modifier.width(70.dp), maxLines = 1, overflow = TextOverflow.Ellipsis)
                         Spacer(Modifier.width(6.dp))
                         Box(Modifier.weight(1f).height(18.dp)) {
-                            val minFrac = ps.minScore / globalMax
-                            val maxFrac = ps.maxScore / globalMax
-                            val avgFrac = ps.avgScore / globalMax
-                            // Range bar
-                            Box(Modifier.fillMaxHeight()
-                                .fillMaxWidth(maxFrac)
-                                .padding(start = (minFrac * 1f).coerceIn(0f, 0.99f) * 100f / 100f * 0f)
-                                .clip(RoundedCornerShape(4.dp))
-                                .background(colors[i].copy(alpha = 0.25f)))
-                            // Min marker
-                            Box(Modifier.width(3.dp).fillMaxHeight()
-                                .offset(x = with(androidx.compose.ui.platform.LocalDensity.current) {
-                                    0.dp // placeholder, see below
-                                })
-                            )
-                            // Simpler: just filled bar from 0 to max, avg line
+                            val maxFrac = (ps.maxScore / globalMax).coerceIn(0f, 1f)
+                            val avgFrac = (ps.avgScore / globalMax).coerceIn(0f, 1f)
+                            // Background range bar (0 → max)
                             Box(Modifier.fillMaxHeight().fillMaxWidth(maxFrac)
                                 .clip(RoundedCornerShape(4.dp))
                                 .background(colors[i].copy(alpha = 0.2f)))
+                            // Avg bar (0 → avg), brighter
                             Box(Modifier.fillMaxHeight().fillMaxWidth(avgFrac)
                                 .clip(RoundedCornerShape(4.dp))
                                 .background(colors[i].copy(alpha = 0.7f)))
