@@ -97,6 +97,10 @@ class CarcassonneRepository(
     suspend fun getGlobalAvgFarm()      = gamePlayerDao.getGlobalAvgFarm()      ?: 0f
     suspend fun getGlobalAvgScore()     = gamePlayerDao.getGlobalAvgScore()     ?: 0f
     suspend fun getAvgWinnerScore()     = gamePlayerDao.getAvgWinnerScore()     ?: 0f
+    suspend fun getMaxScore(pid: Int)   = gamePlayerDao.getMaxScore(pid)        ?: 0
+    suspend fun getMinScore(pid: Int)   = gamePlayerDao.getMinScore(pid)        ?: 0
+    suspend fun getRecentScores(pid: Int, n: Int) = gamePlayerDao.getRecentScores(pid, n)
+    suspend fun getGamesPlayedTogether(pid1: Int, pid2: Int) = gamePlayerDao.getGamesPlayedTogether(pid1, pid2)
 
     suspend fun clearAll() {
         gamePlayerDao.deleteAll()

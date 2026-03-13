@@ -85,11 +85,15 @@ data class PlayerStats(
     val avgMonastery: Float = 0f,
     val avgFarm: Float = 0f,
     // Computed metrics (0..1)
-    val urbanizationIndex: Float = 0f,   // city / total
-    val roadAggrIndex: Float = 0f,       // road / (city+road)
-    val monasteryIndex: Float = 0f,      // monastery / total
-    val farmDomIndex: Float = 0f,        // avg farm / global avg farm (capped 0..2, norm to 0..1)
-    val stabilityIndex: Float = 0f,      // 1 - CV
+    val urbanizationIndex: Float = 0f,
+    val roadAggrIndex: Float = 0f,
+    val monasteryIndex: Float = 0f,
+    val farmDomIndex: Float = 0f,
+    val stabilityIndex: Float = 0f,
+    // Extra stats for Compare
+    val maxScore: Int = 0,
+    val minScore: Int = 0,
+    val recentScores: List<Int> = emptyList(),   // last 5, newest first
     // Title
     val title: String = ""
 )
@@ -413,6 +417,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             // FD  = avgFarm / globalAvgFarm, normalised 0..1 (cap at 2x)
             val fd = if (globalAvgFarm > 0f) (avgFarm / globalAvgFarm / 2f).coerceIn(0f, 1f) else 0f
 
+            val maxScore    = repo.getMaxScore(p.id)
+            val minScore    = repo.getMinScore(p.id)
+            val recentScores = repo.getRecentScores(p.id, 5)
+
             PlayerStats(
                 player = p, wins = wins, gamesPlayed = gamesPlayed, avgScore = avg,
                 avgCity = avgCity, avgRoad = avgRoad, avgMonastery = avgMon, avgFarm = avgFarm,
@@ -420,7 +428,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 roadAggrIndex     = ra.coerceIn(0f, 1f),
                 monasteryIndex    = mi.coerceIn(0f, 1f),
                 farmDomIndex      = fd,
-                stabilityIndex    = stability
+                stabilityIndex    = stability,
+                maxScore          = maxScore,
+                minScore          = minScore,
+                recentScores      = recentScores
             )
         }.filter { it.gamesPlayed > 0 }
 

@@ -127,6 +127,20 @@ interface GamePlayerDao {
     @Query("SELECT AVG(finalScore) FROM game_players WHERE placement = 1")
     suspend fun getAvgWinnerScore(): Float?
 
+    // Min/Max score per player
+    @Query("SELECT MAX(finalScore) FROM game_players WHERE playerId = :pid")
+    suspend fun getMaxScore(pid: Int): Int?
+    @Query("SELECT MIN(finalScore) FROM game_players WHERE playerId = :pid")
+    suspend fun getMinScore(pid: Int): Int?
+
+    // Last N scores ordered by gameId DESC
+    @Query("SELECT finalScore FROM game_players WHERE playerId = :pid ORDER BY gameId DESC LIMIT :n")
+    suspend fun getRecentScores(pid: Int, n: Int): List<Int>
+
+    // Count of games where two players played together
+    @Query("SELECT COUNT(*) FROM game_players gp1 INNER JOIN game_players gp2 ON gp1.gameId = gp2.gameId WHERE gp1.playerId = :pid1 AND gp2.playerId = :pid2")
+    suspend fun getGamesPlayedTogether(pid1: Int, pid2: Int): Int
+
     @Query("DELETE FROM game_players")
     suspend fun deleteAll()
 

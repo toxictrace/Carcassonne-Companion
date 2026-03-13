@@ -910,7 +910,8 @@ fun StatsScreen(
     globalStats: GlobalStats,
     playerStats: List<PlayerStats>,
     compareSlots: List<Int?>,
-    onSlotChange: (Int, Int?) -> Unit
+    onSlotChange: (Int, Int?) -> Unit,
+    allGamePlayers: List<com.carcassonne.companion.data.entity.GamePlayerEntity> = emptyList()
 ) {
     var tab by remember { mutableIntStateOf(0) }
     // selectedSlots driven by VM — persisted across sessions
@@ -1083,6 +1084,7 @@ fun StatsScreen(
                         allStats = playerStats,
                         selectedSlots = selectedSlots,
                         slotColors = slotColors,
+                        allGamePlayers = allGamePlayers,
                         onSlotClick = { slotIdx -> pickingSlot = slotIdx }
                     )
                 }
@@ -1141,19 +1143,17 @@ fun ComparePlayersSection(
     allStats: List<PlayerStats>,
     selectedSlots: List<Int?>,
     slotColors: List<Color>,
+    allGamePlayers: List<com.carcassonne.companion.data.entity.GamePlayerEntity>,
     onSlotClick: (slotIdx: Int) -> Unit
 ) {
     val slotStats = selectedSlots.map { id -> allStats.find { it.player.id == id } }
     val activePlayers = slotStats.filterNotNull()
-    // Map active player index → their original slot index to get correct color
     val activeSlotIndices = selectedSlots.indices.filter { selectedSlots[it] != null }
     val colors = activePlayers.indices.map { ai -> slotColors[activeSlotIndices.getOrElse(ai) { ai } % 3] }
 
     // ── Slot cards ─────────────────────────────────────────────────────────
-    Card(
-        shape = RoundedCornerShape(14.dp),
-        colors = CardDefaults.cardColors(containerColor = CarcCard)
-    ) {
+    Card(shape = RoundedCornerShape(14.dp),
+        colors = CardDefaults.cardColors(containerColor = CarcCard)) {
         Row(
             Modifier.fillMaxWidth().height(IntrinsicSize.Min).padding(horizontal = 8.dp, vertical = 12.dp),
             horizontalArrangement = Arrangement.spacedBy(6.dp)
@@ -1161,11 +1161,9 @@ fun ComparePlayersSection(
             selectedSlots.forEachIndexed { slotIdx, selectedId ->
                 val ps = allStats.find { it.player.id == selectedId }
                 val slotColor = if (ps != null) slotColors[slotIdx % 3] else CarcBorder
-
                 Column(
                     modifier = Modifier
-                        .weight(1f)
-                        .fillMaxHeight()
+                        .weight(1f).fillMaxHeight()
                         .clip(RoundedCornerShape(10.dp))
                         .background(CarcBg2)
                         .border(1.5.dp, slotColor, RoundedCornerShape(10.dp))
@@ -1183,12 +1181,9 @@ fun ComparePlayersSection(
                             textAlign = TextAlign.Center)
                         Text("%.0f avg".format(ps.avgScore), fontSize = 10.sp, color = CarcText3)
                     } else {
-                        Box(
-                            Modifier.size(36.dp).clip(RoundedCornerShape(50.dp))
-                                .background(CarcBg3)
-                                .border(1.dp, CarcBorder, RoundedCornerShape(50.dp)),
-                            contentAlignment = Alignment.Center
-                        ) {
+                        Box(Modifier.size(36.dp).clip(RoundedCornerShape(50.dp))
+                            .background(CarcBg3).border(1.dp, CarcBorder, RoundedCornerShape(50.dp)),
+                            contentAlignment = Alignment.Center) {
                             Text("+", fontSize = 18.sp, color = CarcText3)
                         }
                         Spacer(Modifier.height(4.dp))
@@ -1200,7 +1195,6 @@ fun ComparePlayersSection(
         }
     }
 
-    // ── If fewer than 2 active players, show hint ─────────────────────────
     if (activePlayers.size < 2) {
         Spacer(Modifier.height(32.dp))
         Box(Modifier.fillMaxWidth(), Alignment.Center) {
@@ -1209,132 +1203,480 @@ fun ComparePlayersSection(
         return
     }
 
-    Spacer(Modifier.height(14.dp))
+    Spacer(Modifier.height(12.dp))
 
-    // ── Radar Chart ────────────────────────────────────────────────────────
-    Text("PLAY STYLE", fontSize = 11.sp, color = CarcText3, letterSpacing = 1.sp)
-    Spacer(Modifier.height(8.dp))
-    Card(shape = RoundedCornerShape(14.dp),
-        colors = CardDefaults.cardColors(containerColor = CarcCard)) {
-        Column(Modifier.padding(14.dp)) {
-            // Player legend — name + color dot
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                activePlayers.forEachIndexed { i, ps ->
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Box(Modifier.size(10.dp).clip(RoundedCornerShape(2.dp)).background(colors[i]))
-                        Spacer(Modifier.width(5.dp))
-                        Text(ps.player.name, fontSize = 12.sp, fontWeight = FontWeight.SemiBold,
-                            color = colors[i])
+    // ── Section selector ───────────────────────────────────────────────────
+    // sections: index -> (label, enabled)
+    data class CompareSection(val label: String, var enabled: Boolean)
+    val sections = remember {
+        mutableStateListOf(
+            CompareSection("🕸 Play Style",       true),
+            CompareSection("🏆 Results",           true),
+            CompareSection("📊 Score Range",       true),
+            CompareSection("🎮 Together",          true),
+            CompareSection("📈 Trend",             true),
+            CompareSection("🏗 Score Structure",   false),
+            CompareSection("🔬 Metrics",           false)
+        )
+    }
+    var showSectionPicker by remember { mutableStateOf(false) }
+    if (showSectionPicker) {
+        AlertDialog(
+            onDismissRequest = { showSectionPicker = false },
+            containerColor = CarcCard2,
+            title = { Text("Show comparisons", fontWeight = FontWeight.SemiBold) },
+            text = {
+                Column {
+                    sections.forEachIndexed { i, sec ->
+                        Row(
+                            modifier = Modifier.fillMaxWidth()
+                                .clip(RoundedCornerShape(8.dp))
+                                .clickable { sections[i] = sec.copy(enabled = !sec.enabled) }
+                                .padding(vertical = 10.dp, horizontal = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Checkbox(
+                                checked = sec.enabled,
+                                onCheckedChange = { sections[i] = sec.copy(enabled = it) },
+                                colors = CheckboxDefaults.colors(
+                                    checkedColor = CarcGreen,
+                                    uncheckedColor = CarcBorder
+                                )
+                            )
+                            Spacer(Modifier.width(8.dp))
+                            Text(sec.label, fontSize = 14.sp, color = CarcText)
+                        }
                     }
                 }
+            },
+            confirmButton = {
+                TextButton(onClick = { showSectionPicker = false }) {
+                    Text("Done", color = CarcGreen, fontWeight = FontWeight.Bold)
+                }
             }
-            Spacer(Modifier.height(8.dp))
-            // Radar with axis labels drawn inside canvas
-            RadarChart(
-                players = activePlayers,
-                colors  = colors,
-                modifier = Modifier.fillMaxWidth().height(280.dp)
-            )
+        )
+    }
+
+    // Header row with gear button
+    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+        Text("COMPARE PLAYERS", fontSize = 11.sp, color = CarcText3, letterSpacing = 1.sp,
+            modifier = Modifier.weight(1f))
+        Box(
+            modifier = Modifier
+                .size(28.dp)
+                .clip(RoundedCornerShape(8.dp))
+                .background(CarcCard)
+                .border(1.dp, CarcBorder, RoundedCornerShape(8.dp))
+                .clickable { showSectionPicker = true },
+            contentAlignment = Alignment.Center
+        ) { Text("⚙️", fontSize = 14.sp) }
+    }
+
+    Spacer(Modifier.height(10.dp))
+
+    // Player legend (shown always)
+    Row(horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+        activePlayers.forEachIndexed { i, ps ->
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(Modifier.size(10.dp).clip(RoundedCornerShape(2.dp)).background(colors[i]))
+                Spacer(Modifier.width(5.dp))
+                Text(ps.player.name, fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = colors[i])
+            }
         }
     }
 
     Spacer(Modifier.height(14.dp))
 
-    // ── Stacked Score Bar ─────────────────────────────────────────────────
-    Text("SCORE STRUCTURE", fontSize = 11.sp, color = CarcText3, letterSpacing = 1.sp)
-    Spacer(Modifier.height(8.dp))
-    Card(shape = RoundedCornerShape(14.dp),
-        colors = CardDefaults.cardColors(containerColor = CarcCard)) {
-        Column(Modifier.padding(14.dp)) {
-            val maxAvg = activePlayers.maxOf { it.avgScore }.takeIf { it > 0f } ?: 1f
-            val catColors = listOf(CarcBlue, CarcGreen, CarcYellow, CarcOrange)
-            val catLabels = listOf("🏰", "🛤️", "⛪", "🌾")
-            activePlayers.forEachIndexed { i, ps ->
-                val cats = listOf(ps.avgCity, ps.avgRoad, ps.avgMonastery, ps.avgFarm)
-                val catTotal = cats.sum().takeIf { it > 0f } ?: 1f
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(Modifier.size(8.dp).clip(RoundedCornerShape(2.dp)).background(colors[i]))
-                    Spacer(Modifier.width(6.dp))
-                    Text(ps.player.name, fontSize = 11.sp, color = CarcText2,
-                        modifier = Modifier.width(64.dp), maxLines = 1, overflow = TextOverflow.Ellipsis)
-                    Spacer(Modifier.width(6.dp))
-                    Row(modifier = Modifier.weight(ps.avgScore / maxAvg).height(18.dp).clip(RoundedCornerShape(4.dp))) {
-                        cats.forEachIndexed { ci, v ->
-                            val frac = (v / catTotal).coerceIn(0f, 1f)
-                            if (frac > 0.02f) {
-                                Box(Modifier.fillMaxHeight().weight(frac).background(catColors[ci]))
+    // ── 0: PLAY STYLE ──────────────────────────────────────────────────────
+    if (sections[0].enabled) {
+        SectionLabel("🕸 PLAY STYLE")
+        Card(shape = RoundedCornerShape(14.dp),
+            colors = CardDefaults.cardColors(containerColor = CarcCard)) {
+            Column(Modifier.padding(14.dp)) {
+                RadarChart(players = activePlayers, colors = colors,
+                    modifier = Modifier.fillMaxWidth().height(280.dp))
+            }
+        }
+        Spacer(Modifier.height(14.dp))
+    }
+
+    // ── 1: RESULTS ─────────────────────────────────────────────────────────
+    if (sections[1].enabled) {
+        SectionLabel("🏆 RESULTS")
+        Card(shape = RoundedCornerShape(14.dp),
+            colors = CardDefaults.cardColors(containerColor = CarcCard)) {
+            Column(Modifier.padding(14.dp).fillMaxWidth()) {
+                activePlayers.forEachIndexed { i, ps ->
+                    val losses = ps.gamesPlayed - ps.wins
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(Modifier.size(8.dp).clip(RoundedCornerShape(2.dp)).background(colors[i]))
+                        Spacer(Modifier.width(6.dp))
+                        Text(ps.player.name, fontSize = 12.sp, color = colors[i],
+                            modifier = Modifier.width(70.dp), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        Spacer(Modifier.width(6.dp))
+                        // Win bar
+                        val winFrac = ps.winRate.coerceIn(0f, 1f)
+                        Box(Modifier.weight(1f).height(14.dp).clip(RoundedCornerShape(4.dp))
+                            .background(CarcBg3)) {
+                            Box(Modifier.fillMaxHeight().fillMaxWidth(winFrac)
+                                .background(colors[i]))
+                        }
+                        Spacer(Modifier.width(8.dp))
+                        Text("${ps.wins}W ${losses}L",
+                            fontSize = 11.sp, color = CarcText2,
+                            modifier = Modifier.width(50.dp), textAlign = TextAlign.End)
+                    }
+                    Spacer(Modifier.height(8.dp))
+                }
+                HorizontalDivider(color = CarcBorder, thickness = 0.5.dp,
+                    modifier = Modifier.padding(vertical = 2.dp))
+                Spacer(Modifier.height(6.dp))
+                // Win rate numbers side by side
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+                    activePlayers.forEachIndexed { i, ps ->
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text("${(ps.winRate * 100).toInt()}%",
+                                fontSize = 20.sp, fontWeight = FontWeight.Bold, color = colors[i])
+                            Text("win rate", fontSize = 10.sp, color = CarcText3)
+                        }
+                    }
+                }
+                // Placement breakdown
+                Spacer(Modifier.height(10.dp))
+                HorizontalDivider(color = CarcBorder, thickness = 0.5.dp)
+                Spacer(Modifier.height(8.dp))
+                Text("Placements", fontSize = 11.sp, color = CarcText3)
+                Spacer(Modifier.height(6.dp))
+                activePlayers.forEachIndexed { i, ps ->
+                    val playerGames = allGamePlayers.filter { it.playerId == ps.player.id }
+                    val byPlace = (1..4).map { place ->
+                        playerGames.count { it.placement == place }
+                    }
+                    val total = playerGames.size.takeIf { it > 0 } ?: 1
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(Modifier.size(8.dp).clip(RoundedCornerShape(2.dp)).background(colors[i]))
+                        Spacer(Modifier.width(6.dp))
+                        Text(ps.player.name, fontSize = 10.sp, color = colors[i],
+                            modifier = Modifier.width(70.dp), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        Spacer(Modifier.width(6.dp))
+                        Row(Modifier.weight(1f).height(14.dp).clip(RoundedCornerShape(4.dp))) {
+                            val placeColors = listOf(CarcYellow, CarcText3, Color(0xFFB45309), CarcBg3)
+                            byPlace.forEachIndexed { pi, cnt ->
+                                val frac = cnt.toFloat() / total
+                                if (frac > 0.02f) {
+                                    Box(Modifier.fillMaxHeight().weight(frac)
+                                        .background(placeColors[pi]))
+                                }
                             }
                         }
-                    }
-                    if (ps.avgScore / maxAvg < 1f) Spacer(Modifier.weight(1f - ps.avgScore / maxAvg))
-                    Spacer(Modifier.width(6.dp))
-                    Text("%.0f".format(ps.avgScore), fontSize = 11.sp,
-                        fontWeight = FontWeight.Bold, color = CarcText)
-                }
-                Spacer(Modifier.height(8.dp))
-            }
-            HorizontalDivider(color = CarcBorder, thickness = 0.5.dp,
-                modifier = Modifier.padding(vertical = 4.dp))
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-                catColors.forEachIndexed { i, c ->
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Box(Modifier.size(8.dp).clip(RoundedCornerShape(2.dp)).background(c))
-                        Spacer(Modifier.width(4.dp))
-                        Text(catLabels[i], fontSize = 12.sp)
-                    }
-                }
-            }
-        }
-    }
-
-    Spacer(Modifier.height(14.dp))
-
-    // ── Metrics table ──────────────────────────────────────────────────────
-    Text("METRICS", fontSize = 11.sp, color = CarcText3, letterSpacing = 1.sp)
-    Spacer(Modifier.height(8.dp))
-    Card(shape = RoundedCornerShape(14.dp),
-        colors = CardDefaults.cardColors(containerColor = CarcCard)) {
-        Column(Modifier.padding(14.dp)) {
-            val metrics = listOf(
-                Triple("🏰 Urbanization",   activePlayers.map { it.urbanizationIndex }, "City share of total score"),
-                Triple("🛤️ Road Aggr.",     activePlayers.map { it.roadAggrIndex },    "Roads vs cities ratio"),
-                Triple("⛪ Monastery",      activePlayers.map { it.monasteryIndex },   "Monastery share of score"),
-                Triple("🌾 Farm Dominance", activePlayers.map { it.farmDomIndex },     "Farm score vs field average"),
-                Triple("🎯 Stability",      activePlayers.map { it.stabilityIndex },   "Score consistency")
-            )
-            metrics.forEachIndexed { mi, (label, values, hint) ->
-                if (mi > 0) HorizontalDivider(color = CarcBorder, thickness = 0.5.dp,
-                    modifier = Modifier.padding(vertical = 6.dp))
-                Text(label, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = CarcText)
-                Text(hint, fontSize = 10.sp, color = CarcText3)
-                Spacer(Modifier.height(6.dp))
-                val maxV = values.maxOrNull()?.takeIf { it > 0f } ?: 1f
-                activePlayers.forEachIndexed { pi, ps ->
-                    val v = values[pi]
-                    val isWinner = v == maxV
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Box(Modifier.size(6.dp).clip(RoundedCornerShape(2.dp)).background(colors[pi]))
-                        Spacer(Modifier.width(5.dp))
-                        Text(ps.player.name, fontSize = 10.sp, color = colors[pi],
-                            modifier = Modifier.width(52.dp), maxLines = 1,
-                            overflow = TextOverflow.Ellipsis)
-                        Spacer(Modifier.width(4.dp))
-                        Box(modifier = Modifier.weight(1f).height(8.dp).clip(RoundedCornerShape(4.dp)).background(CarcBg3)) {
-                            Box(modifier = Modifier.fillMaxHeight().fillMaxWidth(v / maxV)
-                                .background(colors[pi].copy(alpha = if (isWinner) 1f else 0.55f)))
-                        }
                         Spacer(Modifier.width(6.dp))
-                        Text("%.0f%%".format(v * 100), fontSize = 11.sp,
-                            fontWeight = if (isWinner) FontWeight.Bold else FontWeight.Normal,
-                            color = if (isWinner) colors[pi] else CarcText3,
-                            modifier = Modifier.width(40.dp), textAlign = TextAlign.End,
-                            maxLines = 1)
+                        Text(byPlace.take(4).mapIndexed { pi, c -> "${pi+1}°:$c" }.joinToString(" "),
+                            fontSize = 9.sp, color = CarcText3)
                     }
                     Spacer(Modifier.height(4.dp))
                 }
             }
         }
+        Spacer(Modifier.height(14.dp))
     }
+
+    // ── 2: SCORE RANGE ─────────────────────────────────────────────────────
+    if (sections[2].enabled) {
+        SectionLabel("📊 SCORE RANGE")
+        Card(shape = RoundedCornerShape(14.dp),
+            colors = CardDefaults.cardColors(containerColor = CarcCard)) {
+            Column(Modifier.padding(14.dp).fillMaxWidth()) {
+                val globalMax = activePlayers.maxOf { it.maxScore }.toFloat().takeIf { it > 0f } ?: 1f
+                activePlayers.forEachIndexed { i, ps ->
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(Modifier.size(8.dp).clip(RoundedCornerShape(2.dp)).background(colors[i]))
+                        Spacer(Modifier.width(6.dp))
+                        Text(ps.player.name, fontSize = 11.sp, color = colors[i],
+                            modifier = Modifier.width(70.dp), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        Spacer(Modifier.width(6.dp))
+                        Box(Modifier.weight(1f).height(18.dp)) {
+                            val minFrac = ps.minScore / globalMax
+                            val maxFrac = ps.maxScore / globalMax
+                            val avgFrac = ps.avgScore / globalMax
+                            // Range bar
+                            Box(Modifier.fillMaxHeight()
+                                .fillMaxWidth(maxFrac)
+                                .padding(start = (minFrac * 1f).coerceIn(0f, 0.99f) * 100f / 100f * 0f)
+                                .clip(RoundedCornerShape(4.dp))
+                                .background(colors[i].copy(alpha = 0.25f)))
+                            // Min marker
+                            Box(Modifier.width(3.dp).fillMaxHeight()
+                                .offset(x = with(androidx.compose.ui.platform.LocalDensity.current) {
+                                    0.dp // placeholder, see below
+                                })
+                            )
+                            // Simpler: just filled bar from 0 to max, avg line
+                            Box(Modifier.fillMaxHeight().fillMaxWidth(maxFrac)
+                                .clip(RoundedCornerShape(4.dp))
+                                .background(colors[i].copy(alpha = 0.2f)))
+                            Box(Modifier.fillMaxHeight().fillMaxWidth(avgFrac)
+                                .clip(RoundedCornerShape(4.dp))
+                                .background(colors[i].copy(alpha = 0.7f)))
+                        }
+                        Spacer(Modifier.width(6.dp))
+                        Column(horizontalAlignment = Alignment.End, modifier = Modifier.width(70.dp)) {
+                            Text("▲ ${ps.maxScore}", fontSize = 10.sp, color = CarcGreen, fontWeight = FontWeight.Bold)
+                            Text("● ${ps.avgScore.toInt()}", fontSize = 10.sp, color = colors[i])
+                            Text("▼ ${ps.minScore}", fontSize = 10.sp, color = CarcText3)
+                        }
+                    }
+                    Spacer(Modifier.height(10.dp))
+                }
+            }
+        }
+        Spacer(Modifier.height(14.dp))
+    }
+
+    // ── 3: TOGETHER ────────────────────────────────────────────────────────
+    if (sections[3].enabled && activePlayers.size >= 2) {
+        SectionLabel("🎮 TOGETHER")
+        Card(shape = RoundedCornerShape(14.dp),
+            colors = CardDefaults.cardColors(containerColor = CarcCard)) {
+            Column(Modifier.padding(14.dp).fillMaxWidth()) {
+                // Games together matrix — all pairs
+                val pairs = mutableListOf<Triple<PlayerStats, PlayerStats, Int>>()
+                for (a in activePlayers.indices) {
+                    for (b in a+1 until activePlayers.size) {
+                        val pa = activePlayers[a]; val pb = activePlayers[b]
+                        val gamesA = allGamePlayers.filter { it.playerId == pa.player.id }
+                            .map { it.gameId }.toSet()
+                        val gamesB = allGamePlayers.filter { it.playerId == pb.player.id }
+                            .map { it.gameId }.toSet()
+                        val together = gamesA.intersect(gamesB).size
+                        pairs.add(Triple(pa, pb, together))
+                    }
+                }
+                pairs.forEach { (pa, pb, count) ->
+                    val idxA = activePlayers.indexOf(pa)
+                    val idxB = activePlayers.indexOf(pb)
+                    Row(verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxWidth()) {
+                        Text(pa.player.name, fontSize = 12.sp, color = colors[idxA],
+                            fontWeight = FontWeight.SemiBold,
+                            modifier = Modifier.width(72.dp), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        Text(" & ", fontSize = 11.sp, color = CarcText3)
+                        Text(pb.player.name, fontSize = 12.sp, color = colors[idxB],
+                            fontWeight = FontWeight.SemiBold,
+                            modifier = Modifier.width(72.dp), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        Spacer(Modifier.weight(1f))
+                        Text("$count", fontSize = 22.sp, fontWeight = FontWeight.Bold, color = CarcYellow)
+                        Spacer(Modifier.width(4.dp))
+                        Text("games", fontSize = 11.sp, color = CarcText3)
+                    }
+                    Spacer(Modifier.height(6.dp))
+                }
+                // Head-to-head wins (who won more when played together)
+                if (activePlayers.size == 2) {
+                    val pa = activePlayers[0]; val pb = activePlayers[1]
+                    val sharedGames = allGamePlayers.filter { it.playerId == pa.player.id }
+                        .map { it.gameId }.toSet()
+                        .intersect(allGamePlayers.filter { it.playerId == pb.player.id }
+                            .map { it.gameId }.toSet())
+                    val winsA = allGamePlayers.filter { it.playerId == pa.player.id
+                        && it.gameId in sharedGames && it.placement == 1 }.size
+                    val winsB = allGamePlayers.filter { it.playerId == pb.player.id
+                        && it.gameId in sharedGames && it.placement == 1 }.size
+                    if (sharedGames.isNotEmpty()) {
+                        HorizontalDivider(color = CarcBorder, thickness = 0.5.dp,
+                            modifier = Modifier.padding(vertical = 6.dp))
+                        Text("Head-to-head wins", fontSize = 11.sp, color = CarcText3)
+                        Spacer(Modifier.height(8.dp))
+                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text("$winsA", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = colors[0])
+                                Text(pa.player.name, fontSize = 11.sp, color = colors[0],
+                                    maxLines = 1, overflow = TextOverflow.Ellipsis)
+                            }
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text("vs", fontSize = 16.sp, color = CarcText3,
+                                    modifier = Modifier.padding(top = 8.dp))
+                            }
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text("$winsB", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = colors[1])
+                                Text(pb.player.name, fontSize = 11.sp, color = colors[1],
+                                    maxLines = 1, overflow = TextOverflow.Ellipsis)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        Spacer(Modifier.height(14.dp))
+    }
+
+    // ── 4: TREND ───────────────────────────────────────────────────────────
+    if (sections[4].enabled) {
+        SectionLabel("📈 TREND (last 5 games)")
+        Card(shape = RoundedCornerShape(14.dp),
+            colors = CardDefaults.cardColors(containerColor = CarcCard)) {
+            Column(Modifier.padding(14.dp)) {
+                // Mini line chart
+                Canvas(modifier = Modifier.fillMaxWidth().height(120.dp)) {
+                    val allScores = activePlayers.flatMap { it.recentScores }
+                    if (allScores.isEmpty()) return@Canvas
+                    val globalMin = allScores.min().toFloat()
+                    val globalMax = allScores.max().toFloat()
+                    val range = (globalMax - globalMin).takeIf { it > 0f } ?: 1f
+                    val w = size.width; val h = size.height
+                    val n = 5
+                    val stepX = w / (n - 1).toFloat()
+                    // Grid
+                    val gridColor = Color.White.copy(alpha = 0.08f)
+                    repeat(4) { ri ->
+                        val y = h * ri / 3f
+                        drawLine(gridColor, Offset(0f, y), Offset(w, y), strokeWidth = 1f)
+                    }
+                    activePlayers.forEachIndexed { pi, ps ->
+                        val scores = ps.recentScores.take(n).reversed() // oldest first
+                        if (scores.size < 2) return@forEachIndexed
+                        val path = Path()
+                        scores.forEachIndexed { si, sc ->
+                            val x = si * stepX
+                            val y = h - (sc - globalMin) / range * h
+                            if (si == 0) path.moveTo(x, y) else path.lineTo(x, y)
+                        }
+                        drawPath(path, colors[pi], style = Stroke(width = 2.5f))
+                        scores.forEachIndexed { si, sc ->
+                            val x = si * stepX
+                            val y = h - (sc - globalMin) / range * h
+                            drawCircle(colors[pi], radius = 5f, center = Offset(x, y))
+                            drawCircle(Color(0xFF122012).copy(alpha = 0.9f), radius = 3f, center = Offset(x, y))
+                        }
+                    }
+                }
+                Spacer(Modifier.height(8.dp))
+                // Score labels per player
+                activePlayers.forEachIndexed { i, ps ->
+                    val scores = ps.recentScores.take(5).reversed()
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(Modifier.size(8.dp).clip(RoundedCornerShape(2.dp)).background(colors[i]))
+                        Spacer(Modifier.width(6.dp))
+                        Text(ps.player.name, fontSize = 10.sp, color = colors[i],
+                            modifier = Modifier.width(60.dp), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        Spacer(Modifier.width(4.dp))
+                        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                            scores.forEach { sc ->
+                                Text("$sc", fontSize = 10.sp, color = CarcText2)
+                            }
+                            if (scores.size < 5) {
+                                repeat(5 - scores.size) {
+                                    Text("—", fontSize = 10.sp, color = CarcText3)
+                                }
+                            }
+                        }
+                    }
+                    Spacer(Modifier.height(4.dp))
+                }
+            }
+        }
+        Spacer(Modifier.height(14.dp))
+    }
+
+    // ── 5: SCORE STRUCTURE ─────────────────────────────────────────────────
+    if (sections[5].enabled) {
+        SectionLabel("🏗 SCORE STRUCTURE")
+        Card(shape = RoundedCornerShape(14.dp),
+            colors = CardDefaults.cardColors(containerColor = CarcCard)) {
+            Column(Modifier.padding(14.dp)) {
+                val maxAvg = activePlayers.maxOf { it.avgScore }.takeIf { it > 0f } ?: 1f
+                val catColors = listOf(CarcBlue, CarcGreen, CarcYellow, CarcOrange)
+                val catLabels = listOf("🏰", "🛤️", "⛪", "🌾")
+                activePlayers.forEachIndexed { i, ps ->
+                    val cats = listOf(ps.avgCity, ps.avgRoad, ps.avgMonastery, ps.avgFarm)
+                    val catTotal = cats.sum().takeIf { it > 0f } ?: 1f
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(Modifier.size(8.dp).clip(RoundedCornerShape(2.dp)).background(colors[i]))
+                        Spacer(Modifier.width(6.dp))
+                        Text(ps.player.name, fontSize = 11.sp, color = CarcText2,
+                            modifier = Modifier.width(64.dp), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        Spacer(Modifier.width(6.dp))
+                        Row(modifier = Modifier.weight(ps.avgScore / maxAvg).height(18.dp)
+                            .clip(RoundedCornerShape(4.dp))) {
+                            cats.forEachIndexed { ci, v ->
+                                val frac = (v / catTotal).coerceIn(0f, 1f)
+                                if (frac > 0.02f)
+                                    Box(Modifier.fillMaxHeight().weight(frac).background(catColors[ci]))
+                            }
+                        }
+                        if (ps.avgScore / maxAvg < 1f) Spacer(Modifier.weight(1f - ps.avgScore / maxAvg))
+                        Spacer(Modifier.width(6.dp))
+                        Text("%.0f".format(ps.avgScore), fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold, color = CarcText)
+                    }
+                    Spacer(Modifier.height(8.dp))
+                }
+                HorizontalDivider(color = CarcBorder, thickness = 0.5.dp,
+                    modifier = Modifier.padding(vertical = 4.dp))
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+                    catColors.forEachIndexed { i, c ->
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Box(Modifier.size(8.dp).clip(RoundedCornerShape(2.dp)).background(c))
+                            Spacer(Modifier.width(4.dp))
+                            Text(catLabels[i], fontSize = 12.sp)
+                        }
+                    }
+                }
+            }
+        }
+        Spacer(Modifier.height(14.dp))
+    }
+
+    // ── 6: METRICS ─────────────────────────────────────────────────────────
+    if (sections[6].enabled) {
+        SectionLabel("🔬 METRICS")
+        Card(shape = RoundedCornerShape(14.dp),
+            colors = CardDefaults.cardColors(containerColor = CarcCard)) {
+            Column(Modifier.padding(14.dp)) {
+                val metrics = listOf(
+                    Triple("🏰 Urbanization",   activePlayers.map { it.urbanizationIndex }, "City share of total score"),
+                    Triple("🛤️ Road Aggr.",     activePlayers.map { it.roadAggrIndex },    "Roads vs cities ratio"),
+                    Triple("⛪ Monastery",      activePlayers.map { it.monasteryIndex },   "Monastery share of score"),
+                    Triple("🌾 Farm Dominance", activePlayers.map { it.farmDomIndex },     "Farm score vs field average"),
+                    Triple("🎯 Stability",      activePlayers.map { it.stabilityIndex },   "Score consistency")
+                )
+                metrics.forEachIndexed { mi, (label, values, hint) ->
+                    if (mi > 0) HorizontalDivider(color = CarcBorder, thickness = 0.5.dp,
+                        modifier = Modifier.padding(vertical = 6.dp))
+                    Text(label, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = CarcText)
+                    Text(hint, fontSize = 10.sp, color = CarcText3)
+                    Spacer(Modifier.height(6.dp))
+                    val maxV = values.maxOrNull()?.takeIf { it > 0f } ?: 1f
+                    activePlayers.forEachIndexed { pi, ps ->
+                        val v = values[pi]; val isWinner = v == maxV
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Box(Modifier.size(6.dp).clip(RoundedCornerShape(2.dp)).background(colors[pi]))
+                            Spacer(Modifier.width(5.dp))
+                            Text(ps.player.name, fontSize = 10.sp, color = colors[pi],
+                                modifier = Modifier.width(52.dp), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                            Spacer(Modifier.width(4.dp))
+                            Box(Modifier.weight(1f).height(8.dp).clip(RoundedCornerShape(4.dp)).background(CarcBg3)) {
+                                Box(Modifier.fillMaxHeight().fillMaxWidth(v / maxV)
+                                    .background(colors[pi].copy(alpha = if (isWinner) 1f else 0.55f)))
+                            }
+                            Spacer(Modifier.width(6.dp))
+                            Text("%.0f%%".format(v * 100), fontSize = 11.sp,
+                                fontWeight = if (isWinner) FontWeight.Bold else FontWeight.Normal,
+                                color = if (isWinner) colors[pi] else CarcText3,
+                                modifier = Modifier.width(40.dp), textAlign = TextAlign.End,
+                                maxLines = 1)
+                        }
+                        Spacer(Modifier.height(4.dp))
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun SectionLabel(text: String) {
+    Text(text, fontSize = 11.sp, color = CarcText3, letterSpacing = 1.sp)
+    Spacer(Modifier.height(8.dp))
 }
 
 @Composable
