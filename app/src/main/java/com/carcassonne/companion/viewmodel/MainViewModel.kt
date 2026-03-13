@@ -79,6 +79,16 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val db = CarcassonneDatabase.getInstance(application)
     private val repo = CarcassonneRepository(db.playerDao(), db.gameDao(), db.gamePlayerDao())
 
+    // ─── Dark mode — persisted in SharedPreferences ─────────────────────────
+    private val prefs = application.getSharedPreferences("carc_settings", android.content.Context.MODE_PRIVATE)
+    private val _isDarkMode = MutableStateFlow(prefs.getBoolean("dark_mode", true))
+    val isDarkMode: StateFlow<Boolean> = _isDarkMode
+
+    fun setDarkMode(dark: Boolean) {
+        _isDarkMode.value = dark
+        prefs.edit().putBoolean("dark_mode", dark).apply()
+    }
+
     val players: StateFlow<List<PlayerEntity>> = repo.allPlayers
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 

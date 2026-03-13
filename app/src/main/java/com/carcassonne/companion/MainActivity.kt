@@ -65,8 +65,10 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            CarcassonneTheme {
-                CarcassonneApp()
+            val vm: MainViewModel = viewModel()
+            val isDark by vm.isDarkMode.collectAsState()
+            CarcassonneTheme(darkMode = isDark) {
+                CarcassonneApp(vm)
             }
         }
     }
@@ -74,11 +76,11 @@ class MainActivity : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CarcassonneApp() {
+fun CarcassonneApp(vm: MainViewModel = viewModel()) {
     val navController = rememberNavController()
-    val vm: MainViewModel = viewModel()
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
+    val isDark by vm.isDarkMode.collectAsState()
 
     val players by vm.players.collectAsState()
     val games   by vm.sortedGames.collectAsState()
@@ -297,10 +299,12 @@ fun CarcassonneApp() {
             }
             composable(Routes.SETTINGS) {
                 SettingsScreen(
-                    onBackup  = { /* TODO: export JSON */ },
-                    onRestore = { /* TODO: import JSON */ },
-                    onClearAll = { vm.clearAllData() }
-                )
+                    onBackup   = { /* TODO: export JSON */ },
+                    onRestore  = { /* TODO: import JSON */ },
+                    onClearAll = { vm.clearAllData() },
+                    isDarkMode = isDark,
+                    onDarkMode = { vm.setDarkMode(it) }
+                )                )
             }
             composable(Routes.NEW_GAME) {
                 // Track per-player color overrides locally

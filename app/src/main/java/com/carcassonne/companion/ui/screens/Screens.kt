@@ -1053,10 +1053,11 @@ fun FeatureRow(icon: String, label: String, value: Int) {
 fun SettingsScreen(
     onBackup: () -> Unit,
     onRestore: () -> Unit,
-    onClearAll: () -> Unit
+    onClearAll: () -> Unit,
+    isDarkMode: Boolean = true,
+    onDarkMode: (Boolean) -> Unit = {}
 ) {
     var showClearDialog by remember { mutableStateOf(false) }
-    var darkMode by remember { mutableStateOf(true) }
     var showLanguageDialog by remember { mutableStateOf(false) }
 
     if (showClearDialog) {
@@ -1097,12 +1098,12 @@ fun SettingsScreen(
                 modifier = Modifier.padding(top = 8.dp, bottom = 4.dp))
         }
         item {
-            SettingsRow("🌙", "Dark Mode", "Enable high contrast theme",
-                onClick = { darkMode = !darkMode },
+            SettingsRow("🌙", "Dark Mode", "Enable dark theme",
+                onClick = { onDarkMode(!isDarkMode) },
                 trailing = {
                     Switch(
-                        checked = darkMode,
-                        onCheckedChange = { darkMode = it },
+                        checked = isDarkMode,
+                        onCheckedChange = { onDarkMode(it) },
                         colors = SwitchDefaults.colors(checkedThumbColor = CarcBg, checkedTrackColor = CarcGreen)
                     )
                 }
