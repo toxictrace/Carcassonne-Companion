@@ -88,6 +88,7 @@ fun CarcassonneApp(vm: MainViewModel = viewModel()) {
     val pStats  by vm.playerStats.collectAsState()
     val liveGame by vm.liveGame.collectAsState()
     val sortNewestFirst by vm.sortNewestFirst.collectAsState()
+    val compareSlots by vm.compareSlots.collectAsState()
     val allGamePlayers by vm.allGamePlayers.collectAsState()
 
     val currentBackStack by navController.currentBackStackEntryAsState()
@@ -295,7 +296,12 @@ fun CarcassonneApp(vm: MainViewModel = viewModel()) {
                 )
             }
             composable(Routes.STATS) {
-                StatsScreen(globalStats = stats, playerStats = pStats)
+                StatsScreen(
+                    globalStats = stats,
+                    playerStats = pStats,
+                    compareSlots = compareSlots,
+                    onSlotChange = { idx, id -> vm.setCompareSlot(idx, id) }
+                )
             }
             composable(Routes.SETTINGS) {
                 SettingsScreen(

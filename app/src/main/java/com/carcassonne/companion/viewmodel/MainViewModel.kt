@@ -110,6 +110,24 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         prefs.edit().putBoolean("dark_mode", dark).apply()
     }
 
+    // ─── Compare slots persistence ───────────────────────────────────────────
+    // stored as "id0,id1,id2" — -1 means empty slot
+    private fun loadCompareSlots(): List<Int?> {
+        val raw = prefs.getString("compare_slots", "") ?: ""
+        if (raw.isEmpty()) return listOf(null, null, null)
+        return raw.split(",").map { s -> s.trim().toIntOrNull()?.takeIf { it >= 0 } }
+            .let { list -> List(3) { list.getOrNull(it) } }
+    }
+
+    private val _compareSlots = MutableStateFlow(loadCompareSlots())
+    val compareSlots: StateFlow<List<Int?>> = _compareSlots
+
+    fun setCompareSlot(index: Int, playerId: Int?) {
+        val updated = _compareSlots.value.toMutableList().also { it[index] = playerId }
+        _compareSlots.value = updated
+        prefs.edit().putString("compare_slots", updated.map { it ?: -1 }.joinToString(",")).apply()
+    }
+
     val players: StateFlow<List<PlayerEntity>> = repo.allPlayers
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 

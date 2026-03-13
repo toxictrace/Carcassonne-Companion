@@ -906,18 +906,26 @@ fun PlayerCard(player: PlayerEntity, stats: PlayerStats?, onClick: () -> Unit, o
 
 // ─── Stats Screen ────────────────────────────────────────────────────────────
 @Composable
-fun StatsScreen(globalStats: GlobalStats, playerStats: List<PlayerStats>) {
+fun StatsScreen(
+    globalStats: GlobalStats,
+    playerStats: List<PlayerStats>,
+    compareSlots: List<Int?>,
+    onSlotChange: (Int, Int?) -> Unit
+) {
     var tab by remember { mutableIntStateOf(0) }
-    // Compare slots: up to 3, pre-filled with first available players
-    var selectedSlots by remember(playerStats) {
-        mutableStateOf(
+    // selectedSlots driven by VM — persisted across sessions
+    val selectedSlots = compareSlots.let { slots ->
+        // Auto-fill empty slots with first available players if nothing saved yet
+        if (slots.all { it == null } && playerStats.isNotEmpty()) {
             listOf(
                 playerStats.getOrNull(0)?.player?.id,
                 playerStats.getOrNull(1)?.player?.id,
                 playerStats.getOrNull(2)?.player?.id
             )
-        )
+        } else slots
     }
+    // Fixed slot colors — shared between dialog (StatsScreen) and ComparePlayersSection
+    val slotColors = listOf(Color(0xFFEF4444), Color(0xFF22C55E), Color(0xFFEAB308))
     // Dialog must be outside LazyColumn to avoid Popup crash
     var pickingSlot by remember { mutableIntStateOf(-1) }
 
@@ -939,7 +947,7 @@ fun StatsScreen(globalStats: GlobalStats, playerStats: List<PlayerStats>) {
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clip(RoundedCornerShape(8.dp))
-                                .clickable { selectedSlots = selectedSlots.toMutableList().also { it[slotIdx] = null }; pickingSlot = -1 }
+                                .clickable { onSlotChange(slotIdx, null); pickingSlot = -1 }
                                 .padding(vertical = 10.dp, horizontal = 4.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
@@ -952,7 +960,7 @@ fun StatsScreen(globalStats: GlobalStats, playerStats: List<PlayerStats>) {
                             modifier = Modifier.padding(vertical = 4.dp))
                     }
                     available.forEach { candidate ->
-                        val c = meepleColor(candidate.player.meepleColor)
+                        val c = slotColors.getOrElse(pickingSlot % 3) { CarcGreen }
                         val isSelected = candidate.player.id == currentId
                         Row(
                             modifier = Modifier
@@ -960,7 +968,7 @@ fun StatsScreen(globalStats: GlobalStats, playerStats: List<PlayerStats>) {
                                 .clip(RoundedCornerShape(8.dp))
                                 .background(if (isSelected) c.copy(alpha = 0.12f) else Color.Transparent)
                                 .clickable {
-                                    selectedSlots = selectedSlots.toMutableList().also { it[slotIdx] = candidate.player.id }
+                                    onSlotChange(slotIdx, candidate.player.id)
                                     pickingSlot = -1
                                 }
                                 .padding(vertical = 10.dp, horizontal = 4.dp),
@@ -1083,6 +1091,7 @@ fun StatsScreen(globalStats: GlobalStats, playerStats: List<PlayerStats>) {
                     ComparePlayersSection(
                         allStats = playerStats,
                         selectedSlots = selectedSlots,
+                        slotColors = slotColors,
                         onSlotClick = { slotIdx -> pickingSlot = slotIdx }
                     )
                 }
@@ -1140,11 +1149,14 @@ fun MetagameBreakdownBar(gs: GlobalStats) {
 fun ComparePlayersSection(
     allStats: List<PlayerStats>,
     selectedSlots: List<Int?>,
+    slotColors: List<Color>,
     onSlotClick: (slotIdx: Int) -> Unit
 ) {
     val slotStats = selectedSlots.map { id -> allStats.find { it.player.id == id } }
     val activePlayers = slotStats.filterNotNull()
-    val colors = activePlayers.map { meepleColor(it.player.meepleColor) }
+    // Map active player index → their original slot index to get correct color
+    val activeSlotIndices = selectedSlots.indices.filter { selectedSlots[it] != null }
+    val colors = activePlayers.indices.map { ai -> slotColors[activeSlotIndices.getOrElse(ai) { ai } % 3] }
 
     // ── Slot cards ─────────────────────────────────────────────────────────
     Card(
@@ -1157,7 +1169,7 @@ fun ComparePlayersSection(
         ) {
             selectedSlots.forEachIndexed { slotIdx, selectedId ->
                 val ps = allStats.find { it.player.id == selectedId }
-                val slotColor = ps?.let { meepleColor(it.player.meepleColor) } ?: CarcBorder
+                val slotColor = if (ps != null) slotColors[slotIdx % 3] else CarcBorder
 
                 Column(
                     modifier = Modifier
@@ -1320,11 +1332,12 @@ fun ComparePlayersSection(
                             Box(modifier = Modifier.fillMaxHeight().fillMaxWidth(v / maxV)
                                 .background(colors[pi].copy(alpha = if (isWinner) 1f else 0.55f)))
                         }
-                        Spacer(Modifier.width(8.dp))
+                        Spacer(Modifier.width(6.dp))
                         Text("%.0f%%".format(v * 100), fontSize = 11.sp,
                             fontWeight = if (isWinner) FontWeight.Bold else FontWeight.Normal,
                             color = if (isWinner) colors[pi] else CarcText3,
-                            modifier = Modifier.width(32.dp), textAlign = TextAlign.End)
+                            modifier = Modifier.width(40.dp), textAlign = TextAlign.End,
+                            maxLines = 1)
                     }
                     Spacer(Modifier.height(4.dp))
                 }
