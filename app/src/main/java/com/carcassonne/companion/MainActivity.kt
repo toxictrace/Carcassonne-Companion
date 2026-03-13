@@ -304,7 +304,7 @@ fun CarcassonneApp(vm: MainViewModel = viewModel()) {
                     onClearAll = { vm.clearAllData() },
                     isDarkMode = isDark,
                     onDarkMode = { vm.setDarkMode(it) }
-                )                )
+                )
             }
             composable(Routes.NEW_GAME) {
                 // Track per-player color overrides locally
