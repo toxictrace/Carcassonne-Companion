@@ -973,7 +973,7 @@ fun StatsScreen(globalStats: GlobalStats, playerStats: List<PlayerStats>) {
                                 Text(candidate.player.name, fontSize = 14.sp,
                                     fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
                                     color = if (isSelected) c else CarcText)
-                                Text("${(candidate.winRate * 100).toInt()}% WR · %.0f avg".format(candidate.avgScore),
+                                Text("${(candidate.winRate * 100).toInt()}%% WR · %.0f avg".format(candidate.avgScore),
                                     fontSize = 11.sp, color = CarcText3)
                             }
                             if (candidate.title.isNotBlank()) {
