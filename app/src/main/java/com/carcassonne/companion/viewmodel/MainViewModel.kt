@@ -126,6 +126,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val _compareSlots = MutableStateFlow(loadCompareSlots())
     val compareSlots: StateFlow<List<Int?>> = _compareSlots
 
+    // ─── Compare sections visibility persistence ────────────────────────────
+    // stored as bitmask: bit i = sections[i].enabled
+    fun loadCompareSections(): Int =
+        prefs.getInt("compare_sections", 0b0011111)  // default: first 5 ON
+
+    fun saveCompareSections(mask: Int) =
+        prefs.edit().putInt("compare_sections", mask).apply()
+
     fun setCompareSlot(index: Int, playerId: Int?) {
         val updated = _compareSlots.value.toMutableList().also { it[index] = playerId }
         _compareSlots.value = updated

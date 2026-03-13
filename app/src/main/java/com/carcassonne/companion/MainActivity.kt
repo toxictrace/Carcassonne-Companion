@@ -301,7 +301,9 @@ fun CarcassonneApp(vm: MainViewModel = viewModel()) {
                     playerStats = pStats,
                     compareSlots = compareSlots,
                     onSlotChange = { idx, id -> vm.setCompareSlot(idx, id) },
-                    allGamePlayers = allGamePlayers
+                    allGamePlayers = allGamePlayers,
+                    sectionMask = vm.loadCompareSections(),
+                    onSectionsChange = { mask -> vm.saveCompareSections(mask) }
                 )
             }
             composable(Routes.SETTINGS) {

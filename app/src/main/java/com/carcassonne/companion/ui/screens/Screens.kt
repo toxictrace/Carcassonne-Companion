@@ -911,7 +911,9 @@ fun StatsScreen(
     playerStats: List<PlayerStats>,
     compareSlots: List<Int?>,
     onSlotChange: (Int, Int?) -> Unit,
-    allGamePlayers: List<com.carcassonne.companion.data.entity.GamePlayerEntity> = emptyList()
+    allGamePlayers: List<com.carcassonne.companion.data.entity.GamePlayerEntity> = emptyList(),
+    sectionMask: Int = 0b0011111,
+    onSectionsChange: (Int) -> Unit = {}
 ) {
     var tab by remember { mutableIntStateOf(0) }
     // selectedSlots driven by VM — persisted across sessions
@@ -1085,6 +1087,8 @@ fun StatsScreen(
                         selectedSlots = selectedSlots,
                         slotColors = slotColors,
                         allGamePlayers = allGamePlayers,
+                        sectionMask = sectionMask,
+                        onSectionsChange = onSectionsChange,
                         onSlotClick = { slotIdx -> pickingSlot = slotIdx }
                     )
                 }
@@ -1144,6 +1148,8 @@ fun ComparePlayersSection(
     selectedSlots: List<Int?>,
     slotColors: List<Color>,
     allGamePlayers: List<com.carcassonne.companion.data.entity.GamePlayerEntity>,
+    sectionMask: Int = 0b0011111,
+    onSectionsChange: (Int) -> Unit = {},
     onSlotClick: (slotIdx: Int) -> Unit
 ) {
     val slotStats = selectedSlots.map { id -> allStats.find { it.player.id == id } }
@@ -1208,16 +1214,14 @@ fun ComparePlayersSection(
     // ── Section selector ───────────────────────────────────────────────────
     // sections: index -> (label, enabled)
     data class CompareSection(val label: String, var enabled: Boolean)
-    val sections = remember {
-        mutableStateListOf(
-            CompareSection("🕸 Play Style",       true),
-            CompareSection("🏆 Results",           true),
-            CompareSection("📊 Score Range",       true),
-            CompareSection("🎮 Together",          true),
-            CompareSection("📈 Trend",             true),
-            CompareSection("🏗 Score Structure",   false),
-            CompareSection("🔬 Metrics",           false)
-        )
+    val sectionLabels = listOf(
+        "🕸 Play Style", "🏆 Results", "📊 Score Range",
+        "🎮 Together", "📈 Trend", "🏗 Score Structure", "🔬 Metrics"
+    )
+    val sections = remember(sectionMask) {
+        mutableStateListOf(*sectionLabels.mapIndexed { i, label ->
+            CompareSection(label, sectionMask and (1 shl i) != 0)
+        }.toTypedArray())
     }
     var showSectionPicker by remember { mutableStateOf(false) }
     if (showSectionPicker) {
@@ -1231,13 +1235,23 @@ fun ComparePlayersSection(
                         Row(
                             modifier = Modifier.fillMaxWidth()
                                 .clip(RoundedCornerShape(8.dp))
-                                .clickable { sections[i] = sec.copy(enabled = !sec.enabled) }
+                                .clickable {
+                                    sections[i] = sec.copy(enabled = !sec.enabled)
+                                    val newMask = sections.foldIndexed(0) { idx, acc, s ->
+                                        if (s.enabled) acc or (1 shl idx) else acc }
+                                    onSectionsChange(newMask)
+                                }
                                 .padding(vertical = 10.dp, horizontal = 4.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Checkbox(
                                 checked = sec.enabled,
-                                onCheckedChange = { sections[i] = sec.copy(enabled = it) },
+                                onCheckedChange = { v ->
+                                    sections[i] = sec.copy(enabled = v)
+                                    val newMask = sections.foldIndexed(0) { idx, acc, s ->
+                                        if (s.enabled) acc or (1 shl idx) else acc }
+                                    onSectionsChange(newMask)
+                                },
                                 colors = CheckboxDefaults.colors(
                                     checkedColor = CarcGreen,
                                     uncheckedColor = CarcBorder
@@ -1347,6 +1361,17 @@ fun ComparePlayersSection(
                 Spacer(Modifier.height(8.dp))
                 Text("Placements", fontSize = 11.sp, color = CarcText3)
                 Spacer(Modifier.height(6.dp))
+                val placeColors = listOf(CarcYellow, Color(0xFF9CA3AF), Color(0xFFB45309), Color(0xFF4B5563))
+                val placeIcons  = listOf("🥇", "🥈", "🥉", "4️⃣")
+                // Header row
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Spacer(Modifier.width(14.dp + 6.dp + 70.dp + 6.dp))
+                    placeIcons.forEach { icon ->
+                        Text(icon, fontSize = 13.sp, modifier = Modifier.weight(1f),
+                            textAlign = TextAlign.Center)
+                    }
+                }
+                Spacer(Modifier.height(4.dp))
                 activePlayers.forEachIndexed { i, ps ->
                     val playerGames = allGamePlayers.filter { it.playerId == ps.player.id }
                     val byPlace = (1..4).map { place ->
@@ -1356,24 +1381,31 @@ fun ComparePlayersSection(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Box(Modifier.size(8.dp).clip(RoundedCornerShape(2.dp)).background(colors[i]))
                         Spacer(Modifier.width(6.dp))
-                        Text(ps.player.name, fontSize = 10.sp, color = colors[i],
+                        Text(ps.player.name, fontSize = 11.sp, color = colors[i],
                             modifier = Modifier.width(70.dp), maxLines = 1, overflow = TextOverflow.Ellipsis)
                         Spacer(Modifier.width(6.dp))
-                        Row(Modifier.weight(1f).height(14.dp).clip(RoundedCornerShape(4.dp))) {
-                            val placeColors = listOf(CarcYellow, CarcText3, Color(0xFFB45309), CarcBg3)
-                            byPlace.forEachIndexed { pi, cnt ->
+                        byPlace.forEachIndexed { pi, cnt ->
+                            Column(
+                                modifier = Modifier.weight(1f),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                // bar
                                 val frac = cnt.toFloat() / total
-                                if (frac > 0.02f) {
-                                    Box(Modifier.fillMaxHeight().weight(frac)
+                                Box(Modifier.width(28.dp).height(6.dp)
+                                    .clip(RoundedCornerShape(3.dp))
+                                    .background(CarcBg3)) {
+                                    Box(Modifier.fillMaxHeight().fillMaxWidth(frac)
                                         .background(placeColors[pi]))
                                 }
+                                Spacer(Modifier.height(2.dp))
+                                Text("$cnt", fontSize = 13.sp,
+                                    fontWeight = if (cnt == byPlace.max()) FontWeight.Bold else FontWeight.Normal,
+                                    color = if (cnt > 0) placeColors[pi] else CarcText3,
+                                    textAlign = TextAlign.Center)
                             }
                         }
-                        Spacer(Modifier.width(6.dp))
-                        Text(byPlace.take(4).mapIndexed { pi, c -> "${pi+1}°:$c" }.joinToString(" "),
-                            fontSize = 9.sp, color = CarcText3)
                     }
-                    Spacer(Modifier.height(4.dp))
+                    Spacer(Modifier.height(8.dp))
                 }
             }
         }
@@ -1446,11 +1478,12 @@ fun ComparePlayersSection(
                         modifier = Modifier.fillMaxWidth()) {
                         Text(pa.player.name, fontSize = 12.sp, color = colors[idxA],
                             fontWeight = FontWeight.SemiBold,
-                            modifier = Modifier.width(72.dp), maxLines = 1, overflow = TextOverflow.Ellipsis)
-                        Text(" & ", fontSize = 11.sp, color = CarcText3)
+                            modifier = Modifier.weight(1f), maxLines = 1, overflow = TextOverflow.Ellipsis,
+                            textAlign = TextAlign.End)
+                        Text("  &  ", fontSize = 11.sp, color = CarcText3)
                         Text(pb.player.name, fontSize = 12.sp, color = colors[idxB],
                             fontWeight = FontWeight.SemiBold,
-                            modifier = Modifier.width(72.dp), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                            modifier = Modifier.weight(1f), maxLines = 1, overflow = TextOverflow.Ellipsis)
                         Spacer(Modifier.weight(1f))
                         Text("$count", fontSize = 22.sp, fontWeight = FontWeight.Bold, color = CarcYellow)
                         Spacer(Modifier.width(4.dp))
@@ -1503,58 +1536,105 @@ fun ComparePlayersSection(
         Card(shape = RoundedCornerShape(14.dp),
             colors = CardDefaults.cardColors(containerColor = CarcCard)) {
             Column(Modifier.padding(14.dp)) {
-                // Mini line chart
-                Canvas(modifier = Modifier.fillMaxWidth().height(120.dp)) {
-                    val allScores = activePlayers.flatMap { it.recentScores }
-                    if (allScores.isEmpty()) return@Canvas
-                    val globalMin = allScores.min().toFloat()
-                    val globalMax = allScores.max().toFloat()
-                    val range = (globalMax - globalMin).takeIf { it > 0f } ?: 1f
-                    val w = size.width; val h = size.height
-                    val n = 5
-                    val stepX = w / (n - 1).toFloat()
-                    // Grid
-                    val gridColor = Color.White.copy(alpha = 0.08f)
-                    repeat(4) { ri ->
-                        val y = h * ri / 3f
-                        drawLine(gridColor, Offset(0f, y), Offset(w, y), strokeWidth = 1f)
+                val trendTextPaint = remember {
+                    android.graphics.Paint().apply {
+                        isAntiAlias = true; textSize = 26f; textAlign = android.graphics.Paint.Align.CENTER
                     }
-                    activePlayers.forEachIndexed { pi, ps ->
-                        val scores = ps.recentScores.take(n).reversed() // oldest first
-                        if (scores.size < 2) return@forEachIndexed
-                        val path = Path()
-                        scores.forEachIndexed { si, sc ->
-                            val x = si * stepX
-                            val y = h - (sc - globalMin) / range * h
-                            if (si == 0) path.moveTo(x, y) else path.lineTo(x, y)
+                }
+                val isDarkTrend = LocalCarcColors.current.isDark
+                // Mini line chart with score labels
+                val allScoresTrend = activePlayers.flatMap { it.recentScores }
+                if (allScoresTrend.isNotEmpty()) {
+                    val globalMinT = allScoresTrend.min().toFloat()
+                    val globalMaxT = allScoresTrend.max().toFloat()
+                    Canvas(modifier = Modifier.fillMaxWidth().height(150.dp)) {
+                        val range = (globalMaxT - globalMinT).takeIf { it > 0f } ?: 1f
+                        val w = size.width; val h = size.height
+                        val padTop = 24f; val padBottom = 8f
+                        val chartH = h - padTop - padBottom
+                        val n = 5
+                        val stepX = w / (n - 1).toFloat()
+                        fun scoreY(sc: Int) = padTop + chartH - (sc - globalMinT) / range * chartH
+
+                        // Grid
+                        val gridColor = if (isDarkTrend) Color.White.copy(alpha = 0.07f)
+                                        else Color(0xFF336633).copy(alpha = 0.15f)
+                        repeat(4) { ri ->
+                            val y = padTop + chartH * ri / 3f
+                            drawLine(gridColor, Offset(0f, y), Offset(w, y), strokeWidth = 1f)
                         }
-                        drawPath(path, colors[pi], style = Stroke(width = 2.5f))
-                        scores.forEachIndexed { si, sc ->
-                            val x = si * stepX
-                            val y = h - (sc - globalMin) / range * h
-                            drawCircle(colors[pi], radius = 5f, center = Offset(x, y))
-                            drawCircle(Color(0xFF122012).copy(alpha = 0.9f), radius = 3f, center = Offset(x, y))
+                        // Lines
+                        activePlayers.forEachIndexed { pi, ps ->
+                            val scores = ps.recentScores.take(n).reversed()
+                            if (scores.size < 2) return@forEachIndexed
+                            val linePath = Path()
+                            scores.forEachIndexed { si, sc ->
+                                val x = si * stepX; val y = scoreY(sc)
+                                if (si == 0) linePath.moveTo(x, y) else linePath.lineTo(x, y)
+                            }
+                            drawPath(linePath, colors[pi], style = Stroke(width = 2.5f))
+                        }
+                        // Dots + score labels (drawn after lines so labels are on top)
+                        activePlayers.forEachIndexed { pi, ps ->
+                            val scores = ps.recentScores.take(n).reversed()
+                            scores.forEachIndexed { si, sc ->
+                                val x = si * stepX; val y = scoreY(sc)
+                                drawCircle(colors[pi], radius = 5f, center = Offset(x, y))
+                                drawCircle(Color(0xFF0D1F0D), radius = 2.5f, center = Offset(x, y))
+                            }
+                        }
+                        // Score text labels via nativeCanvas
+                        drawIntoCanvas { cv ->
+                            activePlayers.forEachIndexed { pi, ps ->
+                                val scores = ps.recentScores.take(n).reversed()
+                                val colorInt = android.graphics.Color.argb(
+                                    255,
+                                    (colors[pi].red * 255).toInt(),
+                                    (colors[pi].green * 255).toInt(),
+                                    (colors[pi].blue * 255).toInt()
+                                )
+                                trendTextPaint.color = colorInt
+                                scores.forEachIndexed { si, sc ->
+                                    val x = si * stepX
+                                    val y = scoreY(sc)
+                                    // Alternate label above/below to avoid overlap
+                                    val labelY = if (y < padTop + 20f) y + 32f else y - 12f
+                                    cv.nativeCanvas.drawText("$sc", x, labelY, trendTextPaint)
+                                }
+                            }
                         }
                     }
                 }
-                Spacer(Modifier.height(8.dp))
-                // Score labels per player
+                Spacer(Modifier.height(10.dp))
+                HorizontalDivider(color = CarcBorder, thickness = 0.5.dp)
+                Spacer(Modifier.height(10.dp))
+                // Legend: player row with stats
                 activePlayers.forEachIndexed { i, ps ->
                     val scores = ps.recentScores.take(5).reversed()
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Box(Modifier.size(8.dp).clip(RoundedCornerShape(2.dp)).background(colors[i]))
+                    Row(verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxWidth()) {
+                        // Color line sample
+                        Box(Modifier.width(18.dp).height(3.dp)
+                            .clip(RoundedCornerShape(2.dp)).background(colors[i]))
+                        Box(Modifier.size(7.dp).clip(RoundedCornerShape(50.dp))
+                            .background(colors[i]).align(Alignment.CenterVertically))
                         Spacer(Modifier.width(6.dp))
-                        Text(ps.player.name, fontSize = 10.sp, color = colors[i],
-                            modifier = Modifier.width(60.dp), maxLines = 1, overflow = TextOverflow.Ellipsis)
-                        Spacer(Modifier.width(4.dp))
-                        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                            scores.forEach { sc ->
-                                Text("$sc", fontSize = 10.sp, color = CarcText2)
-                            }
-                            if (scores.size < 5) {
-                                repeat(5 - scores.size) {
-                                    Text("—", fontSize = 10.sp, color = CarcText3)
-                                }
+                        Text(ps.player.name, fontSize = 12.sp, color = colors[i],
+                            fontWeight = FontWeight.SemiBold,
+                            modifier = Modifier.width(56.dp), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        Spacer(Modifier.width(8.dp))
+                        // Score sequence — evenly spaced to align with chart
+                        Row(modifier = Modifier.weight(1f),
+                            horizontalArrangement = Arrangement.SpaceEvenly) {
+                            repeat(5) { idx ->
+                                val sc = scores.getOrNull(idx)
+                                Text(
+                                    sc?.toString() ?: "·",
+                                    fontSize = 12.sp,
+                                    color = if (sc != null) CarcText2 else CarcText3,
+                                    fontWeight = if (sc != null && sc == scores.maxOrNull()) FontWeight.Bold else FontWeight.Normal,
+                                    textAlign = TextAlign.Center
+                                )
                             }
                         }
                     }
