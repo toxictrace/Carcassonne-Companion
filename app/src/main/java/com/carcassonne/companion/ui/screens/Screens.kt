@@ -914,16 +914,7 @@ fun StatsScreen(
 ) {
     var tab by remember { mutableIntStateOf(0) }
     // selectedSlots driven by VM — persisted across sessions
-    val selectedSlots = compareSlots.let { slots ->
-        // Auto-fill empty slots with first available players if nothing saved yet
-        if (slots.all { it == null } && playerStats.isNotEmpty()) {
-            listOf(
-                playerStats.getOrNull(0)?.player?.id,
-                playerStats.getOrNull(1)?.player?.id,
-                playerStats.getOrNull(2)?.player?.id
-            )
-        } else slots
-    }
+    val selectedSlots = compareSlots
     // Fixed slot colors — shared between dialog (StatsScreen) and ComparePlayersSection
     val slotColors = listOf(Color(0xFFEF4444), Color(0xFF22C55E), Color(0xFFEAB308))
     // Dialog must be outside LazyColumn to avoid Popup crash

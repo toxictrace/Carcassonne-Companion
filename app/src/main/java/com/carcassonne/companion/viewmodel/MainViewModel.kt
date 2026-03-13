@@ -425,7 +425,20 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }.filter { it.gamesPlayed > 0 }
 
         // Assign titles based on which metric is highest among all players
-        _playerStats.value = assignTitles(allStats).sortedByDescending { it.winRate }
+        val sorted = assignTitles(allStats).sortedByDescending { it.winRate }
+        _playerStats.value = sorted
+
+        // Auto-fill compare slots on first launch (all null = never saved)
+        if (_compareSlots.value.all { it == null } && sorted.isNotEmpty()) {
+            val autoSlots = listOf(
+                sorted.getOrNull(0)?.player?.id,
+                sorted.getOrNull(1)?.player?.id,
+                sorted.getOrNull(2)?.player?.id
+            )
+            _compareSlots.value = autoSlots
+            prefs.edit().putString("compare_slots",
+                autoSlots.map { it ?: -1 }.joinToString(",")).apply()
+        }
     }
 
     private fun assignTitles(stats: List<PlayerStats>): List<PlayerStats> {
