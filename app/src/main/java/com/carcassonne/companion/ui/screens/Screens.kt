@@ -1152,7 +1152,7 @@ fun ComparePlayersSection(
         colors = CardDefaults.cardColors(containerColor = CarcCard)
     ) {
         Row(
-            Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 12.dp),
+            Modifier.fillMaxWidth().height(IntrinsicSize.Min).padding(horizontal = 8.dp, vertical = 12.dp),
             horizontalArrangement = Arrangement.spacedBy(6.dp)
         ) {
             selectedSlots.forEachIndexed { slotIdx, selectedId ->
@@ -1162,12 +1162,14 @@ fun ComparePlayersSection(
                 Column(
                     modifier = Modifier
                         .weight(1f)
+                        .fillMaxHeight()
                         .clip(RoundedCornerShape(10.dp))
                         .background(CarcBg2)
                         .border(1.5.dp, slotColor, RoundedCornerShape(10.dp))
                         .clickable { onSlotClick(slotIdx) }
                         .padding(8.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
                 ) {
                     if (ps != null) {
                         PlayerAvatar(ps.player.name, ps.player.meepleColor,
@@ -1212,17 +1214,24 @@ fun ComparePlayersSection(
     Card(shape = RoundedCornerShape(14.dp),
         colors = CardDefaults.cardColors(containerColor = CarcCard)) {
         Column(Modifier.padding(14.dp)) {
+            // Player legend — name + color dot
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                activePlayers.forEachIndexed { i, ps ->
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(Modifier.size(10.dp).clip(RoundedCornerShape(2.dp)).background(colors[i]))
+                        Spacer(Modifier.width(5.dp))
+                        Text(ps.player.name, fontSize = 12.sp, fontWeight = FontWeight.SemiBold,
+                            color = colors[i])
+                    }
+                }
+            }
+            Spacer(Modifier.height(8.dp))
+            // Radar with axis labels drawn inside canvas
             RadarChart(
                 players = activePlayers,
                 colors  = colors,
-                modifier = Modifier.fillMaxWidth().height(260.dp)
+                modifier = Modifier.fillMaxWidth().height(280.dp)
             )
-            Spacer(Modifier.height(8.dp))
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-                listOf("🏰 Urban", "🛤️ Roads", "⛪ Monks", "🌾 Farms", "🎯 Stable").forEach { ax ->
-                    Text(ax, fontSize = 9.sp, color = CarcText3, textAlign = TextAlign.Center)
-                }
-            }
         }
     }
 
@@ -1299,17 +1308,23 @@ fun ComparePlayersSection(
                 val maxV = values.maxOrNull()?.takeIf { it > 0f } ?: 1f
                 activePlayers.forEachIndexed { pi, ps ->
                     val v = values[pi]
+                    val isWinner = v == maxV
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Box(Modifier.size(6.dp).clip(RoundedCornerShape(2.dp)).background(colors[pi]))
-                        Spacer(Modifier.width(6.dp))
+                        Spacer(Modifier.width(5.dp))
+                        Text(ps.player.name, fontSize = 10.sp, color = colors[pi],
+                            modifier = Modifier.width(52.dp), maxLines = 1,
+                            overflow = TextOverflow.Ellipsis)
+                        Spacer(Modifier.width(4.dp))
                         Box(modifier = Modifier.weight(1f).height(8.dp).clip(RoundedCornerShape(4.dp)).background(CarcBg3)) {
                             Box(modifier = Modifier.fillMaxHeight().fillMaxWidth(v / maxV)
-                                .background(colors[pi].copy(alpha = if (v == maxV) 1f else 0.55f)))
+                                .background(colors[pi].copy(alpha = if (isWinner) 1f else 0.55f)))
                         }
                         Spacer(Modifier.width(8.dp))
                         Text("%.0f%%".format(v * 100), fontSize = 11.sp,
-                            fontWeight = if (v == maxV) FontWeight.Bold else FontWeight.Normal,
-                            color = if (v == maxV) colors[pi] else CarcText3)
+                            fontWeight = if (isWinner) FontWeight.Bold else FontWeight.Normal,
+                            color = if (isWinner) colors[pi] else CarcText3,
+                            modifier = Modifier.width(32.dp), textAlign = TextAlign.End)
                     }
                     Spacer(Modifier.height(4.dp))
                 }
@@ -1324,16 +1339,27 @@ fun RadarChart(
     colors: List<Color>,
     modifier: Modifier = Modifier
 ) {
-    // 5 axes: urbanization, roadAggr, monastery, farmDom, stability
-    val axisLabels = listOf("Urban", "Roads", "Monks", "Farms", "Stable")
+    val axisEmojis = listOf("🏰", "🛤", "⛪", "🌾", "🎯")
+    val axisNames  = listOf("Urban", "Roads", "Monks", "Farms", "Stable")
     val playerValues = players.map { ps ->
         listOf(ps.urbanizationIndex, ps.roadAggrIndex, ps.monasteryIndex, ps.farmDomIndex, ps.stabilityIndex)
+    }
+
+    val textPaint = remember {
+        android.graphics.Paint().apply {
+            isAntiAlias = true
+            textSize = 32f
+            color = android.graphics.Color.argb(180, 200, 220, 200)
+            textAlign = android.graphics.Paint.Align.CENTER
+        }
     }
 
     Canvas(modifier = modifier) {
         val cx = size.width / 2f
         val cy = size.height / 2f
-        val radius = minOf(cx, cy) * 0.75f
+        // Leave room for axis labels
+        val radius = minOf(cx, cy) * 0.62f
+        val labelRadius = radius + 36f
         val n = 5
         val angleStep = (2 * Math.PI / n).toFloat()
         val startAngle = (-Math.PI / 2).toFloat()
@@ -1343,6 +1369,13 @@ fun RadarChart(
             return Offset(
                 cx + radius * fraction * cos(angle),
                 cy + radius * fraction * sin(angle)
+            )
+        }
+        fun labelPoint(axis: Int): Offset {
+            val angle = startAngle + axis * angleStep
+            return Offset(
+                cx + labelRadius * cos(angle),
+                cy + labelRadius * sin(angle)
             )
         }
 
@@ -1366,7 +1399,7 @@ fun RadarChart(
 
         // Player polygons
         playerValues.forEachIndexed { pi, values ->
-            val fillColor = colors[pi].copy(alpha = 0.15f)
+            val fillColor = colors[pi].copy(alpha = 0.18f)
             val strokeColor = colors[pi]
             val path = Path()
             values.forEachIndexed { i, v ->
@@ -1376,10 +1409,22 @@ fun RadarChart(
             path.close()
             drawPath(path, fillColor)
             drawPath(path, strokeColor, style = Stroke(width = 2.5f))
-            // Dots on vertices
             values.forEachIndexed { i, v ->
                 val pt = axisPoint(i, v.coerceIn(0.05f, 1f))
-                drawCircle(strokeColor, radius = 4f, center = pt)
+                drawCircle(strokeColor, radius = 5f, center = pt)
+            }
+        }
+
+        // Axis labels — drawn on native canvas
+        drawContext.canvas.nativeCanvas.also { canvas ->
+            for (i in 0 until n) {
+                val lp = labelPoint(i)
+                // emoji
+                textPaint.textSize = 28f
+                canvas.drawText(axisEmojis[i], lp.x, lp.y - 10f, textPaint)
+                // name
+                textPaint.textSize = 22f
+                canvas.drawText(axisNames[i], lp.x, lp.y + 18f, textPaint)
             }
         }
     }
