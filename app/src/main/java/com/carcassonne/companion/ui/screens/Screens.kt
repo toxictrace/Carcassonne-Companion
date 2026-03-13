@@ -1248,7 +1248,7 @@ fun RadarChart(
                 if (i == 0) path.moveTo(pt.x, pt.y) else path.lineTo(pt.x, pt.y)
             }
             path.close()
-            drawPath(path, gridAlpha, style = Stroke(strokeWidth = 1f))
+            drawPath(path, gridAlpha, style = Stroke(width = 1f))
         }
 
         // Axis lines
@@ -1268,7 +1268,7 @@ fun RadarChart(
             }
             path.close()
             drawPath(path, fillColor)
-            drawPath(path, strokeColor, style = Stroke(strokeWidth = 2.5f))
+            drawPath(path, strokeColor, style = Stroke(width = 2.5f))
             // Dots on vertices
             values.forEachIndexed { i, v ->
                 val pt = axisPoint(i, v.coerceIn(0.05f, 1f))
