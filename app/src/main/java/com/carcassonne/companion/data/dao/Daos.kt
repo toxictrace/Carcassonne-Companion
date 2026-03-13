@@ -96,6 +96,37 @@ interface GamePlayerDao {
     @Query("SELECT SUM(farmPoints) FROM game_players")
     suspend fun getTotalFarmPoints(): Int?
 
+    @Query("SELECT SUM(monasteryPoints) FROM game_players")
+    suspend fun getTotalMonasteryPoints(): Int?
+
+    // Per-player averages by category
+    @Query("SELECT AVG(cityPoints)       FROM game_players WHERE playerId = :pid")
+    suspend fun getAvgCityPoints(pid: Int): Float?
+    @Query("SELECT AVG(roadPoints)       FROM game_players WHERE playerId = :pid")
+    suspend fun getAvgRoadPoints(pid: Int): Float?
+    @Query("SELECT AVG(monasteryPoints)  FROM game_players WHERE playerId = :pid")
+    suspend fun getAvgMonasteryPoints(pid: Int): Float?
+    @Query("SELECT AVG(farmPoints)       FROM game_players WHERE playerId = :pid")
+    suspend fun getAvgFarmPoints(pid: Int): Float?
+
+    // All final scores for a player (stddev in Kotlin)
+    @Query("SELECT finalScore FROM game_players WHERE playerId = :pid")
+    suspend fun getAllScores(pid: Int): List<Int>
+
+    // Global avg per category
+    @Query("SELECT AVG(cityPoints)      FROM game_players")
+    suspend fun getGlobalAvgCity(): Float?
+    @Query("SELECT AVG(roadPoints)      FROM game_players")
+    suspend fun getGlobalAvgRoad(): Float?
+    @Query("SELECT AVG(monasteryPoints) FROM game_players")
+    suspend fun getGlobalAvgMonastery(): Float?
+    @Query("SELECT AVG(farmPoints)      FROM game_players")
+    suspend fun getGlobalAvgFarm(): Float?
+    @Query("SELECT AVG(finalScore)      FROM game_players")
+    suspend fun getGlobalAvgScore(): Float?
+    @Query("SELECT AVG(finalScore) FROM game_players WHERE placement = 1")
+    suspend fun getAvgWinnerScore(): Float?
+
     @Query("DELETE FROM game_players")
     suspend fun deleteAll()
 

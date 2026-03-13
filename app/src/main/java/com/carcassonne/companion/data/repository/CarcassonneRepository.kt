@@ -80,7 +80,23 @@ class CarcassonneRepository(
     suspend fun getAvgScore(playerId: Int) = gamePlayerDao.getAvgScoreForPlayer(playerId) ?: 0f
     suspend fun getTotalCityPoints() = gamePlayerDao.getTotalCityPoints() ?: 0
     suspend fun getTotalRoadPoints() = gamePlayerDao.getTotalRoadPoints() ?: 0
-    suspend fun getTotalFarmPoints() = gamePlayerDao.getTotalFarmPoints() ?: 0
+    suspend fun getTotalFarmPoints()      = gamePlayerDao.getTotalFarmPoints()      ?: 0
+    suspend fun getTotalMonasteryPoints() = gamePlayerDao.getTotalMonasteryPoints() ?: 0
+
+    // Per-player category avgs
+    suspend fun getAvgCityPoints(pid: Int)      = gamePlayerDao.getAvgCityPoints(pid)      ?: 0f
+    suspend fun getAvgRoadPoints(pid: Int)      = gamePlayerDao.getAvgRoadPoints(pid)      ?: 0f
+    suspend fun getAvgMonasteryPoints(pid: Int) = gamePlayerDao.getAvgMonasteryPoints(pid) ?: 0f
+    suspend fun getAvgFarmPoints(pid: Int)      = gamePlayerDao.getAvgFarmPoints(pid)      ?: 0f
+    suspend fun getAllScores(pid: Int)           = gamePlayerDao.getAllScores(pid)
+
+    // Global
+    suspend fun getGlobalAvgCity()      = gamePlayerDao.getGlobalAvgCity()      ?: 0f
+    suspend fun getGlobalAvgRoad()      = gamePlayerDao.getGlobalAvgRoad()      ?: 0f
+    suspend fun getGlobalAvgMonastery() = gamePlayerDao.getGlobalAvgMonastery() ?: 0f
+    suspend fun getGlobalAvgFarm()      = gamePlayerDao.getGlobalAvgFarm()      ?: 0f
+    suspend fun getGlobalAvgScore()     = gamePlayerDao.getGlobalAvgScore()     ?: 0f
+    suspend fun getAvgWinnerScore()     = gamePlayerDao.getAvgWinnerScore()     ?: 0f
 
     suspend fun clearAll() {
         gamePlayerDao.deleteAll()

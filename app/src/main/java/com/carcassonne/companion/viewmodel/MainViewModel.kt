@@ -62,7 +62,15 @@ data class GlobalStats(
     val highestScore: Int = 0,
     val totalCityPoints: Int = 0,
     val totalRoadPoints: Int = 0,
-    val totalFarmPoints: Int = 0
+    val totalFarmPoints: Int = 0,
+    val totalMonasteryPoints: Int = 0,
+    // Metagame averages
+    val avgScore: Float = 0f,
+    val avgWinnerScore: Float = 0f,
+    val avgCity: Float = 0f,
+    val avgRoad: Float = 0f,
+    val avgMonastery: Float = 0f,
+    val avgFarm: Float = 0f
 )
 
 data class PlayerStats(
@@ -70,7 +78,20 @@ data class PlayerStats(
     val wins: Int,
     val gamesPlayed: Int,
     val avgScore: Float,
-    val winRate: Float = if (gamesPlayed > 0) wins.toFloat() / gamesPlayed else 0f
+    val winRate: Float = if (gamesPlayed > 0) wins.toFloat() / gamesPlayed else 0f,
+    // Category averages
+    val avgCity: Float = 0f,
+    val avgRoad: Float = 0f,
+    val avgMonastery: Float = 0f,
+    val avgFarm: Float = 0f,
+    // Computed metrics (0..1)
+    val urbanizationIndex: Float = 0f,   // city / total
+    val roadAggrIndex: Float = 0f,       // road / (city+road)
+    val monasteryIndex: Float = 0f,      // monastery / total
+    val farmDomIndex: Float = 0f,        // avg farm / global avg farm (capped 0..2, norm to 0..1)
+    val stabilityIndex: Float = 0f,      // 1 - CV
+    // Title
+    val title: String = ""
 )
 
 // ─── Main ViewModel ─────────────────────────────────────────────────────────
@@ -324,26 +345,98 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         val totalGames = games.value.size
         val totalPlayers = players.value.size
         val highestScore = repo.getHighestScore()
-        val cityPts = repo.getTotalCityPoints()
-        val roadPts = repo.getTotalRoadPoints()
-        val farmPts = repo.getTotalFarmPoints()
+
+        val globalAvgCity      = repo.getGlobalAvgCity()
+        val globalAvgRoad      = repo.getGlobalAvgRoad()
+        val globalAvgMonastery = repo.getGlobalAvgMonastery()
+        val globalAvgFarm      = repo.getGlobalAvgFarm()
 
         _globalStats.value = GlobalStats(
-            totalGames = totalGames,
-            totalPlayers = totalPlayers,
-            highestScore = highestScore,
-            totalCityPoints = cityPts,
-            totalRoadPoints = roadPts,
-            totalFarmPoints = farmPts
+            totalGames           = totalGames,
+            totalPlayers         = totalPlayers,
+            highestScore         = highestScore,
+            totalCityPoints      = repo.getTotalCityPoints(),
+            totalRoadPoints      = repo.getTotalRoadPoints(),
+            totalFarmPoints      = repo.getTotalFarmPoints(),
+            totalMonasteryPoints = repo.getTotalMonasteryPoints(),
+            avgScore             = repo.getGlobalAvgScore(),
+            avgWinnerScore       = repo.getAvgWinnerScore(),
+            avgCity              = globalAvgCity,
+            avgRoad              = globalAvgRoad,
+            avgMonastery         = globalAvgMonastery,
+            avgFarm              = globalAvgFarm
         )
 
         val winCounts = repo.getWinCounts().associateBy { it.playerId }
-        _playerStats.value = players.value.map { p ->
+        val allStats = players.value.map { p ->
             val gamesPlayed = repo.getGamesForPlayer(p.id).first().size
-            val wins = winCounts[p.id]?.wins ?: 0
-            val avg = repo.getAvgScore(p.id)
-            PlayerStats(p, wins, gamesPlayed, avg)
-        }.filter { it.gamesPlayed > 0 }.sortedByDescending { it.winRate }
+            val wins        = winCounts[p.id]?.wins ?: 0
+            val avg         = repo.getAvgScore(p.id)
+            val avgCity     = repo.getAvgCityPoints(p.id)
+            val avgRoad     = repo.getAvgRoadPoints(p.id)
+            val avgMon      = repo.getAvgMonasteryPoints(p.id)
+            val avgFarm     = repo.getAvgFarmPoints(p.id)
+            val scores      = repo.getAllScores(p.id)
+
+            // Stability = 1 - CV (coefficient of variation)
+            val stability = if (scores.size >= 2 && avg > 0f) {
+                val mean = scores.map { it.toFloat() }.average().toFloat()
+                val variance = scores.map { (it - mean) * (it - mean) }.average().toFloat()
+                val stddev = kotlin.math.sqrt(variance.toDouble()).toFloat()
+                (1f - stddev / mean).coerceIn(0f, 1f)
+            } else if (scores.size == 1) 1f else 0f
+
+            // UI  = city / total
+            val ui = if (avg > 0f) avgCity / avg else 0f
+            // RA  = road / (city + road)
+            val ra = if (avgCity + avgRoad > 0f) avgRoad / (avgCity + avgRoad) else 0f
+            // MI  = monastery / total
+            val mi = if (avg > 0f) avgMon / avg else 0f
+            // FD  = avgFarm / globalAvgFarm, normalised 0..1 (cap at 2x)
+            val fd = if (globalAvgFarm > 0f) (avgFarm / globalAvgFarm / 2f).coerceIn(0f, 1f) else 0f
+
+            PlayerStats(
+                player = p, wins = wins, gamesPlayed = gamesPlayed, avgScore = avg,
+                avgCity = avgCity, avgRoad = avgRoad, avgMonastery = avgMon, avgFarm = avgFarm,
+                urbanizationIndex = ui.coerceIn(0f, 1f),
+                roadAggrIndex     = ra.coerceIn(0f, 1f),
+                monasteryIndex    = mi.coerceIn(0f, 1f),
+                farmDomIndex      = fd,
+                stabilityIndex    = stability
+            )
+        }.filter { it.gamesPlayed > 0 }
+
+        // Assign titles based on which metric is highest among all players
+        _playerStats.value = assignTitles(allStats).sortedByDescending { it.winRate }
+    }
+
+    private fun assignTitles(stats: List<PlayerStats>): List<PlayerStats> {
+        if (stats.isEmpty()) return stats
+        fun maxId(sel: (PlayerStats) -> Float): Int =
+            stats.maxByOrNull(sel)?.player?.id ?: -1
+
+        val architekt  = maxId { it.urbanizationIndex }
+        val cartograph = maxId { it.roadAggrIndex }
+        val hermit     = maxId { it.monasteryIndex }
+        val latifund   = maxId { it.farmDomIndex }
+        val machine    = maxId { it.stabilityIndex }
+        // Sniper: stable AND high winRate
+        val sniper = stats.filter { it.stabilityIndex >= 0.7f }
+            .maxByOrNull { it.winRate }?.player?.id ?: -1
+
+        return stats.map { ps ->
+            val id = ps.player.id
+            val title = when {
+                id == sniper && ps.winRate >= 0.5f && ps.stabilityIndex >= 0.7f -> "⚡ Sniper"
+                id == architekt  -> "🏰 Architect"
+                id == cartograph -> "🛤️ Cartographer"
+                id == hermit     -> "⛪ Hermit"
+                id == latifund   -> "🌾 Latifundist"
+                id == machine    -> "🎯 Machine"
+                else -> ""
+            }
+            ps.copy(title = title)
+        }
     }
 
     // ─── Game sort order ─────────────────────────────────────────
