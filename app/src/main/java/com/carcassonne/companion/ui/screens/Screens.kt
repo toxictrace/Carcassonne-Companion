@@ -1339,91 +1339,84 @@ fun RadarChart(
     colors: List<Color>,
     modifier: Modifier = Modifier
 ) {
-    val axisEmojis = listOf("🏰", "🛤", "⛪", "🌾", "🎯")
-    val axisNames  = listOf("Urban", "Roads", "Monks", "Farms", "Stable")
+    val axisLabels = listOf("🏰 Urban", "🛤 Roads", "⛪ Monks", "🌾 Farms", "🎯 Stable")
     val playerValues = players.map { ps ->
         listOf(ps.urbanizationIndex, ps.roadAggrIndex, ps.monasteryIndex, ps.farmDomIndex, ps.stabilityIndex)
     }
+    val n = 5
+    val angleStep = (2 * Math.PI / n).toFloat()
+    val startAngle = (-Math.PI / 2).toFloat()
 
-    val textPaint = remember {
-        android.graphics.Paint().apply {
-            isAntiAlias = true
-            textSize = 32f
-            color = android.graphics.Color.argb(180, 200, 220, 200)
-            textAlign = android.graphics.Paint.Align.CENTER
-        }
-    }
-
-    Canvas(modifier = modifier) {
-        val cx = size.width / 2f
-        val cy = size.height / 2f
-        // Leave room for axis labels
+    // Label offsets calculated outside Canvas so Compose Text can use them
+    // We use BoxWithConstraints to know size at composition time
+    BoxWithConstraints(modifier = modifier) {
+        val w = constraints.maxWidth.toFloat()
+        val h = constraints.maxHeight.toFloat()
+        val cx = w / 2f
+        val cy = h / 2f
         val radius = minOf(cx, cy) * 0.62f
-        val labelRadius = radius + 36f
-        val n = 5
-        val angleStep = (2 * Math.PI / n).toFloat()
-        val startAngle = (-Math.PI / 2).toFloat()
+        val labelRadius = radius + 44f
 
-        fun axisPoint(axis: Int, fraction: Float): Offset {
-            val angle = startAngle + axis * angleStep
-            return Offset(
-                cx + radius * fraction * cos(angle),
-                cy + radius * fraction * sin(angle)
-            )
-        }
-        fun labelPoint(axis: Int): Offset {
-            val angle = startAngle + axis * angleStep
-            return Offset(
-                cx + labelRadius * cos(angle),
-                cy + labelRadius * sin(angle)
-            )
-        }
+        fun axisAngle(i: Int) = startAngle + i * angleStep
+        fun axisPoint(i: Int, frac: Float) = Offset(
+            cx + radius * frac * cos(axisAngle(i)),
+            cy + radius * frac * sin(axisAngle(i))
+        )
+        fun labelCenter(i: Int) = Offset(
+            cx + labelRadius * cos(axisAngle(i)),
+            cy + labelRadius * sin(axisAngle(i))
+        )
 
-        // Grid rings
-        val gridAlpha = Color.White.copy(alpha = 0.12f)
-        listOf(0.25f, 0.5f, 0.75f, 1f).forEach { r ->
-            val path = Path()
-            for (i in 0 until n) {
-                val pt = axisPoint(i, r)
-                if (i == 0) path.moveTo(pt.x, pt.y) else path.lineTo(pt.x, pt.y)
+        // Canvas — grid + polygons only
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            val gridAlpha = Color.White.copy(alpha = 0.12f)
+            listOf(0.25f, 0.5f, 0.75f, 1f).forEach { r ->
+                val path = Path()
+                for (i in 0 until n) {
+                    val pt = axisPoint(i, r)
+                    if (i == 0) path.moveTo(pt.x, pt.y) else path.lineTo(pt.x, pt.y)
+                }
+                path.close()
+                drawPath(path, gridAlpha, style = Stroke(width = 1f))
             }
-            path.close()
-            drawPath(path, gridAlpha, style = Stroke(width = 1f))
+            for (i in 0 until n) {
+                drawLine(gridAlpha, Offset(cx, cy), axisPoint(i, 1f), strokeWidth = 1f)
+            }
+            playerValues.forEachIndexed { pi, values ->
+                val path = Path()
+                values.forEachIndexed { i, v ->
+                    val pt = axisPoint(i, v.coerceIn(0.05f, 1f))
+                    if (i == 0) path.moveTo(pt.x, pt.y) else path.lineTo(pt.x, pt.y)
+                }
+                path.close()
+                drawPath(path, colors[pi].copy(alpha = 0.18f))
+                drawPath(path, colors[pi], style = Stroke(width = 2.5f))
+                values.forEachIndexed { i, v ->
+                    drawCircle(colors[pi], radius = 5f, center = axisPoint(i, v.coerceIn(0.05f, 1f)))
+                }
+            }
         }
 
-        // Axis lines
+        // Axis labels as Compose Text — positioned via offset
+        val density = androidx.compose.ui.platform.LocalDensity.current
         for (i in 0 until n) {
-            val pt = axisPoint(i, 1f)
-            drawLine(gridAlpha, start = Offset(cx, cy), end = pt, strokeWidth = 1f)
-        }
-
-        // Player polygons
-        playerValues.forEachIndexed { pi, values ->
-            val fillColor = colors[pi].copy(alpha = 0.18f)
-            val strokeColor = colors[pi]
-            val path = Path()
-            values.forEachIndexed { i, v ->
-                val pt = axisPoint(i, v.coerceIn(0.05f, 1f))
-                if (i == 0) path.moveTo(pt.x, pt.y) else path.lineTo(pt.x, pt.y)
-            }
-            path.close()
-            drawPath(path, fillColor)
-            drawPath(path, strokeColor, style = Stroke(width = 2.5f))
-            values.forEachIndexed { i, v ->
-                val pt = axisPoint(i, v.coerceIn(0.05f, 1f))
-                drawCircle(strokeColor, radius = 5f, center = pt)
-            }
-        }
-
-        // Axis labels — drawn on native canvas via drawIntoCanvas
-        drawIntoCanvas { composeCanvas ->
-            val nativeCanvas = composeCanvas.nativeCanvas
-            for (i in 0 until n) {
-                val lp = labelPoint(i)
-                textPaint.textSize = 28f
-                nativeCanvas.drawText(axisEmojis[i], lp.x, lp.y - 10f, textPaint)
-                textPaint.textSize = 22f
-                nativeCanvas.drawText(axisNames[i], lp.x, lp.y + 18f, textPaint)
+            val lc = labelCenter(i)
+            val xDp = with(density) { lc.x.toDp() }
+            val yDp = with(density) { lc.y.toDp() }
+            Box(
+                modifier = Modifier
+                    .width(72.dp)
+                    .wrapContentHeight()
+                    .offset(x = xDp - 36.dp, y = yDp - 14.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    axisLabels[i],
+                    fontSize = 9.sp,
+                    color = CarcText2,
+                    textAlign = TextAlign.Center,
+                    lineHeight = 12.sp
+                )
             }
         }
     }
