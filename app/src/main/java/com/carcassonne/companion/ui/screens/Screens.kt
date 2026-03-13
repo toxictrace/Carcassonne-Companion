@@ -918,6 +918,83 @@ fun StatsScreen(globalStats: GlobalStats, playerStats: List<PlayerStats>) {
             )
         )
     }
+    // Dialog must be outside LazyColumn to avoid Popup crash
+    var pickingSlot by remember { mutableIntStateOf(-1) }
+
+    // ── Player picker dialog — must be OUTSIDE LazyColumn ─────────────────
+    if (pickingSlot >= 0) {
+        val slotIdx = pickingSlot
+        val currentId = selectedSlots.getOrNull(slotIdx)
+        val available = playerStats.filter { candidate ->
+            selectedSlots.indices.none { i -> i != slotIdx && selectedSlots[i] == candidate.player.id }
+        }
+        AlertDialog(
+            onDismissRequest = { pickingSlot = -1 },
+            containerColor = CarcCard2,
+            title = { Text("Select player", fontWeight = FontWeight.SemiBold) },
+            text = {
+                Column {
+                    if (currentId != null) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(8.dp))
+                                .clickable { selectedSlots = selectedSlots.toMutableList().also { it[slotIdx] = null }; pickingSlot = -1 }
+                                .padding(vertical = 10.dp, horizontal = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text("✕", fontSize = 14.sp, color = CarcRed,
+                                modifier = Modifier.width(28.dp), textAlign = TextAlign.Center)
+                            Spacer(Modifier.width(8.dp))
+                            Text("Remove player", fontSize = 14.sp, color = CarcRed)
+                        }
+                        HorizontalDivider(color = CarcBorder, thickness = 0.5.dp,
+                            modifier = Modifier.padding(vertical = 4.dp))
+                    }
+                    available.forEach { candidate ->
+                        val c = meepleColor(candidate.player.meepleColor)
+                        val isSelected = candidate.player.id == currentId
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(if (isSelected) c.copy(alpha = 0.12f) else Color.Transparent)
+                                .clickable {
+                                    selectedSlots = selectedSlots.toMutableList().also { it[slotIdx] = candidate.player.id }
+                                    pickingSlot = -1
+                                }
+                                .padding(vertical = 10.dp, horizontal = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            PlayerAvatar(candidate.player.name, candidate.player.meepleColor,
+                                avatarPath = candidate.player.avatarPath, size = 32.dp)
+                            Spacer(Modifier.width(10.dp))
+                            Column(Modifier.weight(1f)) {
+                                Text(candidate.player.name, fontSize = 14.sp,
+                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                                    color = if (isSelected) c else CarcText)
+                                Text("${(candidate.winRate * 100).toInt()}% WR · %.0f avg".format(candidate.avgScore),
+                                    fontSize = 11.sp, color = CarcText3)
+                            }
+                            if (candidate.title.isNotBlank()) {
+                                Text(candidate.title, fontSize = 10.sp, color = CarcYellow)
+                            }
+                            if (isSelected) {
+                                Spacer(Modifier.width(6.dp))
+                                Text("✓", fontSize = 14.sp, color = c)
+                            }
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { pickingSlot = -1 }) {
+                    Text("Cancel", color = CarcText3)
+                }
+            }
+        )
+    }
+
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(16.dp)
@@ -1006,10 +1083,7 @@ fun StatsScreen(globalStats: GlobalStats, playerStats: List<PlayerStats>) {
                     ComparePlayersSection(
                         allStats = playerStats,
                         selectedSlots = selectedSlots,
-                        onSlotChange = { slotIdx, playerId ->
-                            selectedSlots = selectedSlots.toMutableList()
-                                .also { it[slotIdx] = playerId }
-                        }
+                        onSlotClick = { slotIdx -> pickingSlot = slotIdx }
                     )
                 }
             }
@@ -1066,16 +1140,13 @@ fun MetagameBreakdownBar(gs: GlobalStats) {
 fun ComparePlayersSection(
     allStats: List<PlayerStats>,
     selectedSlots: List<Int?>,
-    onSlotChange: (slotIdx: Int, playerId: Int?) -> Unit
+    onSlotClick: (slotIdx: Int) -> Unit
 ) {
-    // Resolve PlayerStats for each slot
     val slotStats = selectedSlots.map { id -> allStats.find { it.player.id == id } }
     val activePlayers = slotStats.filterNotNull()
     val colors = activePlayers.map { meepleColor(it.player.meepleColor) }
 
-    // ── Slot selectors ─────────────────────────────────────────────────────
-    var openDropdown by remember { mutableIntStateOf(-1) } // which slot has dropdown open
-
+    // ── Slot cards ─────────────────────────────────────────────────────────
     Card(
         shape = RoundedCornerShape(14.dp),
         colors = CardDefaults.cardColors(containerColor = CarcCard)
@@ -1088,79 +1159,36 @@ fun ComparePlayersSection(
                 val ps = allStats.find { it.player.id == selectedId }
                 val slotColor = ps?.let { meepleColor(it.player.meepleColor) } ?: CarcBorder
 
-                // Players NOT already in other slots
-                val available = allStats.filter { candidate ->
-                    selectedSlots.indices.none { i -> i != slotIdx && selectedSlots[i] == candidate.player.id }
-                }
-
-                Box(Modifier.weight(1f)) {
-                    // Slot button
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(10.dp))
-                            .background(CarcBg2)
-                            .border(1.5.dp, slotColor, RoundedCornerShape(10.dp))
-                            .clickable { openDropdown = if (openDropdown == slotIdx) -1 else slotIdx }
-                            .padding(8.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        if (ps != null) {
-                            PlayerAvatar(ps.player.name, ps.player.meepleColor,
-                                avatarPath = ps.player.avatarPath, size = 36.dp)
-                            Spacer(Modifier.height(4.dp))
-                            Text(ps.player.name, fontSize = 11.sp, fontWeight = FontWeight.SemiBold,
-                                color = slotColor, maxLines = 1, overflow = TextOverflow.Ellipsis,
-                                textAlign = TextAlign.Center)
-                            Text("%.0f avg".format(ps.avgScore), fontSize = 10.sp, color = CarcText3)
-                        } else {
-                            Box(Modifier.size(36.dp).clip(RoundedCornerShape(50.dp))
-                                .background(CarcBg3).border(1.dp, CarcBorder, RoundedCornerShape(50.dp)),
-                                contentAlignment = Alignment.Center) {
-                                Text("+", fontSize = 18.sp, color = CarcText3)
-                            }
-                            Spacer(Modifier.height(4.dp))
-                            Text("Add", fontSize = 11.sp, color = CarcText3)
-                            Text("player", fontSize = 10.sp, color = CarcText3)
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(CarcBg2)
+                        .border(1.5.dp, slotColor, RoundedCornerShape(10.dp))
+                        .clickable { onSlotClick(slotIdx) }
+                        .padding(8.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    if (ps != null) {
+                        PlayerAvatar(ps.player.name, ps.player.meepleColor,
+                            avatarPath = ps.player.avatarPath, size = 36.dp)
+                        Spacer(Modifier.height(4.dp))
+                        Text(ps.player.name, fontSize = 11.sp, fontWeight = FontWeight.SemiBold,
+                            color = slotColor, maxLines = 1, overflow = TextOverflow.Ellipsis,
+                            textAlign = TextAlign.Center)
+                        Text("%.0f avg".format(ps.avgScore), fontSize = 10.sp, color = CarcText3)
+                    } else {
+                        Box(
+                            Modifier.size(36.dp).clip(RoundedCornerShape(50.dp))
+                                .background(CarcBg3)
+                                .border(1.dp, CarcBorder, RoundedCornerShape(50.dp)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text("+", fontSize = 18.sp, color = CarcText3)
                         }
-                    }
-
-                    // Dropdown
-                    DropdownMenu(
-                        expanded = openDropdown == slotIdx,
-                        onDismissRequest = { openDropdown = -1 },
-                        modifier = Modifier.background(CarcCard2)
-                    ) {
-                        // Option to clear slot (only if slot is filled)
-                        if (ps != null) {
-                            DropdownMenuItem(
-                                text = { Text("— Remove —", fontSize = 13.sp, color = CarcText3) },
-                                onClick = { onSlotChange(slotIdx, null); openDropdown = -1 }
-                            )
-                            HorizontalDivider(color = CarcBorder, thickness = 0.5.dp)
-                        }
-                        available.forEach { candidate ->
-                            DropdownMenuItem(
-                                text = {
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Box(Modifier.size(8.dp).clip(RoundedCornerShape(2.dp))
-                                            .background(meepleColor(candidate.player.meepleColor)))
-                                        Spacer(Modifier.width(8.dp))
-                                        Column {
-                                            Text(candidate.player.name, fontSize = 13.sp, color = CarcText,
-                                                fontWeight = FontWeight.Medium)
-                                            Text("${(candidate.winRate * 100).toInt()}% WR · %.0f avg".format(candidate.avgScore),
-                                                fontSize = 10.sp, color = CarcText3)
-                                        }
-                                        if (candidate.title.isNotBlank()) {
-                                            Spacer(Modifier.weight(1f))
-                                            Text(candidate.title.take(2), fontSize = 12.sp)
-                                        }
-                                    }
-                                },
-                                onClick = { onSlotChange(slotIdx, candidate.player.id); openDropdown = -1 }
-                            )
-                        }
+                        Spacer(Modifier.height(4.dp))
+                        Text("Add", fontSize = 11.sp, color = CarcText3)
+                        Text("player", fontSize = 10.sp, color = CarcText3)
                     }
                 }
             }
