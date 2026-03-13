@@ -1415,16 +1415,15 @@ fun RadarChart(
             }
         }
 
-        // Axis labels — drawn on native canvas
-        drawContext.canvas.nativeCanvas.also { canvas ->
+        // Axis labels — drawn on native canvas via drawIntoCanvas
+        drawIntoCanvas { composeCanvas ->
+            val nativeCanvas = composeCanvas.nativeCanvas
             for (i in 0 until n) {
                 val lp = labelPoint(i)
-                // emoji
                 textPaint.textSize = 28f
-                canvas.drawText(axisEmojis[i], lp.x, lp.y - 10f, textPaint)
-                // name
+                nativeCanvas.drawText(axisEmojis[i], lp.x, lp.y - 10f, textPaint)
                 textPaint.textSize = 22f
-                canvas.drawText(axisNames[i], lp.x, lp.y + 18f, textPaint)
+                nativeCanvas.drawText(axisNames[i], lp.x, lp.y + 18f, textPaint)
             }
         }
     }
