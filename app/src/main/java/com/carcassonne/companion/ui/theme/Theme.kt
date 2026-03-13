@@ -59,15 +59,15 @@ val DarkCarcColors = CarcColors(
 )
 
 val LightCarcColors = CarcColors(
-    bg      = Color(0xFFF5FBF5),
-    bg2     = Color(0xFFEAF5EA),
-    bg3     = Color(0xFFDDEEDD),
-    card    = Color(0xFFFFFFFF),
-    card2   = Color(0xFFF0F8F0),
-    border  = Color(0xFFBDD8BD),
-    text    = Color(0xFF0D1F0D),
-    text2   = Color(0xFF3A5C3A),
-    text3   = Color(0xFF6B8F6B),
+    bg      = Color(0xFFE8F5E8),  // чуть темнее — карточки выделяются
+    bg2     = Color(0xFFDDEEDD),
+    bg3     = Color(0xFFCCE5CC),
+    card    = Color(0xFFF5FFF5),  // почти белый с зеленым оттенком
+    card2   = Color(0xFFEAF5EA),
+    border  = Color(0xFF7EB87E),  // заметный зеленый бордер
+    text    = Color(0xFF0A180A),
+    text2   = Color(0xFF2D4A2D),
+    text3   = Color(0xFF5A7A5A),
     isDark  = false
 )
 

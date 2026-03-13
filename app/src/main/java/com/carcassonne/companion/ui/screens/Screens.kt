@@ -1029,14 +1029,14 @@ fun StatsScreen(globalStats: GlobalStats, playerStats: List<PlayerStats>) {
         if (tab == 0) {
             // ── GLOBAL STATS TAB ──────────────────────────────────────────────
             item {
-                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    StatCard("🃏", "TOTAL\nGAMES",    globalStats.totalGames.toString(),            Modifier.weight(1f), CarcText)
-                    StatCard("⭐", "HIGHEST\nSCORE", globalStats.highestScore.toString(),           Modifier.weight(1f), CarcYellow)
+                Row(Modifier.height(IntrinsicSize.Max), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    StatCard("🃏", "TOTAL\nGAMES",    globalStats.totalGames.toString(),            Modifier.weight(1f).fillMaxHeight(), CarcText)
+                    StatCard("⭐", "HIGHEST\nSCORE", globalStats.highestScore.toString(),           Modifier.weight(1f).fillMaxHeight(), CarcYellow)
                 }
                 Spacer(Modifier.height(10.dp))
-                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    StatCard("🏆", "AVG WINNER\nSCORE", "%.0f".format(globalStats.avgWinnerScore), Modifier.weight(1f), CarcGreen)
-                    StatCard("👤", "PLAYERS",            globalStats.totalPlayers.toString(),       Modifier.weight(1f), CarcBlue)
+                Row(Modifier.height(IntrinsicSize.Max), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    StatCard("🏆", "AVG WINNER\nSCORE", "%.0f".format(globalStats.avgWinnerScore), Modifier.weight(1f).fillMaxHeight(), CarcGreen)
+                    StatCard("👤", "PLAYERS",            globalStats.totalPlayers.toString(),       Modifier.weight(1f).fillMaxHeight(), CarcBlue)
                 }
                 Spacer(Modifier.height(16.dp))
             }
@@ -1349,6 +1349,7 @@ fun RadarChart(
 
     // Label offsets calculated outside Canvas so Compose Text can use them
     // We use BoxWithConstraints to know size at composition time
+    val isDark = LocalCarcColors.current.isDark
     BoxWithConstraints(modifier = modifier) {
         val w = constraints.maxWidth.toFloat()
         val h = constraints.maxHeight.toFloat()
@@ -1369,7 +1370,7 @@ fun RadarChart(
 
         // Canvas — grid + polygons only
         Canvas(modifier = Modifier.fillMaxSize()) {
-            val gridAlpha = Color.White.copy(alpha = 0.12f)
+            val gridAlpha = if (isDark) Color.White.copy(alpha = 0.15f) else Color(0xFF336633).copy(alpha = 0.25f)
             listOf(0.25f, 0.5f, 0.75f, 1f).forEach { r ->
                 val path = Path()
                 for (i in 0 until n) {
