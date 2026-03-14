@@ -102,11 +102,11 @@ data class PlayerStats(
 // ─── Main ViewModel ─────────────────────────────────────────────────────────
 class MainViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val db = CarcassonneDatabase.getInstance(application)
+    private val db = CarcassonneDatabase.getInstance(getApplication<Application>())
     private val repo = CarcassonneRepository(db.playerDao(), db.gameDao(), db.gamePlayerDao())
 
     // ─── Dark mode — persisted in SharedPreferences ─────────────────────────
-    private val prefs = application.getSharedPreferences("carc_settings", android.content.Context.MODE_PRIVATE)
+    private val prefs = getApplication<Application>().getSharedPreferences("carc_settings", android.content.Context.MODE_PRIVATE)
     private val _isDarkMode = MutableStateFlow(prefs.getBoolean("dark_mode", true))
     val isDarkMode: StateFlow<Boolean> = _isDarkMode
 
@@ -175,24 +175,24 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     // ─── Player CRUD ────────────────────────────────────────────
     fun addPlayer(name: String, color: String, avatarPath: String? = null) = viewModelScope.launch {
-        if (name.isBlank()) { _message.emit(application.getString(R.string.enter_player_name)); return@launch }
+        if (name.isBlank()) { _message.emit(getApplication<Application>().getString(R.string.enter_player_name)); return@launch }
         repo.addPlayer(name.trim(), color, avatarPath)
-        _message.emit(application.getString(R.string.player_added, name.trim()))
+        _message.emit(getApplication<Application>().getString(R.string.player_added, name.trim()))
     }
 
     fun updatePlayer(player: PlayerEntity) = viewModelScope.launch {
         repo.updatePlayer(player)
-        _message.emit(application.getString(R.string.profile_updated))
+        _message.emit(getApplication<Application>().getString(R.string.profile_updated))
     }
 
     fun deletePlayer(player: PlayerEntity) = viewModelScope.launch {
         repo.deletePlayer(player)
-        _message.emit(application.getString(R.string.player_deleted))
+        _message.emit(getApplication<Application>().getString(R.string.player_deleted))
     }
 
     fun deleteGame(gameId: Int) = viewModelScope.launch {
         repo.deleteGame(gameId)
-        _message.emit(application.getString(R.string.game_deleted))
+        _message.emit(getApplication<Application>().getString(R.string.game_deleted))
     }
 
     fun updateGamePhoto(gameId: Int, path: String?) = viewModelScope.launch {
@@ -349,7 +349,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             _pendingGamePhoto.value = null
         }
         _liveGame.value = LiveGameState()
-        _message.emit(application.getString(R.string.game_saved))
+        _message.emit(getApplication<Application>().getString(R.string.game_saved))
         onDone(gameId)
     }
 
@@ -509,13 +509,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         onDone: () -> Unit = {}
     ) = viewModelScope.launch {
         repo.updateGame(gameId, name, date, playerResults)
-        _message.emit(application.getString(R.string.game_updated))
+        _message.emit(getApplication<Application>().getString(R.string.game_updated))
         onDone()
     }
 
     // ─── Settings ───────────────────────────────────────────────
     fun clearAllData() = viewModelScope.launch {
         repo.clearAll()
-        _message.emit(application.getString(R.string.records_cleared))
+        _message.emit(getApplication<Application>().getString(R.string.records_cleared))
     }
 }
