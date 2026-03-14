@@ -10,6 +10,7 @@ import com.carcassonne.companion.data.entity.PlayerEntity
 import com.carcassonne.companion.data.repository.CarcassonneRepository
 import com.carcassonne.companion.data.repository.PlayerResult
 import kotlinx.coroutines.flow.*
+import com.carcassonne.companion.R
 import kotlinx.coroutines.launch
 
 // ─── Scoring object types ────────────────────────────────────────────────────
@@ -174,24 +175,24 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     // ─── Player CRUD ────────────────────────────────────────────
     fun addPlayer(name: String, color: String, avatarPath: String? = null) = viewModelScope.launch {
-        if (name.isBlank()) { _message.emit("Enter a player name"); return@launch }
+        if (name.isBlank()) { _message.emit(application.getString(R.string.enter_player_name)); return@launch }
         repo.addPlayer(name.trim(), color, avatarPath)
-        _message.emit("${name.trim()} added!")
+        _message.emit(application.getString(R.string.player_added, name.trim()))
     }
 
     fun updatePlayer(player: PlayerEntity) = viewModelScope.launch {
         repo.updatePlayer(player)
-        _message.emit("Profile updated!")
+        _message.emit(application.getString(R.string.profile_updated))
     }
 
     fun deletePlayer(player: PlayerEntity) = viewModelScope.launch {
         repo.deletePlayer(player)
-        _message.emit("Player deleted")
+        _message.emit(application.getString(R.string.player_deleted))
     }
 
     fun deleteGame(gameId: Int) = viewModelScope.launch {
         repo.deleteGame(gameId)
-        _message.emit("Game deleted")
+        _message.emit(application.getString(R.string.game_deleted))
     }
 
     fun updateGamePhoto(gameId: Int, path: String?) = viewModelScope.launch {
@@ -348,7 +349,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             _pendingGamePhoto.value = null
         }
         _liveGame.value = LiveGameState()
-        _message.emit("Game saved!")
+        _message.emit(application.getString(R.string.game_saved))
         onDone(gameId)
     }
 
@@ -508,13 +509,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         onDone: () -> Unit = {}
     ) = viewModelScope.launch {
         repo.updateGame(gameId, name, date, playerResults)
-        _message.emit("Game updated!")
+        _message.emit(application.getString(R.string.game_updated))
         onDone()
     }
 
     // ─── Settings ───────────────────────────────────────────────
     fun clearAllData() = viewModelScope.launch {
         repo.clearAll()
-        _message.emit("All records cleared")
+        _message.emit(application.getString(R.string.records_cleared))
     }
 }

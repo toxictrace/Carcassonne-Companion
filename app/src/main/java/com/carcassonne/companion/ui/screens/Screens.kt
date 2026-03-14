@@ -19,6 +19,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.os.LocaleListCompat
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.text.font.*
@@ -136,7 +142,7 @@ fun GamePhotoBox(
                         .padding(vertical = 8.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text("📷 Change photo", fontSize = 12.sp, color = Color.White, fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(R.string.change_photo), fontSize = 12.sp, color = Color.White, fontWeight = FontWeight.SemiBold)
                 }
             }
         } else {
@@ -144,7 +150,7 @@ fun GamePhotoBox(
                 Text("🗺️", fontSize = 36.sp)
                 if (editable) {
                     Spacer(Modifier.height(4.dp))
-                    Text("Tap to add board photo", fontSize = 12.sp, color = CarcText3)
+                    Text(stringResource(R.string.add_board_photo), fontSize = 12.sp, color = CarcText3)
                 }
             }
         }
@@ -156,7 +162,7 @@ fun GamePhotoBox(
             containerColor = CarcCard2
         ) {
             Column(Modifier.padding(horizontal = 20.dp).padding(bottom = 40.dp)) {
-                Text("Board Photo", fontWeight = FontWeight.Bold, fontSize = 17.sp)
+                Text(stringResource(R.string.board_photo_title), fontWeight = FontWeight.Bold, fontSize = 17.sp)
                 Spacer(Modifier.height(16.dp))
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     // Камера
@@ -178,7 +184,7 @@ fun GamePhotoBox(
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text("📷", fontSize = 28.sp)
                             Spacer(Modifier.height(6.dp))
-                            Text("Camera", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                            Text(stringResource(R.string.camera_label), fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
                         }
                     }
                     // Галерея
@@ -193,7 +199,7 @@ fun GamePhotoBox(
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text("🖼️", fontSize = 28.sp)
                             Spacer(Modifier.height(6.dp))
-                            Text("Gallery", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                            Text(stringResource(R.string.gallery_label), fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
                         }
                     }
                 }
@@ -207,7 +213,7 @@ fun GamePhotoBox(
                             .padding(vertical = 12.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text("🗑 Remove photo", fontSize = 13.sp, color = Color(0xFFEF4444), fontWeight = FontWeight.SemiBold)
+                        Text(stringResource(R.string.remove_photo), fontSize = 13.sp, color = Color(0xFFEF4444), fontWeight = FontWeight.SemiBold)
                     }
                 }
             }
@@ -259,14 +265,14 @@ fun DashboardScreen(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("Recent Activity", fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
+                Text(stringResource(R.string.recent_activity), fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     // Sort toggle
                     IconButton(onClick = onToggleSort, modifier = Modifier.size(32.dp)) {
                         Text(if (sortNewestFirst) "↓" else "↑", fontSize = 18.sp, color = CarcGreen)
                     }
                     TextButton(onClick = onViewAll) {
-                        Text("View All", fontSize = 13.sp, color = CarcGreen)
+                        Text(stringResource(R.string.view_all), fontSize = 13.sp, color = CarcGreen)
                     }
                 }
             }
@@ -285,8 +291,8 @@ fun DashboardScreen(
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text("🗺️", fontSize = 48.sp)
                         Spacer(Modifier.height(12.dp))
-                        Text("No games yet", color = CarcText2, fontWeight = FontWeight.SemiBold)
-                        Text("Start your first game with +", color = CarcText3, fontSize = 13.sp)
+                        Text(stringResource(R.string.no_games_yet), color = CarcText2, fontWeight = FontWeight.SemiBold)
+                        Text(stringResource(R.string.start_first_game), color = CarcText3, fontSize = 13.sp)
                     }
                 }
             }
@@ -413,15 +419,15 @@ fun HistoryScreen(
             onDismissRequest = { showConfirm = false },
             containerColor = CarcCard2,
             title = { Text("Delete ${selected.size} game${if (selected.size > 1) "s" else ""}?", fontWeight = FontWeight.Bold) },
-            text = { Text("This cannot be undone.", color = CarcText2) },
+            text = { Text(stringResource(R.string.cannot_undone), color = CarcText2) },
             confirmButton = {
                 Button(
                     onClick = { onDeleteGames(selected); selected = emptySet(); showConfirm = false },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFEF4444))
-                ) { Text("Delete", fontWeight = FontWeight.Bold, color = Color.White) }
+                ) { Text(stringResource(R.string.delete_btn), fontWeight = FontWeight.Bold, color = Color.White) }
             },
             dismissButton = {
-                TextButton(onClick = { showConfirm = false }) { Text("Cancel", color = CarcText3) }
+                TextButton(onClick = { showConfirm = false }) { Text(stringResource(R.string.cancel), color = CarcText3) }
             }
         )
     }
@@ -440,12 +446,12 @@ fun HistoryScreen(
                     value = query,
                     onValueChange = { query = it },
                     modifier = Modifier.fillMaxWidth(),
-                    placeholder = { Text("Search games...", color = CarcText3) },
+                    placeholder = { Text(stringResource(R.string.search_games), color = CarcText3) },
                     leadingIcon = { Icon(Icons.Default.Search, null, tint = CarcText3) },
                     trailingIcon = {
                         if (selecting) {
                             TextButton(onClick = { selected = emptySet() }) {
-                                Text("Cancel", color = CarcText3, fontSize = 13.sp)
+                                Text(stringResource(R.string.cancel), color = CarcText3, fontSize = 13.sp)
                             }
                         } else {
                             IconButton(onClick = onToggleSort) {
@@ -482,7 +488,7 @@ fun HistoryScreen(
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text("📜", fontSize = 48.sp)
                             Spacer(Modifier.height(12.dp))
-                            Text("No games found", color = CarcText2, fontWeight = FontWeight.SemiBold)
+                            Text(stringResource(R.string.no_games_found), color = CarcText2, fontWeight = FontWeight.SemiBold)
                         }
                     }
                 }
@@ -698,7 +704,7 @@ fun PlayersScreen(
             onDismissRequest = { showConfirm = false },
             containerColor = CarcCard2,
             title = { Text("Delete ${selected.size} player(s)?", fontWeight = FontWeight.Bold) },
-            text = { Text("This cannot be undone. Game history stays.", color = CarcText2) },
+            text = { Text(stringResource(R.string.cannot_undone_history), color = CarcText2) },
             confirmButton = {
                 Button(
                     onClick = {
@@ -707,10 +713,10 @@ fun PlayersScreen(
                         showConfirm = false
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFEF4444))
-                ) { Text("Delete", fontWeight = FontWeight.Bold, color = Color.White) }
+                ) { Text(stringResource(R.string.delete_btn), fontWeight = FontWeight.Bold, color = Color.White) }
             },
             dismissButton = {
-                TextButton(onClick = { showConfirm = false }) { Text("Cancel", color = CarcText3) }
+                TextButton(onClick = { showConfirm = false }) { Text(stringResource(R.string.cancel), color = CarcText3) }
             }
         )
     }
@@ -729,12 +735,12 @@ fun PlayersScreen(
                     value = query,
                     onValueChange = { query = it },
                     modifier = Modifier.fillMaxWidth(),
-                    placeholder = { Text("Search players...", color = CarcText3) },
+                    placeholder = { Text(stringResource(R.string.search_players), color = CarcText3) },
                     leadingIcon = { Icon(Icons.Default.Search, null, tint = CarcText3) },
                     trailingIcon = {
                         if (selecting) {
                             TextButton(onClick = { selected = emptySet() }) {
-                                Text("Cancel", color = CarcText3, fontSize = 13.sp)
+                                Text(stringResource(R.string.cancel), color = CarcText3, fontSize = 13.sp)
                             }
                         }
                     },
@@ -767,9 +773,9 @@ fun PlayersScreen(
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text("👤", fontSize = 48.sp)
                             Spacer(Modifier.height(12.dp))
-                            Text("No players yet", color = CarcText2, fontWeight = FontWeight.SemiBold)
+                            Text(stringResource(R.string.no_players), color = CarcText2, fontWeight = FontWeight.SemiBold)
                             TextButton(onClick = onAddPlayer) {
-                                Text("Add your first player", color = CarcGreen)
+                                Text(stringResource(R.string.add_first_player), color = CarcGreen)
                             }
                         }
                     }
@@ -937,7 +943,7 @@ fun StatsScreen(
         AlertDialog(
             onDismissRequest = { pickingSlot = -1 },
             containerColor = CarcCard2,
-            title = { Text("Select player", fontWeight = FontWeight.SemiBold) },
+            title = { Text(stringResource(R.string.select_player), fontWeight = FontWeight.SemiBold) },
             text = {
                 Column {
                     if (currentId != null) {
@@ -952,7 +958,7 @@ fun StatsScreen(
                             Text("✕", fontSize = 14.sp, color = CarcRed,
                                 modifier = Modifier.width(28.dp), textAlign = TextAlign.Center)
                             Spacer(Modifier.width(8.dp))
-                            Text("Remove player", fontSize = 14.sp, color = CarcRed)
+                            Text(stringResource(R.string.remove_player), fontSize = 14.sp, color = CarcRed)
                         }
                         HorizontalDivider(color = CarcBorder, thickness = 0.5.dp,
                             modifier = Modifier.padding(vertical = 4.dp))
@@ -995,7 +1001,7 @@ fun StatsScreen(
             },
             confirmButton = {
                 TextButton(onClick = { pickingSlot = -1 }) {
-                    Text("Cancel", color = CarcText3)
+                    Text(stringResource(R.string.cancel), color = CarcText3)
                 }
             }
         )
@@ -1049,20 +1055,20 @@ fun StatsScreen(
             // Metagame breakdown bar
             if (globalStats.avgScore > 0f) {
                 item {
-                    Text("METAGAME BREAKDOWN", fontSize = 11.sp, color = CarcText3, letterSpacing = 1.sp)
+                    Text(stringResource(R.string.metagame_section), fontSize = 11.sp, color = CarcText3, letterSpacing = 1.sp)
                     Spacer(Modifier.height(8.dp))
                     MetagameBreakdownBar(globalStats)
                     Spacer(Modifier.height(16.dp))
                 }
             }
             item {
-                Text("TOP PLAYERS", fontSize = 11.sp, color = CarcText3, letterSpacing = 1.sp)
+                Text(stringResource(R.string.top_players), fontSize = 11.sp, color = CarcText3, letterSpacing = 1.sp)
                 Spacer(Modifier.height(8.dp))
             }
             if (playerStats.isEmpty()) {
                 item {
                     Box(Modifier.fillMaxWidth().padding(vertical = 20.dp), Alignment.Center) {
-                        Text("No stats yet", color = CarcText3)
+                        Text(stringResource(R.string.no_stats), color = CarcText3)
                     }
                 }
             } else {
@@ -1079,8 +1085,8 @@ fun StatsScreen(
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text("📊", fontSize = 48.sp)
                             Spacer(Modifier.height(12.dp))
-                            Text("Need at least 2 players", color = CarcText2, fontWeight = FontWeight.SemiBold)
-                            Text("Play more games to unlock comparisons", color = CarcText3, fontSize = 13.sp)
+                            Text(stringResource(R.string.need_2_players), color = CarcText2, fontWeight = FontWeight.SemiBold)
+                            Text(stringResource(R.string.play_more), color = CarcText3, fontSize = 13.sp)
                         }
                     }
                 }
@@ -1197,8 +1203,8 @@ fun ComparePlayersSection(
                             Text("+", fontSize = 18.sp, color = CarcText3)
                         }
                         Spacer(Modifier.height(4.dp))
-                        Text("Add", fontSize = 11.sp, color = CarcText3)
-                        Text("player", fontSize = 10.sp, color = CarcText3)
+                        Text(stringResource(R.string.add_btn), fontSize = 11.sp, color = CarcText3)
+                        Text(stringResource(R.string.player_label), fontSize = 10.sp, color = CarcText3)
                     }
                 }
             }
@@ -1208,7 +1214,7 @@ fun ComparePlayersSection(
     if (activePlayers.size < 2) {
         Spacer(Modifier.height(32.dp))
         Box(Modifier.fillMaxWidth(), Alignment.Center) {
-            Text("Select at least 2 players to compare", color = CarcText3, fontSize = 13.sp)
+            Text(stringResource(R.string.select_2_compare), color = CarcText3, fontSize = 13.sp)
         }
         return
     }
@@ -1232,7 +1238,7 @@ fun ComparePlayersSection(
         AlertDialog(
             onDismissRequest = { showSectionPicker = false },
             containerColor = CarcCard2,
-            title = { Text("Show comparisons", fontWeight = FontWeight.SemiBold) },
+            title = { Text(stringResource(R.string.show_comparisons), fontWeight = FontWeight.SemiBold) },
             text = {
                 Column {
                     sections.forEachIndexed { i, sec ->
@@ -1269,7 +1275,7 @@ fun ComparePlayersSection(
             },
             confirmButton = {
                 TextButton(onClick = { showSectionPicker = false }) {
-                    Text("Done", color = CarcGreen, fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.done_btn), color = CarcGreen, fontWeight = FontWeight.Bold)
                 }
             }
         )
@@ -1277,7 +1283,7 @@ fun ComparePlayersSection(
 
     // Header row with gear button
     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-        Text("COMPARE PLAYERS", fontSize = 11.sp, color = CarcText3, letterSpacing = 1.sp,
+        Text(stringResource(R.string.compare_players), fontSize = 11.sp, color = CarcText3, letterSpacing = 1.sp,
             modifier = Modifier.weight(1f))
         Box(
             modifier = Modifier
@@ -1307,7 +1313,7 @@ fun ComparePlayersSection(
 
     // ── 0: PLAY STYLE ──────────────────────────────────────────────────────
     if (sections[0].enabled) {
-        SectionLabel("🕸 PLAY STYLE")
+        SectionLabel(stringResource(R.string.section_play_style))
         Card(shape = RoundedCornerShape(14.dp),
             colors = CardDefaults.cardColors(containerColor = CarcCard)) {
             Column(Modifier.padding(14.dp)) {
@@ -1320,7 +1326,7 @@ fun ComparePlayersSection(
 
     // ── 1: RESULTS ─────────────────────────────────────────────────────────
     if (sections[1].enabled) {
-        SectionLabel("🏆 RESULTS")
+        SectionLabel(stringResource(R.string.section_results))
         Card(shape = RoundedCornerShape(14.dp),
             colors = CardDefaults.cardColors(containerColor = CarcCard)) {
             Column(Modifier.padding(14.dp).fillMaxWidth()) {
@@ -1355,7 +1361,7 @@ fun ComparePlayersSection(
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text("${(ps.winRate * 100).toInt()}%",
                                 fontSize = 20.sp, fontWeight = FontWeight.Bold, color = colors[i])
-                            Text("win rate", fontSize = 10.sp, color = CarcText3)
+                            Text(stringResource(R.string.win_rate), fontSize = 10.sp, color = CarcText3)
                         }
                     }
                 }
@@ -1363,7 +1369,7 @@ fun ComparePlayersSection(
                 Spacer(Modifier.height(10.dp))
                 HorizontalDivider(color = CarcBorder, thickness = 0.5.dp)
                 Spacer(Modifier.height(8.dp))
-                Text("Placements", fontSize = 11.sp, color = CarcText3)
+                Text(stringResource(R.string.placements), fontSize = 11.sp, color = CarcText3)
                 Spacer(Modifier.height(6.dp))
                 val placeColors = listOf(CarcYellow, Color(0xFF9CA3AF), Color(0xFFB45309), Color(0xFF4B5563))
                 val placeIcons  = listOf("🥇", "🥈", "🥉", "4️⃣")
@@ -1418,7 +1424,7 @@ fun ComparePlayersSection(
 
     // ── 2: SCORE RANGE ─────────────────────────────────────────────────────
     if (sections[2].enabled) {
-        SectionLabel("📊 SCORE RANGE")
+        SectionLabel(stringResource(R.string.section_score_range))
         Card(shape = RoundedCornerShape(14.dp),
             colors = CardDefaults.cardColors(containerColor = CarcCard)) {
             Column(Modifier.padding(14.dp).fillMaxWidth()) {
@@ -1458,7 +1464,7 @@ fun ComparePlayersSection(
 
     // ── 3: TOGETHER ────────────────────────────────────────────────────────
     if (sections[3].enabled && activePlayers.size >= 2) {
-        SectionLabel("🎮 TOGETHER")
+        SectionLabel(stringResource(R.string.section_together))
         Card(shape = RoundedCornerShape(14.dp),
             colors = CardDefaults.cardColors(containerColor = CarcCard)) {
             Column(Modifier.padding(14.dp).fillMaxWidth()) {
@@ -1491,7 +1497,7 @@ fun ComparePlayersSection(
                         Spacer(Modifier.weight(1f))
                         Text("$count", fontSize = 22.sp, fontWeight = FontWeight.Bold, color = CarcYellow)
                         Spacer(Modifier.width(4.dp))
-                        Text("games", fontSize = 11.sp, color = CarcText3)
+                        Text(stringResource(R.string.games_label), fontSize = 11.sp, color = CarcText3)
                     }
                     Spacer(Modifier.height(6.dp))
                 }
@@ -1509,7 +1515,7 @@ fun ComparePlayersSection(
                     if (sharedGames.isNotEmpty()) {
                         HorizontalDivider(color = CarcBorder, thickness = 0.5.dp,
                             modifier = Modifier.padding(vertical = 6.dp))
-                        Text("Head-to-head wins", fontSize = 11.sp, color = CarcText3)
+                        Text(stringResource(R.string.head_to_head), fontSize = 11.sp, color = CarcText3)
                         Spacer(Modifier.height(8.dp))
                         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -1518,7 +1524,7 @@ fun ComparePlayersSection(
                                     maxLines = 1, overflow = TextOverflow.Ellipsis)
                             }
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Text("vs", fontSize = 16.sp, color = CarcText3,
+                                Text(stringResource(R.string.vs), fontSize = 16.sp, color = CarcText3,
                                     modifier = Modifier.padding(top = 8.dp))
                             }
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -1536,7 +1542,7 @@ fun ComparePlayersSection(
 
     // ── 4: TREND ───────────────────────────────────────────────────────────
     if (sections[4].enabled) {
-        SectionLabel("📈 TREND (last 5 games)")
+        SectionLabel(stringResource(R.string.section_trend))
         Card(shape = RoundedCornerShape(14.dp),
             colors = CardDefaults.cardColors(containerColor = CarcCard)) {
             Column(Modifier.padding(14.dp)) {
@@ -1670,7 +1676,7 @@ fun ComparePlayersSection(
 
     // ── 5: SCORE STRUCTURE ─────────────────────────────────────────────────
     if (sections[5].enabled) {
-        SectionLabel("🏗 SCORE STRUCTURE")
+        SectionLabel(stringResource(R.string.section_score_struct))
         Card(shape = RoundedCornerShape(14.dp),
             colors = CardDefaults.cardColors(containerColor = CarcCard)) {
             Column(Modifier.padding(14.dp)) {
@@ -1719,7 +1725,7 @@ fun ComparePlayersSection(
 
     // ── 6: METRICS ─────────────────────────────────────────────────────────
     if (sections[6].enabled) {
-        SectionLabel("🔬 METRICS")
+        SectionLabel(stringResource(R.string.section_metrics))
         Card(shape = RoundedCornerShape(14.dp),
             colors = CardDefaults.cardColors(containerColor = CarcCard)) {
             Column(Modifier.padding(14.dp)) {
@@ -1908,28 +1914,55 @@ fun SettingsScreen(
     if (showClearDialog) {
         AlertDialog(
             onDismissRequest = { showClearDialog = false },
-            title = { Text("Clear All Records?") },
-            text = { Text("This will permanently delete all games, players, and stats. This cannot be undone.", color = CarcText2) },
+            title = { Text(stringResource(R.string.clear_all_title)) },
+            text = { Text(stringResource(R.string.clear_all_msg), color = CarcText2) },
             confirmButton = {
                 TextButton(onClick = { onClearAll(); showClearDialog = false }) {
-                    Text("Delete All", color = CarcRed)
+                    Text(stringResource(R.string.delete_all), color = CarcRed)
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showClearDialog = false }) { Text("Cancel") }
+                TextButton(onClick = { showClearDialog = false }) { Text(stringResource(R.string.cancel)) }
             },
             containerColor = CarcCard2
         )
     }
 
     if (showLanguageDialog) {
+        val ctx = LocalContext.current
+        val currentLang = remember {
+            val loc = AppCompatDelegate.getApplicationLocales()
+            if (!loc.isEmpty) loc[0]?.language ?: "en" else "en"
+        }
         AlertDialog(
             onDismissRequest = { showLanguageDialog = false },
-            title = { Text("Language") },
-            text = { Text("English (US) is the only language currently available.", color = CarcText2) },
-            confirmButton = {
-                TextButton(onClick = { showLanguageDialog = false }) { Text("OK", color = CarcGreen) }
+            title = { Text(stringResource(R.string.language_title)) },
+            text = {
+                Column {
+                    listOf("en" to "English", "ru" to "Русский").forEach { (code, label) ->
+                        Row(
+                            modifier = Modifier.fillMaxWidth()
+                                .clickable {
+                                    showLanguageDialog = false
+                                    AppCompatDelegate.setApplicationLocales(
+                                        LocaleListCompat.forLanguageTags(code)
+                                    )
+                                }
+                                .padding(vertical = 10.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            RadioButton(
+                                selected = code == currentLang,
+                                onClick = null,
+                                colors = RadioButtonDefaults.colors(selectedColor = CarcGreen)
+                            )
+                            Spacer(Modifier.width(8.dp))
+                            Text(label, fontSize = 15.sp, color = CarcText)
+                        }
+                    }
+                }
             },
+            confirmButton = {},
             containerColor = CarcCard2
         )
     }
@@ -1939,11 +1972,11 @@ fun SettingsScreen(
         contentPadding = PaddingValues(16.dp)
     ) {
         item {
-            Text("APPEARANCE", fontSize = 11.sp, color = CarcText3, letterSpacing = 1.sp,
+            Text(stringResource(R.string.settings_appearance), fontSize = 11.sp, color = CarcText3, letterSpacing = 1.sp,
                 modifier = Modifier.padding(top = 8.dp, bottom = 4.dp))
         }
         item {
-            SettingsRow("🌙", "Dark Mode", "Enable dark theme",
+            SettingsRow("🌙", stringResource(R.string.dark_mode), stringResource(R.string.dark_mode_sub),
                 onClick = { onDarkMode(!isDarkMode) },
                 trailing = {
                     Switch(
@@ -1955,24 +1988,30 @@ fun SettingsScreen(
             )
         }
         item {
-            SettingsRow("🌐", "Language", "English (US)", onClick = { showLanguageDialog = true })
+            SettingsRow("🌐", stringResource(R.string.language),
+            run {
+                val loc = AppCompatDelegate.getApplicationLocales()
+                val lang = if (!loc.isEmpty) loc[0]?.language ?: "en" else "en"
+                if (lang == "ru") "Русский" else "English"
+            },
+            onClick = { showLanguageDialog = true })
         }
         item {
-            Text("DATA MANAGEMENT", fontSize = 11.sp, color = CarcText3, letterSpacing = 1.sp,
+            Text(stringResource(R.string.settings_data), fontSize = 11.sp, color = CarcText3, letterSpacing = 1.sp,
                 modifier = Modifier.padding(top = 20.dp, bottom = 4.dp))
         }
-        item { SettingsRow("☁️", "Backup Data", "Export stats as JSON file", onClick = onBackup) }
-        item { SettingsRow("📥", "Restore Data", "Load previous session history", onClick = onRestore) }
+        item { SettingsRow("☁️", stringResource(R.string.backup_data), stringResource(R.string.backup_sub), onClick = onBackup) }
+        item { SettingsRow("📥", stringResource(R.string.restore_data), stringResource(R.string.restore_sub), onClick = onRestore) }
         item {
             SettingsRow(
-                "🗑️", "Clear All Records", "Permanent delete (irreversible)",
+                "🗑️", stringResource(R.string.clear_all), stringResource(R.string.clear_all_sub),
                 onClick = { showClearDialog = true },
                 iconBgColor = CarcRed.copy(alpha = 0.1f),
                 trailing = { Text("›", fontSize = 20.sp, color = CarcRed) }
             )
         }
         item {
-            Text("APPLICATION", fontSize = 11.sp, color = CarcText3, letterSpacing = 1.sp,
+            Text(stringResource(R.string.settings_app_section), fontSize = 11.sp, color = CarcText3, letterSpacing = 1.sp,
                 modifier = Modifier.padding(top = 20.dp, bottom = 4.dp))
         }
         item {
@@ -1985,8 +2024,8 @@ fun SettingsScreen(
                     modifier = Modifier.padding(20.dp).fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text("Carcassonne Companion v1.0.0", color = CarcGreen, fontWeight = FontWeight.Bold, fontSize = 17.sp)
-                    Text("Built with Jetpack Compose • Room DB", color = CarcText3, fontSize = 12.sp, modifier = Modifier.padding(top = 4.dp))
+                    Text(stringResource(R.string.app_version), color = CarcGreen, fontWeight = FontWeight.Bold, fontSize = 17.sp)
+                    Text(stringResource(R.string.app_built_with), color = CarcText3, fontSize = 12.sp, modifier = Modifier.padding(top = 4.dp))
                 }
             }
         }
@@ -2023,14 +2062,14 @@ fun AvatarPickerSection(
         Spacer(Modifier.height(8.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             TextButton(onClick = onPickGallery) {
-                Text("Gallery", fontSize = 12.sp, color = CarcGreen)
+                Text(stringResource(R.string.gallery_label), fontSize = 12.sp, color = CarcGreen)
             }
             TextButton(onClick = onPickCamera) {
-                Text("Camera", fontSize = 12.sp, color = CarcGreen)
+                Text(stringResource(R.string.camera_label), fontSize = 12.sp, color = CarcGreen)
             }
             if (avatarPath != null) {
                 TextButton(onClick = onRemoveAvatar) {
-                    Text("Remove", fontSize = 12.sp, color = CarcRed)
+                    Text(stringResource(R.string.remove_btn), fontSize = 12.sp, color = CarcRed)
                 }
             }
         }
@@ -2133,7 +2172,7 @@ fun AddPlayerDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         containerColor = CarcCard2,
-        title = { Text("Add New Player", fontWeight = FontWeight.Bold) },
+        title = { Text(stringResource(R.string.add_new_player), fontWeight = FontWeight.Bold) },
         text = {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 AvatarPickerSection(
@@ -2149,7 +2188,7 @@ fun AddPlayerDialog(
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
-                    label = { Text("Player Name", color = CarcText3) },
+                    label = { Text(stringResource(R.string.player_name_hint), color = CarcText3) },
                     modifier = Modifier.fillMaxWidth(),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = CarcGreenDeep, unfocusedBorderColor = CarcBorder,
@@ -2157,7 +2196,7 @@ fun AddPlayerDialog(
                     )
                 )
                 Spacer(Modifier.height(16.dp))
-                Text("Preferred Meeple Color", fontSize = 13.sp, color = CarcText2)
+                Text(stringResource(R.string.preferred_color), fontSize = 13.sp, color = CarcText2)
                 Spacer(Modifier.height(8.dp))
                 MeepleColorPicker(selected = color, onSelect = { color = it })
             }
@@ -2166,10 +2205,10 @@ fun AddPlayerDialog(
             Button(
                 onClick = { if (name.isNotBlank()) { onAdd(name.trim(), color, avatarPath); onDismiss() } },
                 colors = ButtonDefaults.buttonColors(containerColor = CarcGreen, contentColor = CarcBg)
-            ) { Text("Create Player", fontWeight = FontWeight.Bold) }
+            ) { Text(stringResource(R.string.create_player), fontWeight = FontWeight.Bold) }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Cancel", color = CarcText3) }
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel), color = CarcText3) }
         }
     )
 }
@@ -2194,7 +2233,7 @@ fun NewGameScreen(
         contentPadding = PaddingValues(16.dp)
     ) {
         item {
-            SectionHeader("Select Players", "Add New +", onAddPlayer)
+            SectionHeader(stringResource(R.string.select_players), "Add New +", onAddPlayer)
             Spacer(Modifier.height(12.dp))
         }
 
@@ -2204,7 +2243,7 @@ fun NewGameScreen(
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text("👤", fontSize = 40.sp)
                         Spacer(Modifier.height(8.dp))
-                        TextButton(onClick = onAddPlayer) { Text("Add a player first", color = CarcGreen) }
+                        TextButton(onClick = onAddPlayer) { Text(stringResource(R.string.add_player_first), color = CarcGreen) }
                     }
                 }
             }
@@ -2245,7 +2284,7 @@ fun NewGameScreen(
                         }
                         if (isSelected) {
                             Spacer(Modifier.height(10.dp))
-                            Text("SELECT MEEPLE COLOR", fontSize = 11.sp, color = CarcText3, letterSpacing = 0.5.sp)
+                            Text(stringResource(R.string.select_meeple_color), fontSize = 11.sp, color = CarcText3, letterSpacing = 0.5.sp)
                             Spacer(Modifier.height(8.dp))
                             MeepleColorPicker(
                                 selected = assignedColor,
@@ -2261,22 +2300,22 @@ fun NewGameScreen(
 
         item {
             Spacer(Modifier.height(4.dp))
-            Text("Game Expansions", fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
+            Text(stringResource(R.string.game_expansions), fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
             Spacer(Modifier.height(4.dp))
         }
         item {
             Card(shape = RoundedCornerShape(14.dp), colors = CardDefaults.cardColors(containerColor = CarcCard)) {
                 Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-                    ExpansionRow("🏰", "Inns & Cathedrals", "Exp. 1", "inns" in liveGame.expansions) { onToggleExpansion("inns") }
-                    ExpansionRow("🚚", "Traders & Builders", "Exp. 2", "traders" in liveGame.expansions) { onToggleExpansion("traders") }
-                    ExpansionRow("🐉", "The Princess & Dragon", "Exp. 3", "dragon" in liveGame.expansions) { onToggleExpansion("dragon") }
-                    ExpansionRow("⛪", "The Abbey & Mayor", "Exp. 5", "abbey" in liveGame.expansions) { onToggleExpansion("abbey") }
+                    ExpansionRow("🏰", stringResource(R.string.expansion_inns), "", "inns" in liveGame.expansions) { onToggleExpansion("inns") }
+                    ExpansionRow("⚖️", stringResource(R.string.expansion_traders), "", "traders" in liveGame.expansions) { onToggleExpansion("traders") }
+                    ExpansionRow("🐉", stringResource(R.string.expansion_dragon), "", "dragon" in liveGame.expansions) { onToggleExpansion("dragon") }
+                    ExpansionRow("⛪", stringResource(R.string.expansion_abbey), "", "abbey" in liveGame.expansions) { onToggleExpansion("abbey") }
                 }
             }
             Spacer(Modifier.height(16.dp))
         }
         item {
-            Text("Game Settings", fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
+            Text(stringResource(R.string.game_settings), fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
             Spacer(Modifier.height(4.dp))
         }
         item {
@@ -2287,8 +2326,8 @@ fun NewGameScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Column(Modifier.weight(1f)) {
-                            Text("River Layout", fontSize = 15.sp, fontWeight = FontWeight.Medium)
-                            Text("Starting with River expansion tiles", fontSize = 12.sp, color = CarcText3)
+                            Text(stringResource(R.string.river_layout), fontSize = 15.sp, fontWeight = FontWeight.Medium)
+                            Text(stringResource(R.string.river_layout_sub), fontSize = 12.sp, color = CarcText3)
                         }
                         Switch(
                             checked = liveGame.riverLayout,
@@ -2302,8 +2341,8 @@ fun NewGameScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Column(Modifier.weight(1f)) {
-                            Text("Timed Turns", fontSize = 15.sp, fontWeight = FontWeight.Medium)
-                            Text("60s limit per player turn", fontSize = 12.sp, color = CarcText3)
+                            Text(stringResource(R.string.timed_turns), fontSize = 15.sp, fontWeight = FontWeight.Medium)
+                            Text(stringResource(R.string.timed_turns_sub), fontSize = 12.sp, color = CarcText3)
                         }
                         Switch(
                             checked = liveGame.timedTurns,
@@ -2412,8 +2451,8 @@ fun AddObjectSheet(
                     // Shields — каждый тайл может нести 1 или 2 щита
                     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                         Column(Modifier.weight(1f)) {
-                            Text("🛡 Shields", fontSize = 15.sp, fontWeight = FontWeight.Medium)
-                            Text("Up to 2 per tile (Traders & Builders)", fontSize = 11.sp, color = CarcText3)
+                            Text(stringResource(R.string.shields_label), fontSize = 15.sp, fontWeight = FontWeight.Medium)
+                            Text(stringResource(R.string.traders_note), fontSize = 11.sp, color = CarcText3)
                         }
                         // compact +/- stepper inline
                         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -2456,8 +2495,8 @@ fun AddObjectSheet(
                         ) {
                             Text("⛪", fontSize = 18.sp)
                             Column(Modifier.weight(1f)) {
-                                Text("Cathedral in city", fontSize = 13.sp, fontWeight = FontWeight.Medium)
-                                Text("Tiles ×3 instead of ×2", fontSize = 11.sp, color = CarcText3)
+                                Text(stringResource(R.string.cathedral_label), fontSize = 13.sp, fontWeight = FontWeight.Medium)
+                                Text(stringResource(R.string.tiles_x3), fontSize = 11.sp, color = CarcText3)
                             }
                             Box(Modifier.size(22.dp).clip(RoundedCornerShape(5.dp))
                                 .background(if (cityCathedral) accent else CarcBorder),
@@ -2493,7 +2532,7 @@ fun AddObjectSheet(
                         }
                         HorizontalDivider(color = accent.copy(alpha = 0.2f), thickness = 0.5.dp)
                         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text("Total", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = accent)
+                            Text(stringResource(R.string.total_label), fontSize = 14.sp, fontWeight = FontWeight.Bold, color = accent)
                             Text("+$cityPts", fontSize = 22.sp, fontWeight = FontWeight.Black, color = accent)
                         }
                     }
@@ -2526,7 +2565,7 @@ fun AddObjectSheet(
                             horizontalArrangement = Arrangement.spacedBy(10.dp)
                         ) {
                             Text("🍺", fontSize = 18.sp)
-                            Text("Inn (×2)", fontSize = 14.sp, fontWeight = FontWeight.Medium,
+                            Text(stringResource(R.string.inn_label), fontSize = 14.sp, fontWeight = FontWeight.Medium,
                                 modifier = Modifier.weight(1f))
                             Box(Modifier.size(22.dp).clip(RoundedCornerShape(5.dp))
                                 .background(if (roadTavern) accent else CarcBorder),
@@ -2546,7 +2585,7 @@ fun AddObjectSheet(
                     })
                 }
                 2 -> { // Monastery
-                    Text("Completed monastery = +9", fontSize = 13.sp, color = CarcText3)
+                    Text(stringResource(R.string.monastery_complete), fontSize = 13.sp, color = CarcText3)
                     Spacer(Modifier.height(8.dp))
                     ObjectStepperRow("Tiles placed (1–9)", monTiles, 1, 9, { monTiles = it })
                     Spacer(Modifier.height(20.dp))
@@ -2753,7 +2792,7 @@ fun LiveGameScreen(
                     .padding(horizontal = 32.dp, vertical = 16.dp),
                 contentAlignment = Alignment.Center
             ) {
-                Text("🏁  FINISH GAME", fontWeight = FontWeight.Bold, fontSize = 15.sp, color = CarcBg)
+                Text(stringResource(R.string.finish_game), fontWeight = FontWeight.Bold, fontSize = 15.sp, color = CarcBg)
             }
         }
     }
@@ -2830,7 +2869,7 @@ fun ScoreEditDialog(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text("Total", color = CarcText2)
+                    Text(stringResource(R.string.total_label), color = CarcText2)
                     Text(total.toString(), fontSize = 24.sp, fontWeight = FontWeight.Bold, color = CarcGreen)
                 }
             }
@@ -2847,10 +2886,10 @@ fun ScoreEditDialog(
                     onDismiss()
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = CarcGreen, contentColor = CarcBg)
-            ) { Text("Save", fontWeight = FontWeight.Bold) }
+            ) { Text(stringResource(R.string.save), fontWeight = FontWeight.Bold) }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Cancel", color = CarcText3) }
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel), color = CarcText3) }
         }
     )
 }
@@ -2932,7 +2971,7 @@ fun EndgameScreen(
         when (phase) {
             0 -> { // Incomplete objects
                 item {
-                    Text("Incomplete objects score 1 pt per tile/shield",
+                    Text(stringResource(R.string.incomplete_note),
                         fontSize = 13.sp, color = CarcText3)
                 }
                 items(players) { player ->
@@ -2974,7 +3013,7 @@ fun EndgameScreen(
                     }
                 }
                 item {
-                    PrimaryButton("Next → Farms", onClick = { phase = 1 })
+                    PrimaryButton(stringResource(R.string.next_farms), onClick = { phase = 1 })
                 }
             }
 
@@ -2982,11 +3021,11 @@ fun EndgameScreen(
                 item {
                     Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp))
                         .background(CarcBg3).padding(14.dp)) {
-                        Text("🌾 Farm Scoring", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                        Text(stringResource(R.string.farm_scoring), fontWeight = FontWeight.Bold, fontSize = 16.sp)
                         Spacer(Modifier.height(4.dp))
-                        Text("Count completed cities adjacent to each player's farm.",
+                        Text(stringResource(R.string.farm_instructions),
                             fontSize = 13.sp, color = CarcText3)
-                        Text("Formula: N cities × 3 pts", fontSize = 13.sp, color = CarcGreen,
+                        Text(stringResource(R.string.farm_formula), fontSize = 13.sp, color = CarcGreen,
                             fontWeight = FontWeight.SemiBold)
                     }
                 }
@@ -3028,12 +3067,12 @@ fun EndgameScreen(
                             .background(CarcBg3).border(1.dp, CarcBorder, RoundedCornerShape(10.dp))
                             .clickable { phase = 0 }.padding(vertical = 14.dp),
                             contentAlignment = Alignment.Center) {
-                            Text("← Back", color = CarcText2, fontWeight = FontWeight.SemiBold)
+                            Text(stringResource(R.string.back_btn), color = CarcText2, fontWeight = FontWeight.SemiBold)
                         }
                         Box(Modifier.weight(2f).clip(RoundedCornerShape(10.dp))
                             .background(CarcGreen).clickable { phase = 2 }.padding(vertical = 14.dp),
                             contentAlignment = Alignment.Center) {
-                            Text("Next → Confirm", color = CarcBg, fontWeight = FontWeight.Bold)
+                            Text(stringResource(R.string.next_confirm), color = CarcBg, fontWeight = FontWeight.Bold)
                         }
                     }
                 }
@@ -3041,7 +3080,7 @@ fun EndgameScreen(
 
             2 -> { // Confirm & Save
                 item {
-                    Text("Final Scores", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.final_scores), fontSize = 18.sp, fontWeight = FontWeight.Bold)
                 }
                 val sorted = players.sortedByDescending { totalWithEndgame(it.playerId) }
                 items(sorted) { player ->
@@ -3074,7 +3113,7 @@ fun EndgameScreen(
                 item { Spacer(Modifier.height(4.dp)) }
                 item {
                     // Фото поля партии
-                    Text("📷 Board Photo", fontSize = 13.sp, color = CarcText3, modifier = Modifier.padding(bottom = 8.dp))
+                    Text(stringResource(R.string.board_photo_btn), fontSize = 13.sp, color = CarcText3, modifier = Modifier.padding(bottom = 8.dp))
                     GamePhotoBox(
                         photoPath = pendingPhotoPath,
                         editable = true,
@@ -3085,7 +3124,7 @@ fun EndgameScreen(
                 item {
                     OutlinedTextField(
                         value = gameName, onValueChange = { gameName = it },
-                        label = { Text("Game name (optional)", color = CarcText3) },
+                        label = { Text(stringResource(R.string.game_name_hint), color = CarcText3) },
                         modifier = Modifier.fillMaxWidth(),
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = CarcGreenDeep, unfocusedBorderColor = CarcBorder,
@@ -3099,7 +3138,7 @@ fun EndgameScreen(
                             .background(CarcBg3).border(1.dp, CarcBorder, RoundedCornerShape(10.dp))
                             .clickable { phase = 1 }.padding(vertical = 14.dp),
                             contentAlignment = Alignment.Center) {
-                            Text("← Back", color = CarcText2, fontWeight = FontWeight.SemiBold)
+                            Text(stringResource(R.string.back_btn), color = CarcText2, fontWeight = FontWeight.SemiBold)
                         }
                         Box(Modifier.weight(2f).clip(RoundedCornerShape(10.dp))
                             .background(CarcGreen)
@@ -3109,7 +3148,7 @@ fun EndgameScreen(
                                 onSave(gameName)
                             }.padding(vertical = 14.dp),
                             contentAlignment = Alignment.Center) {
-                            Text("✓ Save Game", color = CarcBg, fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                            Text(stringResource(R.string.save_game), color = CarcBg, fontWeight = FontWeight.Bold, fontSize = 15.sp)
                         }
                     }
                 }
@@ -3202,7 +3241,7 @@ fun MatchDetailScreen(
                         .clickable { onEdit() }
                         .padding(horizontal = 12.dp, vertical = 6.dp)
                 ) {
-                    Text("✎ Edit", fontSize = 13.sp, color = CarcGreen, fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(R.string.edit_btn), fontSize = 13.sp, color = CarcGreen, fontWeight = FontWeight.SemiBold)
                 }
             }
             Spacer(Modifier.height(16.dp))
@@ -3211,7 +3250,7 @@ fun MatchDetailScreen(
         // Winner
         sorted.firstOrNull()?.let { winner ->
             item {
-                Text("🏆 Winner", fontSize = 13.sp, color = CarcText3, modifier = Modifier.padding(bottom = 8.dp))
+                Text(stringResource(R.string.winner_label), fontSize = 13.sp, color = CarcText3, modifier = Modifier.padding(bottom = 8.dp))
                 val p = players.find { it.id == winner.playerId }
                 Card(
                     shape = RoundedCornerShape(14.dp),
@@ -3242,7 +3281,7 @@ fun MatchDetailScreen(
         }
 
         // Final Standings
-        item { Text("Final Standings", fontSize = 18.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(bottom = 10.dp)) }
+        item { Text(stringResource(R.string.final_standings), fontSize = 18.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(bottom = 10.dp)) }
         items(sorted) { gp ->
             val p = players.find { it.id == gp.playerId }
             Card(
@@ -3276,7 +3315,7 @@ fun MatchDetailScreen(
         // Points Breakdown — всегда показываем
         item {
             Spacer(Modifier.height(8.dp))
-            Text("Points Breakdown", fontSize = 18.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(bottom = 10.dp))
+            Text(stringResource(R.string.points_breakdown), fontSize = 18.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(bottom = 10.dp))
             Card(shape = RoundedCornerShape(14.dp), colors = CardDefaults.cardColors(containerColor = CarcCard)) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     // Заголовок колонок
@@ -3354,7 +3393,7 @@ fun PlayerProfileScreen(playerId: Int, viewModel: MainViewModel, onEdit: () -> U
                         .clickable { onEdit() }
                         .padding(horizontal = 16.dp, vertical = 8.dp)
                 ) {
-                    Text("✎ Edit Profile", fontSize = 13.sp, color = CarcGreen, fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(R.string.edit_profile), fontSize = 13.sp, color = CarcGreen, fontWeight = FontWeight.SemiBold)
                 }
             }
         }
@@ -3367,7 +3406,7 @@ fun PlayerProfileScreen(playerId: Int, viewModel: MainViewModel, onEdit: () -> U
             Spacer(Modifier.height(20.dp))
         }
         item {
-            Text("🏅 Achievements", fontSize = 18.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(bottom = 12.dp))
+            Text(stringResource(R.string.achievements), fontSize = 18.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(bottom = 12.dp))
         }
         item {
             Row(horizontalArrangement = Arrangement.spacedBy(14.dp), modifier = Modifier.horizontalScroll(rememberScrollState())) {
@@ -3380,10 +3419,10 @@ fun PlayerProfileScreen(playerId: Int, viewModel: MainViewModel, onEdit: () -> U
             Spacer(Modifier.height(20.dp))
         }
         item {
-            Text("📈 Performance History", fontSize = 18.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(bottom = 12.dp))
+            Text(stringResource(R.string.perf_history), fontSize = 18.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(bottom = 12.dp))
         }
         if (gameHistory.isEmpty()) {
-            item { Text("No games played yet", color = CarcText3, modifier = Modifier.padding(vertical = 20.dp)) }
+            item { Text(stringResource(R.string.no_games_played), color = CarcText3, modifier = Modifier.padding(vertical = 20.dp)) }
         } else {
             items(gameHistory) { gp ->
                 Card(
@@ -3492,7 +3531,7 @@ fun EditPlayerScreen(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         item {
-            Text("AVATAR", fontSize = 11.sp, color = CarcText3, letterSpacing = 1.sp,
+            Text(stringResource(R.string.section_avatar), fontSize = 11.sp, color = CarcText3, letterSpacing = 1.sp,
                 modifier = Modifier.fillMaxWidth())
             Spacer(Modifier.height(8.dp))
             Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
@@ -3509,13 +3548,13 @@ fun EditPlayerScreen(
             }
         }
         item {
-            Text("PLAYER NAME", fontSize = 11.sp, color = CarcText3, letterSpacing = 1.sp,
+            Text(stringResource(R.string.section_player_name_label), fontSize = 11.sp, color = CarcText3, letterSpacing = 1.sp,
                 modifier = Modifier.fillMaxWidth())
             Spacer(Modifier.height(8.dp))
             OutlinedTextField(
                 value = name,
                 onValueChange = { name = it },
-                label = { Text("Name", color = CarcText3) },
+                label = { Text(stringResource(R.string.name_field), color = CarcText3) },
                 modifier = Modifier.fillMaxWidth(),
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = CarcGreenDeep, unfocusedBorderColor = CarcBorder,
@@ -3524,14 +3563,14 @@ fun EditPlayerScreen(
             )
         }
         item {
-            Text("DEFAULT MEEPLE COLOR", fontSize = 11.sp, color = CarcText3, letterSpacing = 1.sp,
+            Text(stringResource(R.string.default_meeple), fontSize = 11.sp, color = CarcText3, letterSpacing = 1.sp,
                 modifier = Modifier.fillMaxWidth())
             Spacer(Modifier.height(8.dp))
             MeepleColorPicker(selected = color, onSelect = { color = it })
         }
         item {
             Spacer(Modifier.height(8.dp))
-            PrimaryButton("✓  SAVE PROFILE", onClick = {
+            PrimaryButton(stringResource(R.string.save_profile), onClick = {
                 if (name.isNotBlank()) {
                     onSave(player.copy(name = name.trim(), meepleColor = color, avatarPath = avatarPath))
                     onDone()
@@ -3580,12 +3619,12 @@ fun EditGameScreen(
             onDismissRequest = { showDatePicker = false },
             confirmButton = {
                 TextButton(onClick = { showDatePicker = false }) {
-                    Text("OK", color = CarcGreen)
+                    Text(stringResource(R.string.ok), color = CarcGreen)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showDatePicker = false }) {
-                    Text("Cancel", color = CarcText3)
+                    Text(stringResource(R.string.cancel), color = CarcText3)
                 }
             },
             colors = DatePickerDefaults.colors(containerColor = CarcCard2)
@@ -3649,12 +3688,12 @@ fun EditGameScreen(
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         item {
-            Text("GAME INFO", fontSize = 11.sp, color = CarcText3, letterSpacing = 1.sp)
+            Text(stringResource(R.string.game_info_section), fontSize = 11.sp, color = CarcText3, letterSpacing = 1.sp)
             Spacer(Modifier.height(8.dp))
             OutlinedTextField(
                 value = gameName,
                 onValueChange = { gameName = it },
-                label = { Text("Game Name", color = CarcText3) },
+                label = { Text(stringResource(R.string.game_name_label), color = CarcText3) },
                 modifier = Modifier.fillMaxWidth(),
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = CarcGreenDeep, unfocusedBorderColor = CarcBorder,
@@ -3664,7 +3703,7 @@ fun EditGameScreen(
         }
 
         item {
-            Text("DATE", fontSize = 11.sp, color = CarcText3, letterSpacing = 1.sp)
+            Text(stringResource(R.string.date_section), fontSize = 11.sp, color = CarcText3, letterSpacing = 1.sp)
             Spacer(Modifier.height(8.dp))
             Card(
                 modifier = Modifier.fillMaxWidth().clickable { showDatePicker = true },
@@ -3685,7 +3724,7 @@ fun EditGameScreen(
         }
 
         item {
-            Text("PLAYERS & SCORES", fontSize = 11.sp, color = CarcText3, letterSpacing = 1.sp)
+            Text(stringResource(R.string.players_scores_section), fontSize = 11.sp, color = CarcText3, letterSpacing = 1.sp)
         }
 
         items(editPlayers.size) { i ->
@@ -3709,7 +3748,7 @@ fun EditGameScreen(
                         Text("$displayTotal pts", fontSize = 15.sp, color = CarcGreen, fontWeight = FontWeight.Bold)
                     }
                     Spacer(Modifier.height(10.dp))
-                    Text("MEEPLE COLOR", fontSize = 10.sp, color = CarcText3, letterSpacing = 0.5.sp)
+                    Text(stringResource(R.string.meeple_color_label), fontSize = 10.sp, color = CarcText3, letterSpacing = 0.5.sp)
                     Spacer(Modifier.height(6.dp))
                     MeepleColorPicker(
                         selected = state.color,
@@ -3745,7 +3784,7 @@ fun EditGameScreen(
 
         item {
             Spacer(Modifier.height(8.dp))
-            PrimaryButton("✓  SAVE CHANGES", onClick = {
+            PrimaryButton(stringResource(R.string.save_changes), onClick = {
                 val results = editPlayers.map { ep ->
                     val s = ep.value
                     val city = s.city.toIntOrNull() ?: 0

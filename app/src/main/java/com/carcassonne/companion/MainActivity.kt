@@ -26,6 +26,7 @@ import com.carcassonne.companion.viewmodel.EndgamePlayerInput
 import com.carcassonne.companion.viewmodel.MainViewModel
 import com.carcassonne.companion.viewmodel.ScoringObjectType
 import kotlinx.coroutines.launch
+import androidx.compose.ui.res.stringResource
 
 // ─── Navigation Routes ───────────────────────────────────────────────────────
 object Routes {
@@ -48,14 +49,14 @@ object Routes {
     fun editPlayer(id: Int) = "edit_player/$id"
 }
 
-data class BottomNavItem(val route: String, val icon: ImageVector, val label: String)
+data class BottomNavItem(val route: String, val icon: ImageVector, val labelRes: Int)
 
 val bottomNavItems = listOf(
-    BottomNavItem(Routes.DASHBOARD, Icons.Default.Dashboard, "Dashboard"),
-    BottomNavItem(Routes.HISTORY,   Icons.Default.History,   "History"),
-    BottomNavItem(Routes.PLAYERS,   Icons.Default.People,    "Players"),
-    BottomNavItem(Routes.STATS,     Icons.Default.BarChart,  "Stats"),
-    BottomNavItem(Routes.SETTINGS,  Icons.Default.Settings,  "Settings"),
+    BottomNavItem(Routes.DASHBOARD, Icons.Default.Dashboard, R.string.nav_dashboard),
+    BottomNavItem(Routes.HISTORY,   Icons.Default.History,   R.string.nav_history),
+    BottomNavItem(Routes.PLAYERS,   Icons.Default.People,    R.string.nav_players),
+    BottomNavItem(Routes.STATS,     Icons.Default.BarChart,  R.string.nav_stats),
+    BottomNavItem(Routes.SETTINGS,  Icons.Default.Settings,  R.string.nav_settings),
 )
 
 val mainRoutes = bottomNavItems.map { it.route }
@@ -120,23 +121,23 @@ fun CarcassonneApp(vm: MainViewModel = viewModel()) {
         topBar = {
             when (currentRoute) {
                 Routes.DASHBOARD -> TopAppBar(
-                    title = { Text("Dashboard", fontWeight = FontWeight.Bold, color = CarcText) },
+                    title = { Text(stringResource(R.string.nav_dashboard), fontWeight = FontWeight.Bold, color = CarcText) },
                     actions = {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text("🏰", fontSize = 18.sp)
                             Spacer(Modifier.width(4.dp))
-                            Text("CARCASSONNE", fontSize = 13.sp, color = CarcGreen, fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
+                            Text(stringResource(R.string.carcassonne_title), fontSize = 13.sp, color = CarcGreen, fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
                             Spacer(Modifier.width(12.dp))
                         }
                     },
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = CarcBg)
                 )
                 Routes.HISTORY -> TopAppBar(
-                    title = { Text("Match History", fontWeight = FontWeight.Bold, color = CarcText) },
+                    title = { Text(stringResource(R.string.match_history), fontWeight = FontWeight.Bold, color = CarcText) },
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = CarcBg)
                 )
                 Routes.PLAYERS -> TopAppBar(
-                    title = { Text("Players", fontWeight = FontWeight.Bold, color = CarcText) },
+                    title = { Text(stringResource(R.string.nav_players), fontWeight = FontWeight.Bold, color = CarcText) },
                     actions = {
                         IconButton(onClick = { showAddPlayer = true }) {
                             Icon(Icons.Default.PersonAdd, null, tint = CarcGreen)
@@ -145,15 +146,15 @@ fun CarcassonneApp(vm: MainViewModel = viewModel()) {
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = CarcBg)
                 )
                 Routes.STATS -> TopAppBar(
-                    title = { Text("Stats & Comparison", fontWeight = FontWeight.Bold, color = CarcText) },
+                    title = { Text(stringResource(R.string.stats_title), fontWeight = FontWeight.Bold, color = CarcText) },
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = CarcBg)
                 )
                 Routes.SETTINGS -> TopAppBar(
-                    title = { Text("Settings", fontWeight = FontWeight.Bold, color = CarcText) },
+                    title = { Text(stringResource(R.string.nav_settings), fontWeight = FontWeight.Bold, color = CarcText) },
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = CarcBg)
                 )
                 Routes.NEW_GAME -> TopAppBar(
-                    title = { Text("New Match", fontWeight = FontWeight.Bold, color = CarcText) },
+                    title = { Text(stringResource(R.string.new_match_title), fontWeight = FontWeight.Bold, color = CarcText) },
                     navigationIcon = {
                         IconButton(onClick = { navController.popBackStack() }) {
                             Icon(Icons.Default.ArrowBack, null, tint = CarcText)
@@ -162,7 +163,7 @@ fun CarcassonneApp(vm: MainViewModel = viewModel()) {
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = CarcBg)
                 )
                 Routes.LIVE_GAME -> TopAppBar(
-                    title = { Text("Game in Progress", fontWeight = FontWeight.Bold, color = CarcText) },
+                    title = { Text(stringResource(R.string.game_in_progress), fontWeight = FontWeight.Bold, color = CarcText) },
                     navigationIcon = {
                         IconButton(onClick = {
                             // Confirm abandon
@@ -174,7 +175,7 @@ fun CarcassonneApp(vm: MainViewModel = viewModel()) {
                     },
                     actions = {
                         TextButton(onClick = { navController.navigate(Routes.ENDGAME) }) {
-                            Text("🏁 Finish", color = CarcGreen, fontWeight = FontWeight.Bold)
+                            Text(stringResource(R.string.finish_btn), color = CarcGreen, fontWeight = FontWeight.Bold)
                         }
                     },
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = CarcBg)
@@ -225,7 +226,7 @@ fun CarcassonneApp(vm: MainViewModel = viewModel()) {
                                 }
                             },
                             icon = { Icon(item.icon, null) },
-                            label = { Text(item.label, fontSize = 10.sp) },
+                            label = { Text(stringResource(item.labelRes), fontSize = 10.sp) },
                             colors = NavigationBarItemDefaults.colors(
                                 selectedIconColor = CarcGreen,
                                 selectedTextColor = CarcGreen,
