@@ -23,10 +23,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.LocaleListCompat
-import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
-import androidx.compose.ui.graphics.nativeCanvas
-import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
-import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.text.font.*
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.*
@@ -40,6 +36,7 @@ import com.carcassonne.companion.viewmodel.LiveGameState
 import com.carcassonne.companion.viewmodel.MainViewModel
 import com.carcassonne.companion.viewmodel.PlayerStats
 import com.carcassonne.companion.viewmodel.ScoringObjectType
+import com.carcassonne.companion.R
 import com.carcassonne.companion.viewmodel.EndgamePlayerInput
 import com.carcassonne.companion.viewmodel.LivePlayerState
 import com.carcassonne.companion.util.ImageUtils
