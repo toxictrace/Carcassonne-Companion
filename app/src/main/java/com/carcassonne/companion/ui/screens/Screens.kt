@@ -3762,7 +3762,7 @@ fun EditGameScreen(
                     )
                     Spacer(Modifier.height(4.dp))
                     Text(
-                        "Или введите по категориям:",
+                        stringResource(R.string.or_enter_categories),
                         fontSize = 11.sp, color = CarcText3,
                         modifier = Modifier.padding(vertical = 4.dp)
                     )

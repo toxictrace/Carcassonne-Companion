@@ -4,7 +4,7 @@
     <string name="nav_dashboard">Главная</string>
     <string name="nav_history">История</string>
     <string name="nav_players">Игроки</string>
-    <string name="nav_stats">Статистика</string>
+    <string name="nav_stats">Стат.</string>
     <string name="nav_settings">Настройки</string>
     <string name="ok">ОК</string>
     <string name="cancel">Отмена</string>
@@ -144,4 +144,5 @@
     <string name="game_saved">Игра сохранена!</string>
     <string name="game_updated">Игра обновлена!</string>
     <string name="records_cleared">Все данные удалены</string>
+    <string name="or_enter_categories">Или введите по категориям:</string>
 </resources>

@@ -144,4 +144,5 @@
     <string name="game_saved">Game saved!</string>
     <string name="game_updated">Game updated!</string>
     <string name="records_cleared">All records cleared</string>
+    <string name="or_enter_categories">Or enter by category:</string>
 </resources>
