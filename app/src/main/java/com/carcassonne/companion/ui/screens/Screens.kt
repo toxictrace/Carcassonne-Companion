@@ -19,6 +19,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.text.font.*
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.*
@@ -1478,14 +1480,14 @@ fun ComparePlayersSection(
                     val idxB = activePlayers.indexOf(pb)
                     Row(verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.fillMaxWidth()) {
+                        Spacer(Modifier.width(8.dp))
                         Text(pa.player.name, fontSize = 12.sp, color = colors[idxA],
                             fontWeight = FontWeight.SemiBold,
-                            modifier = Modifier.weight(1f), maxLines = 1, overflow = TextOverflow.Ellipsis,
-                            textAlign = TextAlign.End)
+                            modifier = Modifier.widthIn(max = 90.dp), maxLines = 1, overflow = TextOverflow.Ellipsis)
                         Text("  &  ", fontSize = 11.sp, color = CarcText3)
                         Text(pb.player.name, fontSize = 12.sp, color = colors[idxB],
                             fontWeight = FontWeight.SemiBold,
-                            modifier = Modifier.weight(1f), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                            modifier = Modifier.widthIn(max = 90.dp), maxLines = 1, overflow = TextOverflow.Ellipsis)
                         Spacer(Modifier.weight(1f))
                         Text("$count", fontSize = 22.sp, fontWeight = FontWeight.Bold, color = CarcYellow)
                         Spacer(Modifier.width(4.dp))
@@ -1585,8 +1587,13 @@ fun ComparePlayersSection(
                                 drawCircle(Color(0xFF0D1F0D), radius = 2.5f, center = Offset(x, y))
                             }
                         }
-                        // Score text labels via nativeCanvas
+                        // Score text labels — smart placement to avoid overlap
                         drawIntoCanvas { cv ->
+                            val minGap = 28f
+                            val lblX = mutableListOf<Float>()
+                            val lblY = mutableListOf<Float>()
+                            val lblText = mutableListOf<String>()
+                            val lblColor = mutableListOf<Int>()
                             activePlayers.forEachIndexed { pi, ps ->
                                 val scores = ps.recentScores.take(n).reversed()
                                 val colorInt = android.graphics.Color.argb(
@@ -1595,14 +1602,28 @@ fun ComparePlayersSection(
                                     (colors[pi].green * 255).toInt(),
                                     (colors[pi].blue * 255).toInt()
                                 )
-                                trendTextPaint.color = colorInt
                                 scores.forEachIndexed { si, sc ->
                                     val x = si * stepX
                                     val y = scoreY(sc)
-                                    // Alternate label above/below to avoid overlap
-                                    val labelY = if (y < padTop + 20f) y + 32f else y - 12f
-                                    cv.nativeCanvas.drawText("$sc", x, labelY, trendTextPaint)
+                                    val initY = if (y < padTop + 20f) y + 32f else y - 12f
+                                    lblX.add(x); lblY.add(initY)
+                                    lblText.add("$sc"); lblColor.add(colorInt)
                                 }
+                            }
+                            val cols = lblX.distinct()
+                            cols.forEach { cx ->
+                                val idx = lblX.indices.filter { lblX[it] == cx }
+                                    .sortedBy { lblY[it] }
+                                for (i in 1 until idx.size) {
+                                    val prev = idx[i - 1]; val curr = idx[i]
+                                    if (lblY[curr] - lblY[prev] < minGap)
+                                        lblY[curr] = lblY[prev] + minGap
+                                }
+                            }
+                            lblX.indices.forEach { i ->
+                                trendTextPaint.color = lblColor[i]
+                                cv.nativeCanvas.drawText(lblText[i], lblX[i],
+                                    lblY[i].coerceIn(padTop, h - 4f), trendTextPaint)
                             }
                         }
                     }
@@ -1625,9 +1646,8 @@ fun ComparePlayersSection(
                             fontWeight = FontWeight.SemiBold,
                             modifier = Modifier.width(56.dp), maxLines = 1, overflow = TextOverflow.Ellipsis)
                         Spacer(Modifier.width(8.dp))
-                        // Score sequence — evenly spaced to align with chart
-                        Row(modifier = Modifier.weight(1f),
-                            horizontalArrangement = Arrangement.SpaceEvenly) {
+                        // Score sequence — equal-width cells for table alignment
+                        Row(modifier = Modifier.weight(1f)) {
                             repeat(5) { idx ->
                                 val sc = scores.getOrNull(idx)
                                 Text(
@@ -1635,7 +1655,8 @@ fun ComparePlayersSection(
                                     fontSize = 12.sp,
                                     color = if (sc != null) CarcText2 else CarcText3,
                                     fontWeight = if (sc != null && sc == scores.maxOrNull()) FontWeight.Bold else FontWeight.Normal,
-                                    textAlign = TextAlign.Center
+                                    textAlign = TextAlign.Center,
+                                    modifier = Modifier.weight(1f)
                                 )
                             }
                         }
