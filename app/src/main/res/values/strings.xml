@@ -71,29 +71,27 @@
     <string name="next_farms">Next → Farms</string>
     <string name="next_confirm">Next → Confirm</string>
     <string name="final_scores">Final Scores</string>
-    <string name="board_photo_btn">📷 Board Photo</string>
-    <string name="game_name_hint">Game name (optional)</string>
     <string name="save_game">✓ Save Game</string>
     <string name="match_history">Match History</string>
     <string name="recent_activity">Recent Activity</string>
     <string name="view_all">View All</string>
     <string name="no_games_yet">No games yet</string>
     <string name="start_first_game">Start your first game with +</string>
-    <string name="search_games">Search games...</string>
     <string name="no_games_found">No games found</string>
-    <string name="cannot_undone">This cannot be undone.</string>
-    <string name="cannot_undone_history">This cannot be undone. Game history stays.</string>
-    <string name="carcassonne_title">CARCASSONNE</string>
-    <string name="new_match_title">New Match</string>
-    <string name="search_players">Search players...</string>
     <string name="no_players">No players yet</string>
-    <string name="add_first_player">Add your first player</string>
-    <string name="select_player">Select player</string>
-    <string name="remove_player">Remove player</string>
-    <string name="add_new_player">Add New Player</string>
-    <string name="player_name_hint">Player Name</string>
-    <string name="preferred_color">Preferred Meeple Color</string>
+    <string name="add_first_player">Add your first player with +</string>
+    <string name="add_new_player">Add new player</string>
     <string name="create_player">Create Player</string>
+    <string name="new_match_title">New Match</string>
+    <string name="preferred_color">Preferred Meeple Color</string>
+    <string name="player_name_hint">Player name</string>
+    <string name="game_name_hint">Game name</string>
+    <string name="remove_player">Remove Player</string>
+    <string name="select_player">Select Player</string>
+    <string name="cannot_undone">This cannot be undone.</string>
+    <string name="cannot_undone_history">This will permanently delete the selected game(s).</string>
+    <string name="carcassonne_title">🏰 CARCASSONNE</string>
+    <string name="board_photo_btn">📷 Board Photo</string>
     <string name="name_field">Name</string>
     <string name="default_meeple">DEFAULT MEEPLE COLOR</string>
     <string name="edit_profile">✎ Edit Profile</string>
@@ -145,4 +143,141 @@
     <string name="game_updated">Game updated!</string>
     <string name="records_cleared">All records cleared</string>
     <string name="or_enter_categories">Or enter by category:</string>
+    <string name="search_games">Search games…</string>
+    <string name="search_players">Search players…</string>
+
+    <!-- NEW: Dashboard stats -->
+    <string name="global_stats">GLOBAL STATS</string>
+    <string name="total_games">TOTAL\nGAMES</string>
+    <string name="total_players_stat">TOTAL\nPLAYERS</string>
+    <string name="highest_score">HIGHEST\nSCORE</string>
+    <string name="avg_winner_score">AVG WINNER\nSCORE</string>
+    <string name="players_stat">PLAYERS</string>
+
+    <!-- NEW: Game number format -->
+    <string name="game_number">Game #%d</string>
+
+    <!-- NEW: Players screen -->
+    <string name="players_section">PLAYERS</string>
+    <string name="wins_losses">%1$dW / %2$dL</string>
+    <string name="win_rate_pct">WIN RATE: %d%%</string>
+    <string name="selected_info">%d selected — long press to select more</string>
+    <string name="delete_games_title">Delete %d game(s)?</string>
+    <string name="delete_n_games">🗑  Delete %d game(s)</string>
+    <string name="delete_players_title">Delete %d player(s)?</string>
+    <string name="delete_n_players">🗑  Delete %d player(s)</string>
+
+    <!-- NEW: Stats tabs -->
+    <string name="tab_global_stats">Global Stats</string>
+    <string name="tab_compare_players">Compare Players</string>
+
+    <!-- NEW: Compare section labels -->
+    <string name="section_label_play_style">🕸 Play Style</string>
+    <string name="section_label_results">🏆 Results</string>
+    <string name="section_label_score_range">📊 Score Range</string>
+    <string name="section_label_together">🎮 Together</string>
+    <string name="section_label_trend">📈 Trend</string>
+    <string name="section_label_score_struct">🏗 Score Structure</string>
+    <string name="section_label_metrics">🔬 Metrics</string>
+
+    <!-- NEW: Radar chart labels -->
+    <string name="radar_urban">🏰 Urban</string>
+    <string name="radar_roads">🛤 Roads</string>
+    <string name="radar_monks">⛪ Monks</string>
+    <string name="radar_farms">🌾 Farms</string>
+    <string name="radar_stable">🎯 Stable</string>
+
+    <!-- NEW: Metrics -->
+    <string name="metric_urbanization">🏰 Urbanization</string>
+    <string name="metric_urbanization_desc">City share of total score</string>
+    <string name="metric_road_aggr">🛤️ Road Aggr.</string>
+    <string name="metric_road_aggr_desc">Roads vs cities ratio</string>
+    <string name="metric_monastery">⛪ Monastery</string>
+    <string name="metric_monastery_desc">Monastery share of score</string>
+    <string name="metric_farm_dom">🌾 Farm Dominance</string>
+    <string name="metric_farm_dom_desc">Farm score vs field average</string>
+    <string name="metric_stability">🎯 Stability</string>
+    <string name="metric_stability_desc">Score consistency</string>
+
+    <!-- NEW: Live game -->
+    <string name="n_players">%d players</string>
+    <string name="city_label">🏰 City</string>
+    <string name="road_label">🛤️ Road</string>
+    <string name="monastery_label">⛪ Monastery</string>
+    <string name="fairy_label">🧚 Fairy +1</string>
+
+    <!-- NEW: Final Scoring -->
+    <string name="final_scoring">Final Scoring</string>
+    <string name="tab_incomplete">Incomplete</string>
+    <string name="tab_farms">Farms</string>
+    <string name="tab_confirm">Confirm</string>
+    <string name="base_score">Base: %d</string>
+    <string name="city_tiles_shields">🏰 City tiles+shields</string>
+    <string name="road_tiles">🛤️ Road tiles</string>
+    <string name="monastery_tiles">⛪ Monastery tiles</string>
+    <string name="completed_cities_adjacent">Completed cities adjacent</string>
+    <string name="pts_from_incomplete">+%d pts from incomplete</string>
+
+    <!-- NEW: Match Details -->
+    <string name="match_details">Match Details</string>
+    <string name="match_number">Match #%d</string>
+    <string name="pts_mvp">%d pts • MVP</string>
+    <string name="pts_label">%d pts</string>
+    <string name="pts_total">%d pts</string>
+    <string name="base_score_label">Base %d</string>
+
+    <!-- NEW: Player profile -->
+    <string name="stat_games">Games</string>
+    <string name="stat_win_rate">Win Rate</string>
+    <string name="stat_avg_score">Avg Score</string>
+    <string name="ach_first_win">First Win</string>
+    <string name="ach_explorer">Explorer</string>
+    <string name="ach_social">Social</string>
+    <string name="ach_star_player">Star Player</string>
+    <string name="ach_veteran">Veteran</string>
+    <string name="level_1">LEVEL 1 BEGINNER</string>
+    <string name="level_2">LEVEL 2 INTERMEDIATE</string>
+    <string name="level_3">LEVEL 3 ADVANCED</string>
+    <string name="level_4">LEVEL 4 EXPERT</string>
+    <string name="level_5">LEVEL 5 GRANDMASTER</string>
+    <string name="place_first">1st Place</string>
+    <string name="place_n">%d Place</string>
+
+    <!-- NEW: Edit Game -->
+    <string name="edit_game">Edit Game</string>
+    <string name="total_override">🏅 Total (override)</string>
+    <string name="city_input">🏰 City</string>
+    <string name="road_input">🛤️ Road</string>
+    <string name="mon_input">⛪ Mon.</string>
+    <string name="farm_input">🌾 Farm</string>
+    <string name="pts_suffix">pts</string>
+
+    <!-- NEW: Player titles -->
+    <string name="title_sniper">⚡ Sniper</string>
+    <string name="title_architect">🏰 Architect</string>
+    <string name="title_cartographer">🛤️ Cartographer</string>
+    <string name="title_hermit">⛪ Hermit</string>
+    <string name="title_latifundist">🌾 Latifundist</string>
+    <string name="title_machine">🎯 Machine</string>
+
+    <!-- NEW: AddObject -->
+    <string name="add_object_title">%s — Add Object</string>
+    <string name="score_edit_title">✎ %s\'s Score</string>
+    <string name="fully_completed">Fully completed!</string>
+    <string name="incomplete_tiles">Incomplete: %d tiles</string>
+    <string name="avg_pts">%.1f avg pts</string>
+    <string name="avg_score_label">%.0f avg</string>
+    <string name="wr_avg">%d%% WR · %.0f avg</string>
+
+    <!-- Extra strings for live game and final scoring -->
+    <string name="tiles_label">Tiles</string>
+    <string name="tiles_mon_label">Tiles placed (1–9)</string>
+    <string name="farm_cities_pts">%d × 3 pts</string>
+    <string name="city_btn">City</string>
+    <string name="road_btn">Road</string>
+    <string name="monastery_btn">Monastery</string>
+    <string name="fairy_btn">Fairy +1</string>
+    <string name="incomplete_pts_suffix">+ %d incomplete</string>
+    <string name="farms_pts_suffix">+ %d farms</string>
+    <string name="unknown_player">Unknown</string>
 </resources>

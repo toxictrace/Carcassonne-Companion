@@ -71,29 +71,27 @@
     <string name="next_farms">Далее → Фермы</string>
     <string name="next_confirm">Далее → Итог</string>
     <string name="final_scores">Итоговые очки</string>
-    <string name="board_photo_btn">📷 Фото поля</string>
-    <string name="game_name_hint">Название игры (необязательно)</string>
     <string name="save_game">✓ Сохранить игру</string>
     <string name="match_history">История партий</string>
     <string name="recent_activity">Недавнее</string>
     <string name="view_all">Все игры</string>
-    <string name="no_games_yet">Игр ещё нет</string>
-    <string name="start_first_game">Начните первую игру, нажав +</string>
-    <string name="search_games">Поиск игр…</string>
+    <string name="no_games_yet">Партий ещё нет</string>
+    <string name="start_first_game">Начните первую игру с +</string>
     <string name="no_games_found">Игры не найдены</string>
-    <string name="cannot_undone">Это действие необратимо.</string>
-    <string name="cannot_undone_history">Это действие необратимо. История игр сохранится.</string>
-    <string name="carcassonne_title">CARCASSONNE</string>
-    <string name="new_match_title">Новая партия</string>
-    <string name="search_players">Поиск игроков…</string>
     <string name="no_players">Игроков ещё нет</string>
-    <string name="add_first_player">Добавьте первого игрока</string>
-    <string name="select_player">Выбрать игрока</string>
-    <string name="remove_player">Удалить игрока</string>
+    <string name="add_first_player">Добавьте первого игрока с +</string>
     <string name="add_new_player">Новый игрок</string>
-    <string name="player_name_hint">Имя игрока</string>
-    <string name="preferred_color">Предпочитаемый цвет мипла</string>
     <string name="create_player">Создать игрока</string>
+    <string name="new_match_title">Новая партия</string>
+    <string name="preferred_color">Цвет мипла по умолчанию</string>
+    <string name="player_name_hint">Имя игрока</string>
+    <string name="game_name_hint">Название игры</string>
+    <string name="remove_player">Убрать игрока</string>
+    <string name="select_player">Выбрать игрока</string>
+    <string name="cannot_undone">Это действие необратимо.</string>
+    <string name="cannot_undone_history">Выбранные игры будут удалены навсегда.</string>
+    <string name="carcassonne_title">🏰 CARCASSONNE</string>
+    <string name="board_photo_btn">📷 Фото поля</string>
     <string name="name_field">Имя</string>
     <string name="default_meeple">ЦВЕТ МИПЛА ПО УМОЛЧАНИЮ</string>
     <string name="edit_profile">✎ Редактировать</string>
@@ -145,4 +143,141 @@
     <string name="game_updated">Игра обновлена!</string>
     <string name="records_cleared">Все данные удалены</string>
     <string name="or_enter_categories">Или введите по категориям:</string>
+    <string name="search_games">Поиск игр…</string>
+    <string name="search_players">Поиск игроков…</string>
+
+    <!-- Dashboard stats -->
+    <string name="global_stats">ОБЩАЯ СТАТИСТИКА</string>
+    <string name="total_games">ВСЕГО\nПАРТИЙ</string>
+    <string name="total_players_stat">ВСЕГО\nИГРОКОВ</string>
+    <string name="highest_score">РЕКОРД\nОЧКОВ</string>
+    <string name="avg_winner_score">СР. ОЧКИ\nПОБЕДИТЕЛЯ</string>
+    <string name="players_stat">ИГРОКОВ</string>
+
+    <!-- Game number format -->
+    <string name="game_number">Партия #%d</string>
+
+    <!-- Players screen -->
+    <string name="players_section">ИГРОКИ</string>
+    <string name="wins_losses">%1$dВ / %2$dП</string>
+    <string name="win_rate_pct">ПОБЕДЫ: %d%%</string>
+    <string name="selected_info">Выбрано %d — удерживайте для выбора ещё</string>
+    <string name="delete_games_title">Удалить %d игр(у)?</string>
+    <string name="delete_n_games">🗑  Удалить %d игр(у)</string>
+    <string name="delete_players_title">Удалить %d игрока(ов)?</string>
+    <string name="delete_n_players">🗑  Удалить %d игрока(ов)</string>
+
+    <!-- Stats tabs -->
+    <string name="tab_global_stats">Общая статистика</string>
+    <string name="tab_compare_players">Сравнение</string>
+
+    <!-- Compare section labels -->
+    <string name="section_label_play_style">🕸 Стиль игры</string>
+    <string name="section_label_results">🏆 Результаты</string>
+    <string name="section_label_score_range">📊 Диапазон очков</string>
+    <string name="section_label_together">🎮 Вместе</string>
+    <string name="section_label_trend">📈 Тренд</string>
+    <string name="section_label_score_struct">🏗 Структура очков</string>
+    <string name="section_label_metrics">🔬 Метрики</string>
+
+    <!-- Radar chart labels -->
+    <string name="radar_urban">🏰 Города</string>
+    <string name="radar_roads">🛤 Дороги</string>
+    <string name="radar_monks">⛪ Монахи</string>
+    <string name="radar_farms">🌾 Фермы</string>
+    <string name="radar_stable">🎯 Стабильность</string>
+
+    <!-- Metrics -->
+    <string name="metric_urbanization">🏰 Урбанизация</string>
+    <string name="metric_urbanization_desc">Доля городов в очках</string>
+    <string name="metric_road_aggr">🛤️ Агрессия дорог</string>
+    <string name="metric_road_aggr_desc">Дороги vs города</string>
+    <string name="metric_monastery">⛪ Монастырь</string>
+    <string name="metric_monastery_desc">Доля монастырей в очках</string>
+    <string name="metric_farm_dom">🌾 Доминация ферм</string>
+    <string name="metric_farm_dom_desc">Фермы vs среднее по полю</string>
+    <string name="metric_stability">🎯 Стабильность</string>
+    <string name="metric_stability_desc">Постоянство счёта</string>
+
+    <!-- Live game -->
+    <string name="n_players">%d игроков</string>
+    <string name="city_label">🏰 Город</string>
+    <string name="road_label">🛤️ Дорога</string>
+    <string name="monastery_label">⛪ Монастырь</string>
+    <string name="fairy_label">🧚 Фея +1</string>
+
+    <!-- Final Scoring -->
+    <string name="final_scoring">Финальный подсчёт</string>
+    <string name="tab_incomplete">Незавершённые</string>
+    <string name="tab_farms">Фермы</string>
+    <string name="tab_confirm">Итог</string>
+    <string name="base_score">База: %d</string>
+    <string name="city_tiles_shields">🏰 Тайлы+щиты города</string>
+    <string name="road_tiles">🛤️ Тайлы дорог</string>
+    <string name="monastery_tiles">⛪ Тайлы монастыря</string>
+    <string name="completed_cities_adjacent">Завершённых городов рядом</string>
+    <string name="pts_from_incomplete">+%d очков от незавершённых</string>
+
+    <!-- Match Details -->
+    <string name="match_details">Детали партии</string>
+    <string name="match_number">Партия #%d</string>
+    <string name="pts_mvp">%d очков • MVP</string>
+    <string name="pts_label">%d очков</string>
+    <string name="pts_total">%d очков</string>
+    <string name="base_score_label">База %d</string>
+
+    <!-- Player profile -->
+    <string name="stat_games">Партий</string>
+    <string name="stat_win_rate">Победы</string>
+    <string name="stat_avg_score">Средний счёт</string>
+    <string name="ach_first_win">Первая победа</string>
+    <string name="ach_explorer">Исследователь</string>
+    <string name="ach_social">Общительный</string>
+    <string name="ach_star_player">Звезда</string>
+    <string name="ach_veteran">Ветеран</string>
+    <string name="level_1">УРОВЕНЬ 1 НОВИЧОК</string>
+    <string name="level_2">УРОВЕНЬ 2 УЧЕНИК</string>
+    <string name="level_3">УРОВЕНЬ 3 БЫВАЛЫЙ</string>
+    <string name="level_4">УРОВЕНЬ 4 ЭКСПЕРТ</string>
+    <string name="level_5">УРОВЕНЬ 5 ГРОССМЕЙСТЕР</string>
+    <string name="place_first">1-е место</string>
+    <string name="place_n">%d-е место</string>
+
+    <!-- Edit Game -->
+    <string name="edit_game">Изменить партию</string>
+    <string name="total_override">🏅 Итого (замена)</string>
+    <string name="city_input">🏰 Город</string>
+    <string name="road_input">🛤️ Дорога</string>
+    <string name="mon_input">⛪ Мон.</string>
+    <string name="farm_input">🌾 Ферма</string>
+    <string name="pts_suffix">очков</string>
+
+    <!-- Player titles -->
+    <string name="title_sniper">⚡ Снайпер</string>
+    <string name="title_architect">🏰 Архитектор</string>
+    <string name="title_cartographer">🛤️ Картограф</string>
+    <string name="title_hermit">⛪ Отшельник</string>
+    <string name="title_latifundist">🌾 Латифундист</string>
+    <string name="title_machine">🎯 Машина</string>
+
+    <!-- AddObject / ScoreEdit -->
+    <string name="add_object_title">%s — Добавить объект</string>
+    <string name="score_edit_title">✎ Очки: %s</string>
+    <string name="fully_completed">Завершён полностью!</string>
+    <string name="incomplete_tiles">Незавершён: %d тайлов</string>
+    <string name="avg_pts">%.1f ср. очк.</string>
+    <string name="avg_score_label">%.0f ср.</string>
+    <string name="wr_avg">%d%% поб. · %.0f ср.</string>
+
+    <!-- Дополнительные строки для живой игры и финального подсчёта -->
+    <string name="tiles_label">Тайлов</string>
+    <string name="tiles_mon_label">Тайлов вокруг (1–9)</string>
+    <string name="farm_cities_pts">%d × 3 очка</string>
+    <string name="city_btn">Город</string>
+    <string name="road_btn">Дорога</string>
+    <string name="monastery_btn">Монастырь</string>
+    <string name="fairy_btn">Фея +1</string>
+    <string name="incomplete_pts_suffix">+ %d незавершённых</string>
+    <string name="farms_pts_suffix">+ %d ферм</string>
+    <string name="unknown_player">Неизвестен</string>
 </resources>
