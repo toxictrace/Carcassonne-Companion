@@ -2721,10 +2721,19 @@ fun LiveGameScreen(
                                             },
                                         contentAlignment = Alignment.Center
                                     ) {
-                                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                            Text(icon, fontSize = 16.sp, lineHeight = 18.sp)
+                                        Column(
+                                            horizontalAlignment = Alignment.CenterHorizontally,
+                                            verticalArrangement = Arrangement.Center
+                                        ) {
+                                            Text(icon, fontSize = 22.sp,
+                                                textAlign = TextAlign.Center,
+                                                modifier = Modifier.fillMaxWidth())
+                                            Spacer(Modifier.height(4.dp))
                                             Text(label, fontSize = 10.sp, color = accent,
-                                                fontWeight = FontWeight.SemiBold, lineHeight = 12.sp)
+                                                fontWeight = FontWeight.SemiBold,
+                                                textAlign = TextAlign.Center,
+                                                lineHeight = 11.sp,
+                                                modifier = Modifier.fillMaxWidth())
                                         }
                                     }
                                 }
