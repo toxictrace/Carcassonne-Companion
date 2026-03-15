@@ -189,10 +189,10 @@ fun CarcassonneApp(vm: MainViewModel = viewModel()) {
                         title = {
                             Text(
                                 when {
-                                    currentRoute.startsWith("match_detail") -> "Match Details"
-                                    currentRoute.startsWith("edit_game")    -> "Edit Game"
-                                    currentRoute.startsWith("edit_player")  -> "Edit Profile"
-                                    currentRoute == Routes.ENDGAME          -> "🏁 Final Scoring"
+                                    currentRoute.startsWith("match_detail") -> stringResource(R.string.match_details)
+                                    currentRoute.startsWith("edit_game")    -> stringResource(R.string.edit_game)
+                                    currentRoute.startsWith("edit_player")  -> stringResource(R.string.edit_profile)
+                                    currentRoute == Routes.ENDGAME          -> stringResource(R.string.final_scoring)
                                     else -> "Profile"
                                 },
                                 fontWeight = FontWeight.Bold, color = CarcText

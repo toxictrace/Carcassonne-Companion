@@ -478,12 +478,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         return stats.map { ps ->
             val id = ps.player.id
             val title = when {
-                id == sniper && ps.winRate >= 0.5f && ps.stabilityIndex >= 0.7f -> "⚡ Sniper"
-                id == architekt  -> "🏰 Architect"
-                id == cartograph -> "🛤️ Cartographer"
-                id == hermit     -> "⛪ Hermit"
-                id == latifund   -> "🌾 Latifundist"
-                id == machine    -> "🎯 Machine"
+                id == sniper && ps.winRate >= 0.5f && ps.stabilityIndex >= 0.7f -> application.getString(R.string.title_sniper)
+                id == architekt  -> application.getString(R.string.title_architect)
+                id == cartograph -> application.getString(R.string.title_cartographer)
+                id == hermit     -> application.getString(R.string.title_hermit)
+                id == latifund   -> application.getString(R.string.title_latifundist)
+                id == machine    -> application.getString(R.string.title_machine)
                 else -> ""
             }
             ps.copy(title = title)

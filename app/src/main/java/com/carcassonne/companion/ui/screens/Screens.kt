@@ -237,7 +237,7 @@ fun DashboardScreen(
     ) {
         item {
             Text(
-                "GLOBAL STATS",
+                stringResource(R.string.global_stats),
                 fontSize = 11.sp,
                 color = CarcText3,
                 letterSpacing = 1.sp,
@@ -251,9 +251,9 @@ fun DashboardScreen(
                     .padding(bottom = 20.dp),
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                StatCard("🃏", "TOTAL\nGAMES", stats.totalGames.toString(), Modifier.weight(1f))
-                StatCard("👥", "TOTAL\nPLAYERS", stats.totalPlayers.toString(), Modifier.weight(1f))
-                StatCard("🏆", "HIGHEST\nSCORE", stats.highestScore.toString(), Modifier.weight(1f))
+                StatCard("🃏", stringResource(R.string.total_games), stats.totalGames.toString(), Modifier.weight(1f))
+                StatCard("👥", stringResource(R.string.total_players_stat), stats.totalPlayers.toString(), Modifier.weight(1f))
+                StatCard("🏆", stringResource(R.string.highest_score), stats.highestScore.toString(), Modifier.weight(1f))
             }
         }
         item {
@@ -415,7 +415,7 @@ fun HistoryScreen(
         AlertDialog(
             onDismissRequest = { showConfirm = false },
             containerColor = CarcCard2,
-            title = { Text("Delete ${selected.size} game${if (selected.size > 1) "s" else ""}?", fontWeight = FontWeight.Bold) },
+            title = { Text(stringResource(R.string.delete_games_title, selected.size), fontWeight = FontWeight.Bold) },
             text = { Text(stringResource(R.string.cannot_undone), color = CarcText2) },
             confirmButton = {
                 Button(
@@ -472,7 +472,7 @@ fun HistoryScreen(
             if (selecting) {
                 item {
                     Text(
-                        "${selected.size} selected — long press to select more",
+                        stringResource(R.string.selected_info, selected.size),
                         fontSize = 11.sp, color = CarcGreen, letterSpacing = 1.sp,
                         modifier = Modifier.padding(top = 4.dp)
                     )
@@ -700,7 +700,7 @@ fun PlayersScreen(
         AlertDialog(
             onDismissRequest = { showConfirm = false },
             containerColor = CarcCard2,
-            title = { Text("Delete ${selected.size} player(s)?", fontWeight = FontWeight.Bold) },
+            title = { Text(stringResource(R.string.delete_players_title, selected.size), fontWeight = FontWeight.Bold) },
             text = { Text(stringResource(R.string.cannot_undone_history), color = CarcText2) },
             confirmButton = {
                 Button(
@@ -755,8 +755,8 @@ fun PlayersScreen(
             }
             item {
                 Text(
-                    if (selecting) "${selected.size} selected — long press to select more"
-                    else "PLAYERS",
+                    if (selecting) stringResource(R.string.selected_info, selected.size)
+                    else stringResource(R.string.players_section),
                     fontSize = 11.sp,
                     color = if (selecting) CarcGreen else CarcText3,
                     letterSpacing = 1.sp,
@@ -890,7 +890,7 @@ fun SelectablePlayerCard(
                         )
                     }
                     Text(
-                        "WIN RATE: ${(stats.winRate * 100).toInt()}%",
+                        stringResource(R.string.win_rate_pct, (stats.winRate * 100).toInt()),
                         fontSize = 11.sp,
                         color = if (stats.winRate >= 0.5f) CarcGreen else CarcText3,
                         modifier = Modifier.padding(top = 3.dp)
@@ -1017,7 +1017,7 @@ fun StatsScreen(
                     .border(1.dp, CarcBorder, RoundedCornerShape(50.dp))
                     .padding(4.dp)
             ) {
-                listOf("Global Stats", "Compare Players").forEachIndexed { i, label ->
+                listOf(stringResource(R.string.tab_global_stats), stringResource(R.string.tab_compare_players)).forEachIndexed { i, label ->
                     Box(
                         modifier = Modifier
                             .weight(1f)
@@ -1039,13 +1039,13 @@ fun StatsScreen(
             // ── GLOBAL STATS TAB ──────────────────────────────────────────────
             item {
                 Row(Modifier.height(IntrinsicSize.Max), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    StatCard("🃏", "TOTAL\nGAMES",    globalStats.totalGames.toString(),            Modifier.weight(1f).fillMaxHeight(), CarcText)
-                    StatCard("⭐", "HIGHEST\nSCORE", globalStats.highestScore.toString(),           Modifier.weight(1f).fillMaxHeight(), CarcYellow)
+                    StatCard("🃏", stringResource(R.string.total_games),    globalStats.totalGames.toString(),            Modifier.weight(1f).fillMaxHeight(), CarcText)
+                    StatCard("⭐", stringResource(R.string.highest_score), globalStats.highestScore.toString(),           Modifier.weight(1f).fillMaxHeight(), CarcYellow)
                 }
                 Spacer(Modifier.height(10.dp))
                 Row(Modifier.height(IntrinsicSize.Max), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    StatCard("🏆", "AVG WINNER\nSCORE", "%.0f".format(globalStats.avgWinnerScore), Modifier.weight(1f).fillMaxHeight(), CarcGreen)
-                    StatCard("👤", "PLAYERS",            globalStats.totalPlayers.toString(),       Modifier.weight(1f).fillMaxHeight(), CarcBlue)
+                    StatCard("🏆", stringResource(R.string.avg_winner_score), "%.0f".format(globalStats.avgWinnerScore), Modifier.weight(1f).fillMaxHeight(), CarcGreen)
+                    StatCard("👤", stringResource(R.string.players_section),            globalStats.totalPlayers.toString(),       Modifier.weight(1f).fillMaxHeight(), CarcBlue)
                 }
                 Spacer(Modifier.height(16.dp))
             }
@@ -1137,7 +1137,7 @@ fun MetagameBreakdownBar(gs: GlobalStats) {
                             Spacer(Modifier.width(6.dp))
                             Column {
                                 Text(label, fontSize = 11.sp, color = CarcText2)
-                                Text("%.1f avg pts".format(value), fontSize = 12.sp,
+                                Text(stringResource(R.string.avg_pts, value), fontSize = 12.sp,
                                     fontWeight = FontWeight.SemiBold, color = CarcText)
                             }
                         }
@@ -1222,8 +1222,13 @@ fun ComparePlayersSection(
     // sections: index -> (label, enabled)
     data class CompareSection(val label: String, var enabled: Boolean)
     val sectionLabels = listOf(
-        "🕸 Play Style", "🏆 Results", "📊 Score Range",
-        "🎮 Together", "📈 Trend", "🏗 Score Structure", "🔬 Metrics"
+        stringResource(R.string.section_label_play_style),
+        stringResource(R.string.section_label_results),
+        stringResource(R.string.section_label_score_range),
+        stringResource(R.string.section_label_together),
+        stringResource(R.string.section_label_trend),
+        stringResource(R.string.section_label_score_struct),
+        stringResource(R.string.section_label_metrics)
     )
     val sections = remember(sectionMask) {
         mutableStateListOf(*sectionLabels.mapIndexed { i, label ->
@@ -1343,7 +1348,7 @@ fun ComparePlayersSection(
                                 .background(colors[i]))
                         }
                         Spacer(Modifier.width(8.dp))
-                        Text("${ps.wins}W ${losses}L",
+                        Text(stringResource(R.string.wins_losses, ps.wins, losses),
                             fontSize = 11.sp, color = CarcText2,
                             modifier = Modifier.width(50.dp), textAlign = TextAlign.End)
                     }
@@ -1727,11 +1732,11 @@ fun ComparePlayersSection(
             colors = CardDefaults.cardColors(containerColor = CarcCard)) {
             Column(Modifier.padding(14.dp)) {
                 val metrics = listOf(
-                    Triple("🏰 Urbanization",   activePlayers.map { it.urbanizationIndex }, "City share of total score"),
-                    Triple("🛤️ Road Aggr.",     activePlayers.map { it.roadAggrIndex },    "Roads vs cities ratio"),
-                    Triple("⛪ Monastery",      activePlayers.map { it.monasteryIndex },   "Monastery share of score"),
-                    Triple("🌾 Farm Dominance", activePlayers.map { it.farmDomIndex },     "Farm score vs field average"),
-                    Triple("🎯 Stability",      activePlayers.map { it.stabilityIndex },   "Score consistency")
+                    Triple(stringResource(R.string.metric_urbanization),   activePlayers.map { it.urbanizationIndex }, stringResource(R.string.metric_urbanization_desc)),
+                    Triple(stringResource(R.string.metric_road_aggr),     activePlayers.map { it.roadAggrIndex },    stringResource(R.string.metric_road_aggr_desc)),
+                    Triple(stringResource(R.string.metric_monastery),      activePlayers.map { it.monasteryIndex },   stringResource(R.string.metric_monastery_desc)),
+                    Triple(stringResource(R.string.metric_farm_dom), activePlayers.map { it.farmDomIndex },     stringResource(R.string.metric_farm_dom_desc)),
+                    Triple(stringResource(R.string.metric_stability),      activePlayers.map { it.stabilityIndex },   stringResource(R.string.metric_stability_desc))
                 )
                 metrics.forEachIndexed { mi, (label, values, hint) ->
                     if (mi > 0) HorizontalDivider(color = CarcBorder, thickness = 0.5.dp,
@@ -1779,7 +1784,13 @@ fun RadarChart(
     colors: List<Color>,
     modifier: Modifier = Modifier
 ) {
-    val axisLabels = listOf("🏰 Urban", "🛤 Roads", "⛪ Monks", "🌾 Farms", "🎯 Stable")
+    val axisLabels = listOf(
+        stringResource(R.string.radar_urban),
+        stringResource(R.string.radar_roads),
+        stringResource(R.string.radar_monks),
+        stringResource(R.string.radar_farms),
+        stringResource(R.string.radar_stable)
+    )
     val playerValues = players.map { ps ->
         listOf(ps.urbanizationIndex, ps.roadAggrIndex, ps.monasteryIndex, ps.farmDomIndex, ps.stabilityIndex)
     }
@@ -2230,7 +2241,7 @@ fun NewGameScreen(
         contentPadding = PaddingValues(16.dp)
     ) {
         item {
-            SectionHeader(stringResource(R.string.select_players), "Add New +", onAddPlayer)
+            SectionHeader(stringResource(R.string.select_players), stringResource(R.string.add_new), onAddPlayer)
             Spacer(Modifier.height(12.dp))
         }
 
@@ -2269,7 +2280,7 @@ fun NewGameScreen(
                             Column(Modifier.weight(1f)) {
                                 Text(player.name, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
                                 Text(
-                                    if (isSelected) "Tap to remove" else "Tap to include",
+                                    if (isSelected) stringResource(R.string.tap_to_remove) else stringResource(R.string.tap_to_include),
                                     fontSize = 12.sp, color = CarcText3
                                 )
                             }
@@ -2353,7 +2364,7 @@ fun NewGameScreen(
         }
         item {
             PrimaryButton(
-                "▶  START GAME",
+                stringResource(R.string.start_game),
                 onClick = onStartGame,
                 enabled = liveGame.selectedPlayers.size >= 2
             )
@@ -2411,7 +2422,7 @@ fun AddObjectSheet(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Box(Modifier.size(10.dp).clip(CircleShape).background(accent))
                 Spacer(Modifier.width(8.dp))
-                Text("$playerName — Add Object", fontWeight = FontWeight.Bold, fontSize = 17.sp)
+                Text(stringResource(R.string.add_object_title, playerName), fontWeight = FontWeight.Bold, fontSize = 17.sp)
             }
             Spacer(Modifier.height(16.dp))
 
@@ -2420,7 +2431,7 @@ fun AddObjectSheet(
                 Modifier.fillMaxWidth().clip(RoundedCornerShape(10.dp)).background(CarcBg3),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                listOf("🏰 City", "🛤️ Road", "⛪ Monastery").forEachIndexed { i, label ->
+                listOf(stringResource(R.string.city_label), stringResource(R.string.road_label), stringResource(R.string.metric_monastery)).forEachIndexed { i, label ->
                     val sel = tab == i
                     Box(
                         Modifier.weight(1f).padding(4.dp)
@@ -2442,7 +2453,7 @@ fun AddObjectSheet(
             when (tab) {
                 0 -> { // City
                     // City state vars are declared above: cityTiles, cityShields, cityCathedral
-                    ObjectStepperRow("Tiles", cityTiles, 1, 36, { cityTiles = it; if (cityShields > it * 2) cityShields = it * 2 })
+                    ObjectStepperRow(stringResource(R.string.tiles_label), cityTiles, 1, 36, { cityTiles = it; if (cityShields > it * 2) cityShields = it * 2 })
                     Spacer(Modifier.height(16.dp))
 
                     // Shields — каждый тайл может нести 1 или 2 щита
@@ -2546,7 +2557,7 @@ fun AddObjectSheet(
                     })
                 }
                 1 -> { // Road
-                    ObjectStepperRow("Tiles", roadTiles, 1, 36, { roadTiles = it })
+                    ObjectStepperRow(stringResource(R.string.tiles_label), roadTiles, 1, 36, { roadTiles = it })
                     Spacer(Modifier.height(14.dp))
 
                     // Compact tavern row — только если дополнение включено
@@ -2572,7 +2583,7 @@ fun AddObjectSheet(
                         }
                         Spacer(Modifier.height(16.dp))
                     }
-                    ObjectScorePreview("🛤️ Road", roadPts, accent,
+                    ObjectScorePreview(stringResource(R.string.road_label), roadPts, accent,
                         if (roadTavern) "${roadTiles}t × 2 (inn)" else "${roadTiles}t × 1")
                     Spacer(Modifier.height(14.dp))
                     PrimaryButton("+$roadPts pts — Add Road", accent, onClick = {
@@ -2584,10 +2595,10 @@ fun AddObjectSheet(
                 2 -> { // Monastery
                     Text(stringResource(R.string.monastery_complete), fontSize = 13.sp, color = CarcText3)
                     Spacer(Modifier.height(8.dp))
-                    ObjectStepperRow("Tiles placed (1–9)", monTiles, 1, 9, { monTiles = it })
+                    ObjectStepperRow(stringResource(R.string.tiles_mon_label), monTiles, 1, 9, { monTiles = it })
                     Spacer(Modifier.height(20.dp))
-                    ObjectScorePreview("⛪ Monastery", monPts, accent,
-                        if (monTiles == 9) "Fully completed!" else "Incomplete: $monTiles tiles")
+                    ObjectScorePreview(stringResource(R.string.metric_monastery), monPts, accent,
+                        if (monTiles == 9) stringResource(R.string.fully_completed) else stringResource(R.string.incomplete_tiles, monTiles))
                     Spacer(Modifier.height(16.dp))
                     PrimaryButton("+$monPts pts — Add Monastery", accent, onClick = {
                         onScore(ScoringObjectType.MONASTERY, monPts, "⛪ $monTiles/9")
@@ -2721,13 +2732,13 @@ fun LiveGameScreen(
 
                         // Object buttons grid
                         val baseObjects = listOf(
-                            Triple(0, "🏰", "City"),
-                            Triple(1, "🛤️", "Road"),
-                            Triple(2, "⛪", "Monastery")
+                            Triple(0, "🏰", stringResource(R.string.city_btn)),
+                            Triple(1, "🛤️", stringResource(R.string.road_btn)),
+                            Triple(2, "⛪", stringResource(R.string.monastery_btn))
                         )
                         // Dragon: Fairy gives +1 per turn to adjacent player
                         val allObjects = if (hasDragon)
-                            baseObjects + Triple(3, "🧚", "Fairy +1")
+                            baseObjects + Triple(3, "🧚", stringResource(R.string.fairy_btn))
                         else baseObjects
 
                         // Показываем в 2 строки по 2 (или в одну строку если объектов 3)
@@ -2844,17 +2855,17 @@ fun ScoreEditDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         containerColor = CarcCard2,
-        title = { Text("✎ $playerName's Score", fontWeight = FontWeight.Bold) },
+        title = { Text(stringResource(R.string.score_edit_title, playerName), fontWeight = FontWeight.Bold) },
         text = {
             Column {
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    ScoreInputField("🏰 City", city, { city = it }, Modifier.weight(1f))
-                    ScoreInputField("🛤️ Road", road, { road = it }, Modifier.weight(1f))
+                    ScoreInputField(stringResource(R.string.city_label), city, { city = it }, Modifier.weight(1f))
+                    ScoreInputField(stringResource(R.string.road_label), road, { road = it }, Modifier.weight(1f))
                 }
                 Spacer(Modifier.height(10.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    ScoreInputField("⛪ Monastery", monastery, { monastery = it }, Modifier.weight(1f))
-                    ScoreInputField("🌾 Farm", farm, { farm = it }, Modifier.weight(1f))
+                    ScoreInputField(stringResource(R.string.metric_monastery), monastery, { monastery = it }, Modifier.weight(1f))
+                    ScoreInputField(stringResource(R.string.farm_input), farm, { farm = it }, Modifier.weight(1f))
                 }
                 Spacer(Modifier.height(14.dp))
                 Row(
@@ -2948,7 +2959,7 @@ fun EndgameScreen(
                 Modifier.fillMaxWidth().clip(RoundedCornerShape(10.dp)).background(CarcBg3),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                listOf("Incomplete", "Farms", "Confirm").forEachIndexed { i, label ->
+                listOf(stringResource(R.string.tab_incomplete), stringResource(R.string.tab_farms), stringResource(R.string.tab_confirm)).forEachIndexed { i, label ->
                     val sel = phase == i
                     Box(
                         Modifier.weight(1f).padding(4.dp)
@@ -2983,19 +2994,19 @@ fun EndgameScreen(
                                 Spacer(Modifier.width(10.dp))
                                 Text(player.playerName, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = accent)
                                 Spacer(Modifier.weight(1f))
-                                Text("Base: ${player.score}", fontSize = 13.sp, color = CarcText3)
+                                Text(stringResource(R.string.base_score, player.score), fontSize = 13.sp, color = CarcText3)
                             }
                             Spacer(Modifier.height(12.dp))
                             // Incomplete city tiles+shields
-                            EndgameStepperRow("🏰 City tiles+shields", inp.value.incompleteCity, 0, 99) {
+                            EndgameStepperRow(stringResource(R.string.city_tiles_shields), inp.value.incompleteCity, 0, 99) {
                                 inp.value = inp.value.copy(incompleteCity = it)
                             }
                             Spacer(Modifier.height(8.dp))
-                            EndgameStepperRow("🛤️ Road tiles", inp.value.incompleteRoad, 0, 99) {
+                            EndgameStepperRow(stringResource(R.string.road_tiles), inp.value.incompleteRoad, 0, 99) {
                                 inp.value = inp.value.copy(incompleteRoad = it)
                             }
                             Spacer(Modifier.height(8.dp))
-                            EndgameStepperRow("⛪ Monastery tiles", inp.value.incompleteMonastery, 0, 8) {
+                            EndgameStepperRow(stringResource(R.string.monastery_tiles), inp.value.incompleteMonastery, 0, 8) {
                                 inp.value = inp.value.copy(incompleteMonastery = it)
                             }
                             // Sub-total
@@ -3003,7 +3014,7 @@ fun EndgameScreen(
                             if (sub > 0) {
                                 Spacer(Modifier.height(8.dp))
                                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                                    Text("+$sub pts from incomplete", fontSize = 12.sp, color = accent)
+                                    Text(stringResource(R.string.incomplete_pts_suffix, sub), fontSize = 12.sp, color = accent)
                                 }
                             }
                         }
@@ -3039,7 +3050,7 @@ fun EndgameScreen(
                                 Text(player.playerName, fontWeight = FontWeight.Bold, color = accent)
                             }
                             Spacer(Modifier.height(12.dp))
-                            EndgameStepperRow("Completed cities adjacent", inp.value.farmCities, 0, 30) {
+                            EndgameStepperRow(stringResource(R.string.completed_cities_adjacent), inp.value.farmCities, 0, 30) {
                                 inp.value = inp.value.copy(farmCities = it)
                             }
                             if (inp.value.farmCities > 0) {
@@ -3050,7 +3061,7 @@ fun EndgameScreen(
                                     horizontalArrangement = Arrangement.SpaceBetween,
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Text("${inp.value.farmCities} × 3 pts", fontSize = 13.sp, color = CarcText2)
+                                    Text(stringResource(R.string.farm_cities_pts, inp.value.farmCities), fontSize = 13.sp, color = CarcText2)
                                     Text("+${inp.value.farmCities * 3}", fontSize = 18.sp,
                                         fontWeight = FontWeight.Bold, color = accent)
                                 }
@@ -3096,10 +3107,7 @@ fun EndgameScreen(
                             Spacer(Modifier.width(10.dp))
                             Column(Modifier.weight(1f)) {
                                 Text(player.playerName, fontWeight = FontWeight.Bold, color = accent)
-                                Text("Base ${player.score}" +
-                                    (if (inp.incompleteCity + inp.incompleteRoad + inp.incompleteMonastery > 0)
-                                        " + ${inp.incompleteCity + inp.incompleteRoad + inp.incompleteMonastery} incomplete" else "") +
-                                    (if (inp.farmCities > 0) " + ${inp.farmCities * 3} farms" else ""),
+                                Text(stringResource(R.string.base_score_label, player.score) + (if (inp.incompleteCity + inp.incompleteRoad + inp.incompleteMonastery > 0) " " + stringResource(R.string.incomplete_pts_suffix, inp.incompleteCity + inp.incompleteRoad + inp.incompleteMonastery) else "") + (if (inp.farmCities > 0) " " + stringResource(R.string.farms_pts_suffix, inp.farmCities * 3) else ""),
                                     fontSize = 11.sp, color = CarcText3)
                             }
                             Text(totalWithEndgame(player.playerId).toString(),
@@ -3264,7 +3272,7 @@ fun MatchDetailScreen(
                         Spacer(Modifier.width(14.dp))
                         Column(Modifier.weight(1f)) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text(p?.name ?: "Unknown", fontSize = 17.sp, fontWeight = FontWeight.Bold)
+                                Text(p?.name ?: stringResource(R.string.unknown_player), fontSize = 17.sp, fontWeight = FontWeight.Bold)
                                 Spacer(Modifier.width(8.dp))
                                 Box(Modifier.size(10.dp).clip(CircleShape).background(meepleColor(winner.meepleColor)))
                             }
@@ -3298,11 +3306,11 @@ fun MatchDetailScreen(
                     Spacer(Modifier.width(10.dp))
                     Column(Modifier.weight(1f)) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(p?.name ?: "Unknown", fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+                            Text(p?.name ?: stringResource(R.string.unknown_player), fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
                             Spacer(Modifier.width(6.dp))
                             Box(Modifier.size(8.dp).clip(CircleShape).background(meepleColor(gp.meepleColor)))
                         }
-                        Text("${gp.finalScore} pts", fontSize = 12.sp, color = CarcText3)
+                        Text(stringResource(R.string.pts_label, gp.finalScore), fontSize = 12.sp, color = CarcText3)
                     }
                     Text(gp.finalScore.toString(), fontSize = 22.sp, fontWeight = FontWeight.Bold)
                 }
@@ -3377,7 +3385,7 @@ fun PlayerProfileScreen(playerId: Int, viewModel: MainViewModel, onEdit: () -> U
                 Spacer(Modifier.height(12.dp))
                 Text(p.name, fontSize = 22.sp, fontWeight = FontWeight.Bold)
                 Text(
-                    getLevelTitle(stats?.gamesPlayed ?: 0),
+                    stringResource(getLevelTitle(stats?.gamesPlayed ?: 0)),
                     fontSize = 12.sp, color = CarcGreen, letterSpacing = 1.sp,
                     modifier = Modifier.padding(top = 4.dp)
                 )
@@ -3396,9 +3404,9 @@ fun PlayerProfileScreen(playerId: Int, viewModel: MainViewModel, onEdit: () -> U
         }
         item {
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                SimpleStatCard("Games", (stats?.gamesPlayed ?: 0).toString(), Modifier.weight(1f))
-                SimpleStatCard("Win Rate", "${((stats?.winRate ?: 0f) * 100).toInt()}%", Modifier.weight(1f))
-                SimpleStatCard("Avg Score", (stats?.avgScore ?: 0f).toInt().toString(), Modifier.weight(1f))
+                SimpleStatCard(stringResource(R.string.stat_games), (stats?.gamesPlayed ?: 0).toString(), Modifier.weight(1f))
+                SimpleStatCard(stringResource(R.string.stat_win_rate), "${((stats?.winRate ?: 0f) * 100).toInt()}%", Modifier.weight(1f))
+                SimpleStatCard(stringResource(R.string.stat_avg_score), (stats?.avgScore ?: 0f).toInt().toString(), Modifier.weight(1f))
             }
             Spacer(Modifier.height(20.dp))
         }
@@ -3407,11 +3415,11 @@ fun PlayerProfileScreen(playerId: Int, viewModel: MainViewModel, onEdit: () -> U
         }
         item {
             Row(horizontalArrangement = Arrangement.spacedBy(14.dp), modifier = Modifier.horizontalScroll(rememberScrollState())) {
-                AchievementItem("🏰", "First Win", (stats?.wins ?: 0) >= 1)
-                AchievementItem("🗺️", "Explorer", (stats?.gamesPlayed ?: 0) >= 5)
-                AchievementItem("👥", "Social", (stats?.gamesPlayed ?: 0) >= 3)
-                AchievementItem("⭐", "Star Player", (stats?.wins ?: 0) >= 5)
-                AchievementItem("🎯", "Veteran", (stats?.gamesPlayed ?: 0) >= 20)
+                AchievementItem("🏰", stringResource(R.string.ach_first_win), (stats?.wins ?: 0) >= 1)
+                AchievementItem("🗺️", stringResource(R.string.ach_explorer), (stats?.gamesPlayed ?: 0) >= 5)
+                AchievementItem("👥", stringResource(R.string.ach_social), (stats?.gamesPlayed ?: 0) >= 3)
+                AchievementItem("⭐", stringResource(R.string.ach_star_player), (stats?.wins ?: 0) >= 5)
+                AchievementItem("🎯", stringResource(R.string.ach_veteran), (stats?.gamesPlayed ?: 0) >= 20)
             }
             Spacer(Modifier.height(20.dp))
         }
@@ -3445,9 +3453,9 @@ fun PlayerProfileScreen(playerId: Int, viewModel: MainViewModel, onEdit: () -> U
                         }
                         Spacer(Modifier.width(12.dp))
                         Column(Modifier.weight(1f)) {
-                            Text(if (gp.placement == 1) "1st Place" else "${gp.placement}${placeSuffix(gp.placement)} Place", fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+                            Text(if (gp.placement == 1) stringResource(R.string.place_first) else stringResource(R.string.place_n, gp.placement), fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
                         }
-                        Text("${gp.finalScore} pts", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = if (gp.placement == 1) CarcGreen else CarcText)
+                        Text(stringResource(R.string.pts_label, gp.finalScore), fontSize = 18.sp, fontWeight = FontWeight.Bold, color = if (gp.placement == 1) CarcGreen else CarcText)
                     }
                 }
             }
@@ -3485,12 +3493,13 @@ fun AchievementItem(icon: String, name: String, unlocked: Boolean) {
     }
 }
 
-fun getLevelTitle(games: Int) = when {
-    games >= 100 -> "LEVEL 5 GRANDMASTER"
-    games >= 50  -> "LEVEL 4 EXPERT"
-    games >= 20  -> "LEVEL 3 ADVANCED"
-    games >= 5   -> "LEVEL 2 INTERMEDIATE"
-    else         -> "LEVEL 1 BEGINNER"
+@androidx.annotation.StringRes
+fun getLevelTitle(games: Int): Int = when {
+    games >= 100 -> R.string.level_5
+    games >= 50  -> R.string.level_4
+    games >= 20  -> R.string.level_3
+    games >= 5   -> R.string.level_2
+    else         -> R.string.level_1
 }
 
 fun placeSuffix(n: Int) = when (n) { 1 -> "st"; 2 -> "nd"; 3 -> "rd"; else -> "th" }
@@ -3586,6 +3595,7 @@ fun EditGameScreen(
     allPlayers: List<PlayerEntity>,
     onDone: () -> Unit
 ) {
+    val context = LocalContext.current
     var game by remember { mutableStateOf<com.carcassonne.companion.data.entity.GameEntity?>(null) }
     var gamePlayers by remember { mutableStateOf<List<com.carcassonne.companion.data.entity.GamePlayerEntity>>(emptyList()) }
 
@@ -3667,7 +3677,7 @@ fun EditGameScreen(
             val p = allPlayers.find { it.id == gp.playerId }
             mutableStateOf(EditPlayerState(
                 playerId = gp.playerId,
-                name = p?.name ?: "Player ${gp.playerId}",
+                name = p?.name ?: context.getString(R.string.unknown_player),
                 color = gp.meepleColor,
                 total = gp.finalScore.takeIf { it > 0 }?.toString() ?: "",
                 city = gp.cityPoints.takeIf { it > 0 }?.toString() ?: "",
@@ -3755,7 +3765,7 @@ fun EditGameScreen(
                     Spacer(Modifier.height(12.dp))
                     // Total override
                     ScoreInputField(
-                        "🏅 Total (override)",
+                        stringResource(R.string.total_override),
                         state.total,
                         { editPlayers[i].value = state.copy(total = it) },
                         Modifier.fillMaxWidth()
@@ -3767,13 +3777,13 @@ fun EditGameScreen(
                         modifier = Modifier.padding(vertical = 4.dp)
                     )
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        ScoreInputField("🏰 City", state.city, { editPlayers[i].value = state.copy(city = it, total = "") }, Modifier.weight(1f))
-                        ScoreInputField("🛤️ Road", state.road, { editPlayers[i].value = state.copy(road = it, total = "") }, Modifier.weight(1f))
+                        ScoreInputField(stringResource(R.string.city_label), state.city, { editPlayers[i].value = state.copy(city = it, total = "") }, Modifier.weight(1f))
+                        ScoreInputField(stringResource(R.string.road_label), state.road, { editPlayers[i].value = state.copy(road = it, total = "") }, Modifier.weight(1f))
                     }
                     Spacer(Modifier.height(8.dp))
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        ScoreInputField("⛪ Mon.", state.monastery, { editPlayers[i].value = state.copy(monastery = it, total = "") }, Modifier.weight(1f))
-                        ScoreInputField("🌾 Farm", state.farm, { editPlayers[i].value = state.copy(farm = it, total = "") }, Modifier.weight(1f))
+                        ScoreInputField(stringResource(R.string.mon_input), state.monastery, { editPlayers[i].value = state.copy(monastery = it, total = "") }, Modifier.weight(1f))
+                        ScoreInputField(stringResource(R.string.farm_input), state.farm, { editPlayers[i].value = state.copy(farm = it, total = "") }, Modifier.weight(1f))
                     }
                 }
             }
