@@ -280,4 +280,10 @@
     <string name="incomplete_pts_suffix">+ %d incomplete</string>
     <string name="farms_pts_suffix">+ %d farms</string>
     <string name="unknown_player">Unknown</string>
+    <string name="title_sniper">⚔ Sniper</string>
+    <string name="title_architect">🏰 Architect</string>
+    <string name="title_cartographer">🗺 Cartographer</string>
+    <string name="title_hermit">⛪ Hermit</string>
+    <string name="title_latifundist">🌾 Latifundist</string>
+    <string name="title_machine">⚙ Machine</string>
 </resources>
