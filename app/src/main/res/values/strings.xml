@@ -280,4 +280,19 @@
     <string name="incomplete_pts_suffix">+ %d incomplete</string>
     <string name="farms_pts_suffix">+ %d farms</string>
     <string name="unknown_player">Unknown</string>
+
+    <!-- AddObjectSheet localization -->
+    <string name="tile_abbr">t</string>
+    <string name="inn_abbr">inn</string>
+    <string name="tiles_word">tiles</string>
+    <string name="shields_word">shields</string>
+    <string name="add_city_btn">+%d pts — Add City</string>
+    <string name="add_road_btn">+%d pts — Add Road</string>
+    <string name="add_monastery_btn">+%d pts — Add Cloister</string>
+
+    <!-- Metagame breakdown categories -->
+    <string name="metagame_cities">🏰 Cities</string>
+    <string name="metagame_roads">🛤️ Roads</string>
+    <string name="metagame_monasteries">⛪ Cloisters</string>
+    <string name="metagame_farms">🌾 Farms</string>
 </resources>

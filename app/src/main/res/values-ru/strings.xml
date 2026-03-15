@@ -62,7 +62,7 @@
     <string name="cathedral_label">Собор в городе</string>
     <string name="tiles_x3">Тайлы ×3 вместо ×2</string>
     <string name="total_label">Итого</string>
-    <string name="inn_label">Харчевня (×2)</string>
+    <string name="inn_label">Таверна (×2)</string>
     <string name="monastery_complete">Монастырь завершён = +9</string>
     <string name="incomplete_note">Незавершённые объекты: 1 очко за тайл/щит</string>
     <string name="farm_scoring">🌾 Подсчёт полей</string>
@@ -208,7 +208,7 @@
 
     <!-- Final Scoring -->
     <string name="final_scoring">Финальный подсчёт</string>
-    <string name="tab_incomplete">Незавершённые</string>
+    <string name="tab_incomplete">Незаверш.</string>
     <string name="tab_farms">Поля</string>
     <string name="tab_confirm">Итог</string>
     <string name="base_score">База: %d</string>
@@ -280,4 +280,19 @@
     <string name="incomplete_pts_suffix">+ %d незавершённых</string>
     <string name="farms_pts_suffix">+ %d полей</string>
     <string name="unknown_player">Неизвестен</string>
+
+    <!-- AddObjectSheet локализация -->
+    <string name="tile_abbr">т</string>
+    <string name="inn_abbr">таверна</string>
+    <string name="tiles_word">тайлов</string>
+    <string name="shields_word">щитов</string>
+    <string name="add_city_btn">+%d очк. — Добавить город</string>
+    <string name="add_road_btn">+%d очк. — Добавить дорогу</string>
+    <string name="add_monastery_btn">+%d очк. — Добавить монастырь</string>
+
+    <!-- Разбивка по категориям -->
+    <string name="metagame_cities">🏰 Города</string>
+    <string name="metagame_roads">🛤️ Дороги</string>
+    <string name="metagame_monasteries">⛪ Монастыри</string>
+    <string name="metagame_farms">🌾 Поля</string>
 </resources>

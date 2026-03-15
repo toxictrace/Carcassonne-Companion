@@ -1105,10 +1105,10 @@ fun MetagameBreakdownBar(gs: GlobalStats) {
     val total = gs.avgCity + gs.avgRoad + gs.avgMonastery + gs.avgFarm
     if (total <= 0f) return
     val segments = listOf(
-        Triple("🏰 Cities",      gs.avgCity,      CarcBlue),
-        Triple("🛤️ Roads",       gs.avgRoad,      CarcGreen),
-        Triple("⛪ Monasteries", gs.avgMonastery, CarcYellow),
-        Triple("🌾 Farms",       gs.avgFarm,      CarcOrange)
+        Triple(stringResource(R.string.metagame_cities),      gs.avgCity,      CarcBlue),
+        Triple(stringResource(R.string.metagame_roads),       gs.avgRoad,      CarcGreen),
+        Triple(stringResource(R.string.metagame_monasteries), gs.avgMonastery, CarcYellow),
+        Triple(stringResource(R.string.metagame_farms),       gs.avgFarm,      CarcOrange)
     )
     Card(shape = RoundedCornerShape(14.dp),
         colors = CardDefaults.cardColors(containerColor = CarcCard)) {
@@ -1345,7 +1345,7 @@ fun ComparePlayersSection(
                         Spacer(Modifier.width(8.dp))
                         Text(stringResource(R.string.wins_losses, ps.wins, losses),
                             fontSize = 11.sp, color = CarcText2,
-                            modifier = Modifier.width(50.dp), textAlign = TextAlign.End)
+                            modifier = Modifier.widthIn(min = 70.dp), textAlign = TextAlign.End)
                     }
                     Spacer(Modifier.height(8.dp))
                 }
@@ -2353,6 +2353,15 @@ fun AddObjectSheet(
     var monTiles by remember { mutableStateOf(9) }
     val monPts = monTiles
 
+    // Localized abbreviations (captured for use inside onClick lambdas)
+    val tileAbbr = stringResource(R.string.tile_abbr)
+    val innAbbr = stringResource(R.string.inn_abbr)
+    val tilesWord = stringResource(R.string.tiles_word)
+    val shieldsWord = stringResource(R.string.shields_word)
+    val addCityLabel = stringResource(R.string.add_city_btn, cityPts)
+    val addRoadLabel = stringResource(R.string.add_road_btn, roadPts)
+    val addMonLabel = stringResource(R.string.add_monastery_btn, monPts)
+
     androidx.compose.material3.ModalBottomSheet(
         onDismissRequest = onDismiss,
         containerColor = CarcCard2,
@@ -2480,12 +2489,12 @@ fun AddObjectSheet(
                         val tilePts = cityTiles * tileMult
                         val shieldPts = cityShields * 2
                         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text("🏰 ${cityTiles} tiles × $tileMult", fontSize = 13.sp, color = CarcText2)
+                            Text("🏰 ${cityTiles} $tilesWord × $tileMult", fontSize = 13.sp, color = CarcText2)
                             Text("$tilePts", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
                         }
                         if (cityShields > 0) {
                             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                                Text("🛡 ${cityShields} shields × 2", fontSize = 13.sp, color = CarcText2)
+                                Text("🛡 ${cityShields} $shieldsWord × 2", fontSize = 13.sp, color = CarcText2)
                                 Text("$shieldPts", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
                             }
                         }
@@ -2497,9 +2506,9 @@ fun AddObjectSheet(
                     }
 
                     Spacer(Modifier.height(14.dp))
-                    PrimaryButton("+$cityPts pts — Add City", accent, onClick = {
+                    PrimaryButton(addCityLabel, accent, onClick = {
                         val lbl = buildString {
-                            append("🏰 ${cityTiles}t")
+                            append("🏰 ${cityTiles}${tileAbbr}")
                             if (cityShields > 0) append("+${cityShields}🛡")
                             if (cityCathedral) append("+⛪")
                         }
@@ -2535,10 +2544,10 @@ fun AddObjectSheet(
                         Spacer(Modifier.height(16.dp))
                     }
                     ObjectScorePreview(stringResource(R.string.road_label), roadPts, accent,
-                        if (roadTavern) "${roadTiles}t × 2 (inn)" else "${roadTiles}t × 1")
+                        if (roadTavern) "${roadTiles}${tileAbbr} × 2 ($innAbbr)" else "${roadTiles}${tileAbbr} × 1")
                     Spacer(Modifier.height(14.dp))
-                    PrimaryButton("+$roadPts pts — Add Road", accent, onClick = {
-                        val lbl = "🛤️ ${roadTiles}t" + if (roadTavern) "+🍺" else ""
+                    PrimaryButton(addRoadLabel, accent, onClick = {
+                        val lbl = "🛤️ ${roadTiles}${tileAbbr}" + if (roadTavern) "+🍺" else ""
                         onScore(ScoringObjectType.ROAD, roadPts, lbl)
                         onDismiss()
                     })
@@ -2551,7 +2560,7 @@ fun AddObjectSheet(
                     ObjectScorePreview(stringResource(R.string.metric_monastery), monPts, accent,
                         if (monTiles == 9) stringResource(R.string.fully_completed) else stringResource(R.string.incomplete_tiles, monTiles))
                     Spacer(Modifier.height(16.dp))
-                    PrimaryButton("+$monPts pts — Add Monastery", accent, onClick = {
+                    PrimaryButton(addMonLabel, accent, onClick = {
                         onScore(ScoringObjectType.MONASTERY, monPts, "⛪ $monTiles/9")
                         onDismiss()
                     })
@@ -2698,7 +2707,7 @@ fun LiveGameScreen(
                             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                                 rowItems.forEach { (tabIdx, icon, label) ->
                                     Box(
-                                        Modifier.weight(1f).height(46.dp)
+                                        Modifier.weight(1f).height(64.dp)
                                             .clip(RoundedCornerShape(10.dp))
                                             .background(accent.copy(alpha = 0.12f))
                                             .border(1.dp, accent.copy(alpha = 0.35f), RoundedCornerShape(10.dp))
