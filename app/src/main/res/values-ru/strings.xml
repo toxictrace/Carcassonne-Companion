@@ -280,10 +280,4 @@
     <string name="incomplete_pts_suffix">+ %d незавершённых</string>
     <string name="farms_pts_suffix">+ %d ферм</string>
     <string name="unknown_player">Неизвестен</string>
-    <string name="title_sniper">⚔ Снайпер</string>
-    <string name="title_architect">🏰 Архитектор</string>
-    <string name="title_cartographer">🗺 Картограф</string>
-    <string name="title_hermit">⛪ Отшельник</string>
-    <string name="title_latifundist">🌾 Латифундист</string>
-    <string name="title_machine">⚙ Машина</string>
 </resources>
