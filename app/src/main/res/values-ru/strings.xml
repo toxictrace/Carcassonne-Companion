@@ -183,8 +183,8 @@
     <!-- Radar chart labels -->
     <string name="radar_urban">🏰 Города</string>
     <string name="radar_roads">🛤 Дороги</string>
-    <string name="radar_monks">⛪ Монахи</string>
-    <string name="radar_farms">🌾 Фермы</string>
+    <string name="radar_monks">⛪ Монастыри</string>
+    <string name="radar_farms">🌾 Поля</string>
     <string name="radar_stable">🎯 Стабильность</string>
 
     <!-- Metrics -->
@@ -209,7 +209,7 @@
     <!-- Final Scoring -->
     <string name="final_scoring">Финальный подсчёт</string>
     <string name="tab_incomplete">Незавершённые</string>
-    <string name="tab_farms">Фермы</string>
+    <string name="tab_farms">Поля</string>
     <string name="tab_confirm">Итог</string>
     <string name="base_score">База: %d</string>
     <string name="city_tiles_shields">🏰 Тайлы+щиты города</string>
@@ -221,9 +221,9 @@
     <!-- Match Details -->
     <string name="match_details">Детали партии</string>
     <string name="match_number">Партия #%d</string>
-    <string name="pts_mvp">%d очков • MVP</string>
-    <string name="pts_label">%d очков</string>
-    <string name="pts_total">%d очков</string>
+    <string name="pts_mvp">%d очк. • MVP</string>
+    <string name="pts_label">%d очк.</string>
+    <string name="pts_total">%d очк.</string>
     <string name="base_score_label">База %d</string>
 
     <!-- Player profile -->
@@ -248,8 +248,8 @@
     <string name="total_override">🏅 Итого (замена)</string>
     <string name="city_input">🏰 Город</string>
     <string name="road_input">🛤️ Дорога</string>
-    <string name="mon_input">⛪ Мон.</string>
-    <string name="farm_input">🌾 Ферма</string>
+    <string name="mon_input">⛪ Монастырь</string>
+    <string name="farm_input">🌾 Поле</string>
     <string name="pts_suffix">очков</string>
 
     <!-- Player titles -->

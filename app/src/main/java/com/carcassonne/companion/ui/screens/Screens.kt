@@ -885,7 +885,7 @@ fun SelectablePlayerCard(
                             .padding(horizontal = 10.dp, vertical = 4.dp)
                     ) {
                         Text(
-                            "${stats.wins}W / ${stats.gamesPlayed - stats.wins}L",
+                            stringResource(R.string.wins_losses, stats.wins, stats.gamesPlayed - stats.wins),
                             fontWeight = FontWeight.Bold, fontSize = 13.sp, color = CarcText
                         )
                     }
@@ -1052,8 +1052,6 @@ fun StatsScreen(
             // Metagame breakdown bar
             if (globalStats.avgScore > 0f) {
                 item {
-                    Text(stringResource(R.string.metagame_section), fontSize = 11.sp, color = CarcText3, letterSpacing = 1.sp)
-                    Spacer(Modifier.height(8.dp))
                     MetagameBreakdownBar(globalStats)
                     Spacer(Modifier.height(16.dp))
                 }
@@ -1192,7 +1190,7 @@ fun ComparePlayersSection(
                         Text(ps.player.name, fontSize = 11.sp, fontWeight = FontWeight.SemiBold,
                             color = slotColor, maxLines = 1, overflow = TextOverflow.Ellipsis,
                             textAlign = TextAlign.Center)
-                        Text("%.0f avg".format(ps.avgScore), fontSize = 10.sp, color = CarcText3)
+                        Text("%.0f ср. рез.".format(ps.avgScore), fontSize = 10.sp, color = CarcText3)
                     } else {
                         Box(Modifier.size(36.dp).clip(RoundedCornerShape(50.dp))
                             .background(CarcBg3).border(1.dp, CarcBorder, RoundedCornerShape(50.dp)),
@@ -1893,7 +1891,7 @@ fun StatsPlayerRow(ps: PlayerStats) {
                     }
                 }
                 Spacer(Modifier.height(4.dp))
-                Text("${ps.wins}W / ${ps.gamesPlayed - ps.wins}L", fontSize = 11.sp, color = CarcText3)
+                Text("${ps.wins}В / ${ps.gamesPlayed - ps.wins}П", fontSize = 11.sp, color = CarcText3)
                 Spacer(Modifier.height(4.dp))
                 WinRateBar(ps.winRate)
             }
@@ -3276,7 +3274,7 @@ fun MatchDetailScreen(
                                 Spacer(Modifier.width(8.dp))
                                 Box(Modifier.size(10.dp).clip(CircleShape).background(meepleColor(winner.meepleColor)))
                             }
-                            Text("${winner.finalScore} pts • MVP", fontSize = 13.sp, color = CarcText3)
+                            Text("${winner.finalScore} очк. • MVP", fontSize = 13.sp, color = CarcText3)
                         }
                         Text(winner.finalScore.toString(), fontSize = 36.sp, fontWeight = FontWeight.Bold, color = CarcGreen)
                     }
@@ -3752,7 +3750,7 @@ fun EditGameScreen(
                         PlayerAvatar(state.name, state.color, avatarPath = state.avatarPath)
                         Spacer(Modifier.width(10.dp))
                         Text(state.name, fontSize = 15.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
-                        Text("$displayTotal pts", fontSize = 15.sp, color = CarcGreen, fontWeight = FontWeight.Bold)
+                        Text("$displayTotal очк.", fontSize = 15.sp, color = CarcGreen, fontWeight = FontWeight.Bold)
                     }
                     Spacer(Modifier.height(10.dp))
                     Text(stringResource(R.string.meeple_color_label), fontSize = 10.sp, color = CarcText3, letterSpacing = 0.5.sp)

@@ -490,11 +490,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    // ─── Game sort order ─────────────────────────────────────────
-    private val _sortNewestFirst = MutableStateFlow(true)
+    // ─── Game sort order — persisted in SharedPreferences ────────
+    private val _sortNewestFirst = MutableStateFlow(prefs.getBoolean("sort_newest_first", true))
     val sortNewestFirst: StateFlow<Boolean> = _sortNewestFirst
 
-    fun toggleSortOrder() { _sortNewestFirst.value = !_sortNewestFirst.value }
+    fun toggleSortOrder() {
+        _sortNewestFirst.value = !_sortNewestFirst.value
+        prefs.edit().putBoolean("sort_newest_first", _sortNewestFirst.value).apply()
+    }
 
     val sortedGames: StateFlow<List<GameEntity>> = combine(games, _sortNewestFirst) { g, newest ->
         if (newest) g.sortedByDescending { it.date } else g.sortedBy { it.date }

@@ -124,8 +124,6 @@ fun CarcassonneApp(vm: MainViewModel = viewModel()) {
                     title = { Text(stringResource(R.string.nav_dashboard), fontWeight = FontWeight.Bold, color = CarcText) },
                     actions = {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text("🏰", fontSize = 18.sp)
-                            Spacer(Modifier.width(4.dp))
                             Text(stringResource(R.string.carcassonne_title), fontSize = 13.sp, color = CarcGreen, fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
                             Spacer(Modifier.width(12.dp))
                         }
