@@ -533,7 +533,7 @@ fun HistoryScreen(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    "🗑  Delete ${selected.size} game${if (selected.size > 1) "s" else ""}",
+                    stringResource(R.string.delete_n_games, selected.size),
                     fontWeight = FontWeight.Bold, fontSize = 15.sp, color = Color.White
                 )
             }
@@ -821,7 +821,7 @@ fun PlayersScreen(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    "🗑  Delete ${selected.size} player${if (selected.size > 1) "s" else ""}",
+                    stringResource(R.string.delete_n_players, selected.size),
                     fontWeight = FontWeight.Bold,
                     fontSize = 15.sp,
                     color = Color.White
@@ -982,11 +982,8 @@ fun StatsScreen(
                                 Text(candidate.player.name, fontSize = 14.sp,
                                     fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
                                     color = if (isSelected) c else CarcText)
-                                Text("${(candidate.winRate * 100).toInt()}%% WR · %.0f avg".format(candidate.avgScore),
+                                Text(stringResource(R.string.wr_avg, (candidate.winRate * 100).toInt(), candidate.avgScore),
                                     fontSize = 11.sp, color = CarcText3)
-                            }
-                            if (candidate.title.isNotBlank()) {
-                                Text(candidate.title, fontSize = 10.sp, color = CarcYellow)
                             }
                             if (isSelected) {
                                 Spacer(Modifier.width(6.dp))
@@ -1190,7 +1187,7 @@ fun ComparePlayersSection(
                         Text(ps.player.name, fontSize = 11.sp, fontWeight = FontWeight.SemiBold,
                             color = slotColor, maxLines = 1, overflow = TextOverflow.Ellipsis,
                             textAlign = TextAlign.Center)
-                        Text("%.0f ср. рез.".format(ps.avgScore), fontSize = 10.sp, color = CarcText3)
+                        Text(stringResource(R.string.avg_score_label, ps.avgScore), fontSize = 10.sp, color = CarcText3)
                     } else {
                         Box(Modifier.size(36.dp).clip(RoundedCornerShape(50.dp))
                             .background(CarcBg3).border(1.dp, CarcBorder, RoundedCornerShape(50.dp)),
@@ -1885,13 +1882,9 @@ fun StatsPlayerRow(ps: PlayerStats) {
             Column(Modifier.weight(1f)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(ps.player.name, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
-                    if (ps.title.isNotBlank()) {
-                        Spacer(Modifier.width(6.dp))
-                        Text(ps.title, fontSize = 10.sp, color = CarcYellow)
-                    }
                 }
                 Spacer(Modifier.height(4.dp))
-                Text("${ps.wins}В / ${ps.gamesPlayed - ps.wins}П", fontSize = 11.sp, color = CarcText3)
+                Text(stringResource(R.string.wins_losses, ps.wins, ps.gamesPlayed - ps.wins), fontSize = 11.sp, color = CarcText3)
                 Spacer(Modifier.height(4.dp))
                 WinRateBar(ps.winRate)
             }
@@ -2319,46 +2312,6 @@ fun NewGameScreen(
                 }
             }
             Spacer(Modifier.height(16.dp))
-        }
-        item {
-            Text(stringResource(R.string.game_settings), fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
-            Spacer(Modifier.height(4.dp))
-        }
-        item {
-            Card(shape = RoundedCornerShape(14.dp), colors = CardDefaults.cardColors(containerColor = CarcCard)) {
-                Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-                    Row(
-                        Modifier.fillMaxWidth().padding(vertical = 14.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Column(Modifier.weight(1f)) {
-                            Text(stringResource(R.string.river_layout), fontSize = 15.sp, fontWeight = FontWeight.Medium)
-                            Text(stringResource(R.string.river_layout_sub), fontSize = 12.sp, color = CarcText3)
-                        }
-                        Switch(
-                            checked = liveGame.riverLayout,
-                            onCheckedChange = onSetRiver,
-                            colors = SwitchDefaults.colors(checkedThumbColor = CarcBg, checkedTrackColor = CarcGreen)
-                        )
-                    }
-                    HorizontalDivider(color = CarcBorder, thickness = 0.5.dp)
-                    Row(
-                        Modifier.fillMaxWidth().padding(vertical = 14.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Column(Modifier.weight(1f)) {
-                            Text(stringResource(R.string.timed_turns), fontSize = 15.sp, fontWeight = FontWeight.Medium)
-                            Text(stringResource(R.string.timed_turns_sub), fontSize = 12.sp, color = CarcText3)
-                        }
-                        Switch(
-                            checked = liveGame.timedTurns,
-                            onCheckedChange = onSetTimed,
-                            colors = SwitchDefaults.colors(checkedThumbColor = CarcBg, checkedTrackColor = CarcGreen)
-                        )
-                    }
-                }
-            }
-            Spacer(Modifier.height(24.dp))
         }
         item {
             PrimaryButton(
@@ -3274,7 +3227,7 @@ fun MatchDetailScreen(
                                 Spacer(Modifier.width(8.dp))
                                 Box(Modifier.size(10.dp).clip(CircleShape).background(meepleColor(winner.meepleColor)))
                             }
-                            Text("${winner.finalScore} очк. • MVP", fontSize = 13.sp, color = CarcText3)
+                            Text(stringResource(R.string.pts_mvp, winner.finalScore), fontSize = 13.sp, color = CarcText3)
                         }
                         Text(winner.finalScore.toString(), fontSize = 36.sp, fontWeight = FontWeight.Bold, color = CarcGreen)
                     }

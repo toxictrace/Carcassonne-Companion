@@ -461,34 +461,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    private fun assignTitles(stats: List<PlayerStats>): List<PlayerStats> {
-        if (stats.isEmpty()) return stats
-        fun maxId(sel: (PlayerStats) -> Float): Int =
-            stats.maxByOrNull(sel)?.player?.id ?: -1
-
-        val architekt  = maxId { it.urbanizationIndex }
-        val cartograph = maxId { it.roadAggrIndex }
-        val hermit     = maxId { it.monasteryIndex }
-        val latifund   = maxId { it.farmDomIndex }
-        val machine    = maxId { it.stabilityIndex }
-        // Sniper: stable AND high winRate
-        val sniper = stats.filter { it.stabilityIndex >= 0.7f }
-            .maxByOrNull { it.winRate }?.player?.id ?: -1
-
-        return stats.map { ps ->
-            val id = ps.player.id
-            val title = when {
-                id == sniper && ps.winRate >= 0.5f && ps.stabilityIndex >= 0.7f -> getApplication<Application>().getString(R.string.title_sniper)
-                id == architekt  -> getApplication<Application>().getString(R.string.title_architect)
-                id == cartograph -> getApplication<Application>().getString(R.string.title_cartographer)
-                id == hermit     -> getApplication<Application>().getString(R.string.title_hermit)
-                id == latifund   -> getApplication<Application>().getString(R.string.title_latifundist)
-                id == machine    -> getApplication<Application>().getString(R.string.title_machine)
-                else -> ""
-            }
-            ps.copy(title = title)
-        }
-    }
+    private fun assignTitles(stats: List<PlayerStats>): List<PlayerStats> = stats
 
     // ─── Game sort order — persisted in SharedPreferences ────────
     private val _sortNewestFirst = MutableStateFlow(prefs.getBoolean("sort_newest_first", true))

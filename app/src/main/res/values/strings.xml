@@ -63,7 +63,7 @@
     <string name="tiles_x3">Tiles ×3 instead of ×2</string>
     <string name="total_label">Total</string>
     <string name="inn_label">Inn (×2)</string>
-    <string name="monastery_complete">Completed monastery = +9</string>
+    <string name="monastery_complete">Completed cloister = +9</string>
     <string name="incomplete_note">Incomplete objects score 1 pt per tile/shield</string>
     <string name="farm_scoring">🌾 Farm Scoring</string>
     <string name="farm_instructions">Count completed cities adjacent to each player\'s farm.</string>
@@ -181,9 +181,9 @@
     <string name="section_label_metrics">🔬 Metrics</string>
 
     <!-- NEW: Radar chart labels -->
-    <string name="radar_urban">🏰 Urban</string>
+    <string name="radar_urban">🏰 City</string>
     <string name="radar_roads">🛤 Roads</string>
-    <string name="radar_monks">⛪ Monks</string>
+    <string name="radar_monks">⛪ Cloisters</string>
     <string name="radar_farms">🌾 Farms</string>
     <string name="radar_stable">🎯 Stable</string>
 
@@ -192,8 +192,8 @@
     <string name="metric_urbanization_desc">City share of total score</string>
     <string name="metric_road_aggr">🛤️ Road Aggr.</string>
     <string name="metric_road_aggr_desc">Roads vs cities ratio</string>
-    <string name="metric_monastery">⛪ Monastery</string>
-    <string name="metric_monastery_desc">Monastery share of score</string>
+    <string name="metric_monastery">⛪ Cloister</string>
+    <string name="metric_monastery_desc">Cloister share of score</string>
     <string name="metric_farm_dom">🌾 Farm Dominance</string>
     <string name="metric_farm_dom_desc">Farm score vs field average</string>
     <string name="metric_stability">🎯 Stability</string>
@@ -203,7 +203,7 @@
     <string name="n_players">%d players</string>
     <string name="city_label">🏰 City</string>
     <string name="road_label">🛤️ Road</string>
-    <string name="monastery_label">⛪ Monastery</string>
+    <string name="monastery_label">⛪ Cloister</string>
     <string name="fairy_label">🧚 Fairy +1</string>
 
     <!-- NEW: Final Scoring -->
@@ -214,14 +214,14 @@
     <string name="base_score">Base: %d</string>
     <string name="city_tiles_shields">🏰 City tiles+shields</string>
     <string name="road_tiles">🛤️ Road tiles</string>
-    <string name="monastery_tiles">⛪ Monastery tiles</string>
+    <string name="monastery_tiles">⛪ Cloister tiles</string>
     <string name="completed_cities_adjacent">Completed cities adjacent</string>
     <string name="pts_from_incomplete">+%d pts from incomplete</string>
 
     <!-- NEW: Match Details -->
     <string name="match_details">Match Details</string>
     <string name="match_number">Match #%d</string>
-    <string name="pts_mvp">%d pts • MVP</string>
+    <string name="pts_mvp">%d pts</string>
     <string name="pts_label">%d pts</string>
     <string name="pts_total">%d pts</string>
     <string name="base_score_label">Base %d</string>
@@ -248,7 +248,7 @@
     <string name="total_override">🏅 Total (override)</string>
     <string name="city_input">🏰 City</string>
     <string name="road_input">🛤️ Road</string>
-    <string name="mon_input">⛪ Mon.</string>
+    <string name="mon_input">⛪ Cloister</string>
     <string name="farm_input">🌾 Farm</string>
     <string name="pts_suffix">pts</string>
 
@@ -275,7 +275,7 @@
     <string name="farm_cities_pts">%d × 3 pts</string>
     <string name="city_btn">City</string>
     <string name="road_btn">Road</string>
-    <string name="monastery_btn">Monastery</string>
+    <string name="monastery_btn">Cloister</string>
     <string name="fairy_btn">Fairy +1</string>
     <string name="incomplete_pts_suffix">+ %d incomplete</string>
     <string name="farms_pts_suffix">+ %d farms</string>

@@ -260,9 +260,11 @@ fun ExpansionRow(
             Text(icon, fontSize = 20.sp)
         }
         Spacer(Modifier.width(14.dp))
-        Column(Modifier.weight(1f)) {
+        Column(Modifier.weight(1f), verticalArrangement = Arrangement.Center) {
             Text(name, fontSize = 15.sp, fontWeight = FontWeight.Medium, color = CarcText)
-            Text(subtitle, fontSize = 12.sp, color = CarcText3)
+            if (subtitle.isNotBlank()) {
+                Text(subtitle, fontSize = 12.sp, color = CarcText3)
+            }
         }
         Checkbox(
             checked = checked,

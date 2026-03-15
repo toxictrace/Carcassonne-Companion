@@ -44,10 +44,10 @@
     <string name="tap_to_remove">Нажмите для удаления</string>
     <string name="select_meeple_color">ЦВЕТ МИПЛА</string>
     <string name="game_expansions">Дополнения</string>
-    <string name="expansion_inns">Харчевни и Соборы</string>
-    <string name="expansion_traders">Торговцы и Строители</string>
+    <string name="expansion_inns">Таверны и соборы</string>
+    <string name="expansion_traders">Купцы и строители</string>
     <string name="expansion_dragon">Принцесса и Дракон</string>
-    <string name="expansion_abbey">Аббатство и Мэр</string>
+    <string name="expansion_abbey">Аббат и мэр</string>
     <string name="game_settings">Настройки игры</string>
     <string name="river_layout">Раскладка с Рекой</string>
     <string name="river_layout_sub">Начало с тайлами дополнения Река</string>
@@ -58,17 +58,17 @@
     <string name="finish_btn">🏁 Финиш</string>
     <string name="game_in_progress">Идёт игра</string>
     <string name="shields_label">🛡 Щиты</string>
-    <string name="traders_note">До 2 на тайл (Торговцы и Строители)</string>
+    <string name="traders_note">До 2 на тайл (Купцы и строители)</string>
     <string name="cathedral_label">Собор в городе</string>
     <string name="tiles_x3">Тайлы ×3 вместо ×2</string>
     <string name="total_label">Итого</string>
     <string name="inn_label">Харчевня (×2)</string>
     <string name="monastery_complete">Монастырь завершён = +9</string>
     <string name="incomplete_note">Незавершённые объекты: 1 очко за тайл/щит</string>
-    <string name="farm_scoring">🌾 Подсчёт ферм</string>
-    <string name="farm_instructions">Считайте завершённые города рядом с фермой каждого игрока.</string>
+    <string name="farm_scoring">🌾 Подсчёт полей</string>
+    <string name="farm_instructions">Считайте завершённые города рядом с полем каждого игрока.</string>
     <string name="farm_formula">Формула: N городов × 3 очка</string>
-    <string name="next_farms">Далее → Фермы</string>
+    <string name="next_farms">Далее → Поля</string>
     <string name="next_confirm">Далее → Итог</string>
     <string name="final_scores">Итоговые очки</string>
     <string name="save_game">✓ Сохранить игру</string>
@@ -194,8 +194,8 @@
     <string name="metric_road_aggr_desc">Дороги vs города</string>
     <string name="metric_monastery">⛪ Монастырь</string>
     <string name="metric_monastery_desc">Доля монастырей в очках</string>
-    <string name="metric_farm_dom">🌾 Доминация ферм</string>
-    <string name="metric_farm_dom_desc">Фермы vs среднее по полю</string>
+    <string name="metric_farm_dom">🌾 Доминация полей</string>
+    <string name="metric_farm_dom_desc">Поля vs среднее по полю</string>
     <string name="metric_stability">🎯 Стабильность</string>
     <string name="metric_stability_desc">Постоянство счёта</string>
 
@@ -221,7 +221,7 @@
     <!-- Match Details -->
     <string name="match_details">Детали партии</string>
     <string name="match_number">Партия #%d</string>
-    <string name="pts_mvp">%d очк. • MVP</string>
+    <string name="pts_mvp">%d очк.</string>
     <string name="pts_label">%d очк.</string>
     <string name="pts_total">%d очк.</string>
     <string name="base_score_label">База %d</string>
@@ -266,7 +266,7 @@
     <string name="fully_completed">Завершён полностью!</string>
     <string name="incomplete_tiles">Незавершён: %d тайлов</string>
     <string name="avg_pts">%.1f ср. очк.</string>
-    <string name="avg_score_label">%.0f ср.</string>
+    <string name="avg_score_label">%.0f ср. рез.</string>
     <string name="wr_avg">%d%% поб. · %.0f ср.</string>
 
     <!-- Дополнительные строки для живой игры и финального подсчёта -->
@@ -278,6 +278,6 @@
     <string name="monastery_btn">Монастырь</string>
     <string name="fairy_btn">Фея +1</string>
     <string name="incomplete_pts_suffix">+ %d незавершённых</string>
-    <string name="farms_pts_suffix">+ %d ферм</string>
+    <string name="farms_pts_suffix">+ %d полей</string>
     <string name="unknown_player">Неизвестен</string>
 </resources>
