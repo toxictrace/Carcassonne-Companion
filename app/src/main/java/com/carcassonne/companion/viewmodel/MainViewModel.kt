@@ -192,9 +192,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val message = _message.asSharedFlow()
 
     init {
-        // Refresh stats whenever games or players change
+        // Refresh stats whenever games, players or game_players change
         viewModelScope.launch {
-            combine(games, players) { g, p -> Pair(g, p) }.collect {
+            combine(games, players, allGamePlayers) { g, p, gp -> Triple(g, p, gp) }.collect {
                 refreshStats()
             }
         }
