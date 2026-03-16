@@ -1915,7 +1915,7 @@ fun StatsPlayerRow(ps: PlayerStats) {
     }
 }
 
-// ─── Restore From Folder Dialog ─────────────────────────────────────────────────
+// ─── Restore From Folder Dialog ───────────────────────────────────────────────
   @Composable
   fun RestoreFromFolderDialog(
       files: List<DocumentFile>,
@@ -1923,7 +1923,6 @@ fun StatsPlayerRow(ps: PlayerStats) {
       onDismiss: () -> Unit
   ) {
       var confirmFile by remember { mutableStateOf<DocumentFile?>(null) }
-
       if (confirmFile != null) {
           AlertDialog(
               onDismissRequest = { confirmFile = null },
@@ -1934,9 +1933,7 @@ fun StatsPlayerRow(ps: PlayerStats) {
                       Text(stringResource(R.string.restore_btn), color = CarcGreen, fontWeight = FontWeight.Bold)
                   }
               },
-              dismissButton = {
-                  TextButton(onClick = { confirmFile = null }) { Text(stringResource(R.string.cancel)) }
-              },
+              dismissButton = { TextButton(onClick = { confirmFile = null }) { Text(stringResource(R.string.cancel)) } },
               containerColor = CarcCard2
           )
       } else {
@@ -1951,14 +1948,10 @@ fun StatsPlayerRow(ps: PlayerStats) {
                           Text(stringResource(R.string.backup_folder_files_hint), color = CarcText3, fontSize = 11.sp,
                               modifier = Modifier.padding(bottom = 12.dp))
                           files.forEach { doc ->
-                              val modDate = SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.US)
-                                  .format(java.util.Date(doc.lastModified()))
+                              val modDate = SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.US).format(java.util.Date(doc.lastModified()))
                               val sizeKb = doc.length() / 1024
                               Row(
-                                  modifier = Modifier
-                                      .fillMaxWidth()
-                                      .clickable { confirmFile = doc }
-                                      .padding(vertical = 10.dp, horizontal = 4.dp),
+                                  modifier = Modifier.fillMaxWidth().clickable { confirmFile = doc }.padding(vertical = 10.dp, horizontal = 4.dp),
                                   verticalAlignment = Alignment.CenterVertically
                               ) {
                                   Text("💾", fontSize = 22.sp)
@@ -1974,9 +1967,7 @@ fun StatsPlayerRow(ps: PlayerStats) {
                   }
               },
               confirmButton = {},
-              dismissButton = {
-                  TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
-              },
+              dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) } },
               containerColor = CarcCard2
           )
       }
@@ -2083,7 +2074,7 @@ fun SettingsScreen(
         val ctx = LocalContext.current
         val currentLang = remember {
             val loc = AppCompatDelegate.getApplicationLocales()
-            if (!loc.isEmpty) loc[0]?.language ?: "en" else "en"
+            if (!loc.isEmpty) loc[0]?.language ?: Locale.getDefault().language else Locale.getDefault().language
         }
         AlertDialog(
             onDismissRequest = { showLanguageDialog = false },
@@ -2142,7 +2133,7 @@ fun SettingsScreen(
             SettingsRow("🌐", stringResource(R.string.language),
             run {
                 val loc = AppCompatDelegate.getApplicationLocales()
-                val lang = if (!loc.isEmpty) loc[0]?.language ?: "en" else "en"
+                val lang = if (!loc.isEmpty) loc[0]?.language ?: Locale.getDefault().language else Locale.getDefault().language
                 if (lang == "ru") "Русский" else "English"
             },
             onClick = { showLanguageDialog = true })
@@ -2152,14 +2143,14 @@ fun SettingsScreen(
                 modifier = Modifier.padding(top = 20.dp, bottom = 4.dp))
         }
         item {
-              SettingsRow(
-                  "📁", stringResource(R.string.backup_folder),
-                  backupFolderName ?: stringResource(R.string.backup_folder_default),
-                  onClick = onPickBackupFolder,
-                  trailing = { Text("›", fontSize = 20.sp, color = CarcText2) }
-              )
-          }
-          item { SettingsRow("☁️", stringResource(R.string.backup_data), stringResource(R.string.backup_sub), onClick = onBackup) }
+            SettingsRow(
+                "📁", stringResource(R.string.backup_folder),
+                backupFolderName ?: stringResource(R.string.backup_folder_default),
+                onClick = onPickBackupFolder,
+                trailing = { Text("›", fontSize = 20.sp, color = CarcText2) }
+            )
+        }
+        item { SettingsRow("☁️", stringResource(R.string.backup_data), stringResource(R.string.backup_sub), onClick = onBackup) }
         item { SettingsRow("📥", stringResource(R.string.restore_data), stringResource(R.string.restore_sub), onClick = onRestore) }
         item {
             SettingsRow(

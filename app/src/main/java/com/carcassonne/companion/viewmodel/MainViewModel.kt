@@ -117,33 +117,32 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun setDarkMode(dark: Boolean) {
         _isDarkMode.value = dark
         prefs.edit().putBoolean("dark_mode", dark).apply()
-      }
+    }
 
-      // ─── Backup folder URI ───────────────────────────────────────────────────
-      // Persisted SAF tree URI chosen by user in Settings → Backup Folder
-      private val _backupFolderUri = MutableStateFlow<String?>(prefs.getString("backup_folder_uri", null))
-      val backupFolderUri: StateFlow<String?> = _backupFolderUri
+    // ─── Backup folder URI ───────────────────────────────────────────────────
+    private val _backupFolderUri = MutableStateFlow<String?>(prefs.getString("backup_folder_uri", null))
+    val backupFolderUri: StateFlow<String?> = _backupFolderUri
 
-      fun setBackupFolderUri(uriString: String?) {
-          _backupFolderUri.value = uriString
-          prefs.edit().putString("backup_folder_uri", uriString).apply()
-      }
+    fun setBackupFolderUri(uriString: String?) {
+        _backupFolderUri.value = uriString
+        prefs.edit().putString("backup_folder_uri", uriString).apply()
+    }
 
-      fun exportBackupToFolder(context: Context) = viewModelScope.launch {
-          val uriString = _backupFolderUri.value ?: return@launch
-          try {
-              val treeUri = Uri.parse(uriString)
-              val players = repo.getAllPlayersOnce()
-              val games = repo.getAllGamesOnce()
-              val gamePlayers = repo.getAllGamePlayersOnce()
-              val fileName = BackupManager.createBackupToFolderUri(context, treeUri, players, games, gamePlayers)
-              _message.emit(getApplication<Application>().getString(R.string.backup_saved, fileName))
-          } catch (e: Exception) {
-              _message.emit(getApplication<Application>().getString(R.string.backup_error, e.message ?: ""))
-          }
-      }
+    fun exportBackupToFolder(context: Context) = viewModelScope.launch {
+        val uriString = _backupFolderUri.value ?: return@launch
+        try {
+            val treeUri = Uri.parse(uriString)
+            val players = repo.getAllPlayersOnce()
+            val games = repo.getAllGamesOnce()
+            val gamePlayers = repo.getAllGamePlayersOnce()
+            val fileName = BackupManager.createBackupToFolderUri(context, treeUri, players, games, gamePlayers)
+            _message.emit(getApplication<Application>().getString(R.string.backup_saved, fileName))
+        } catch (e: Exception) {
+            _message.emit(getApplication<Application>().getString(R.string.backup_error, e.message ?: ""))
+        }
+    }
 
-      // ─── Compare slots persistence ───────────────────────────────────────────
+    // ─── Compare slots persistence ───────────────────────────────────────────
     // stored as "id0,id1,id2" — -1 means empty slot
     private fun loadCompareSlots(): List<Int?> {
         val raw = prefs.getString("compare_slots", "") ?: ""

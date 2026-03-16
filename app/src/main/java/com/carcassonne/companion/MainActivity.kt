@@ -339,47 +339,35 @@ fun CarcassonneApp(vm: MainViewModel = viewModel()) {
 
                 val folderDisplayName = remember(backupFolderUri) {
                     backupFolderUri?.let { uriStr ->
-                        try {
-                            DocumentFile.fromTreeUri(context, Uri.parse(uriStr))?.name
-                        } catch (e: Exception) { null }
+                        try { DocumentFile.fromTreeUri(context, Uri.parse(uriStr))?.name }
+                        catch (e: Exception) { null }
                     }
                 }
 
                 var showRestoreFromFolder by remember { mutableStateOf(false) }
                 val backupFilesInFolder = remember(backupFolderUri, showRestoreFromFolder) {
                     if (backupFolderUri != null && showRestoreFromFolder) {
-                        try {
-                            BackupManager.listBackupFilesInFolderUri(context, Uri.parse(backupFolderUri!!))
-                        } catch (e: Exception) { emptyList() }
+                        try { BackupManager.listBackupFilesInFolderUri(context, Uri.parse(backupFolderUri!!)) }
+                        catch (e: Exception) { emptyList() }
                     } else emptyList()
                 }
 
                 if (showRestoreFromFolder) {
                     RestoreFromFolderDialog(
                         files = backupFilesInFolder,
-                        onSelect = { doc ->
-                            vm.importBackupFromUri(context, doc.uri)
-                            showRestoreFromFolder = false
-                        },
+                        onSelect = { doc -> vm.importBackupFromUri(context, doc.uri); showRestoreFromFolder = false },
                         onDismiss = { showRestoreFromFolder = false }
                     )
                 }
 
                 SettingsScreen(
                     onBackup = {
-                        if (backupFolderUri != null) {
-                            vm.exportBackupToFolder(context)
-                        } else {
-                            val dateStr = SimpleDateFormat("dd-MM-yyyy", Locale.US).format(Date())
-                            createBackupLauncher.launch("$dateStr.ccbackup")
-                        }
+                        if (backupFolderUri != null) vm.exportBackupToFolder(context)
+                        else { val dateStr = SimpleDateFormat("dd-MM-yyyy", Locale.US).format(Date()); createBackupLauncher.launch("$dateStr.ccbackup") }
                     },
                     onRestore = {
-                        if (backupFolderUri != null) {
-                            showRestoreFromFolder = true
-                        } else {
-                            openBackupLauncher.launch(arrayOf("*/*"))
-                        }
+                        if (backupFolderUri != null) showRestoreFromFolder = true
+                        else openBackupLauncher.launch(arrayOf("*/*"))
                     },
                     onPickBackupFolder = { folderPickerLauncher.launch(null) },
                     backupFolderName = folderDisplayName,
