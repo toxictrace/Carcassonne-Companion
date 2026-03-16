@@ -105,6 +105,7 @@ class CarcassonneRepository(
     suspend fun clearAll() {
         gamePlayerDao.deleteAll()
         gameDao.deleteAllGames()
+        playerDao.deleteAll()
     }
 
     // ─── Backup helpers ──────────────────────────────────────────

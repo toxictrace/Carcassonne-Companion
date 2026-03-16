@@ -1985,24 +1985,12 @@ fun RestorePickerDialog(
 fun SettingsScreen(
     onBackup: () -> Unit,
     onRestore: () -> Unit = {},
-    onRestoreFile: (File) -> Unit = {},
     onClearAll: () -> Unit,
     isDarkMode: Boolean = true,
     onDarkMode: (Boolean) -> Unit = {}
 ) {
     var showClearDialog by remember { mutableStateOf(false) }
     var showLanguageDialog by remember { mutableStateOf(false) }
-    var showRestoreDialog by remember { mutableStateOf(false) }
-    val ctx = LocalContext.current
-
-    if (showRestoreDialog) {
-        val files = remember { BackupManager.listBackupFiles(ctx) }
-        RestorePickerDialog(
-            files = files,
-            onSelect = onRestoreFile,
-            onDismiss = { showRestoreDialog = false }
-        )
-    }
 
     if (showClearDialog) {
         AlertDialog(
@@ -2094,7 +2082,7 @@ fun SettingsScreen(
                 modifier = Modifier.padding(top = 20.dp, bottom = 4.dp))
         }
         item { SettingsRow("☁️", stringResource(R.string.backup_data), stringResource(R.string.backup_sub), onClick = onBackup) }
-        item { SettingsRow("📥", stringResource(R.string.restore_data), stringResource(R.string.restore_sub), onClick = { showRestoreDialog = true }) }
+        item { SettingsRow("📥", stringResource(R.string.restore_data), stringResource(R.string.restore_sub), onClick = onRestore) }
         item {
             SettingsRow(
                 "🗑️", stringResource(R.string.clear_all), stringResource(R.string.clear_all_sub),

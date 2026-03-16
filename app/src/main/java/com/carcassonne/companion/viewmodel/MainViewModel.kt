@@ -521,4 +521,27 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             _message.emit(getApplication<Application>().getString(R.string.restore_error, e.message ?: ""))
         }
     }
+
+    fun exportBackupToUri(context: Context, uri: android.net.Uri) = viewModelScope.launch {
+        try {
+            val players = repo.getAllPlayersOnce()
+            val games = repo.getAllGamesOnce()
+            val gamePlayers = repo.getAllGamePlayersOnce()
+            BackupManager.createBackupToUri(context, uri, players, games, gamePlayers)
+            _message.emit(getApplication<Application>().getString(R.string.backup_saved, "✓"))
+        } catch (e: Exception) {
+            _message.emit(getApplication<Application>().getString(R.string.backup_error, e.message ?: ""))
+        }
+    }
+
+    fun importBackupFromUri(context: Context, uri: android.net.Uri) = viewModelScope.launch {
+        try {
+            val result = BackupManager.restoreBackupFromUri(context, uri)
+            repo.restoreFromBackup(result.players, result.games, result.gamePlayers)
+            _message.emit(getApplication<Application>().getString(R.string.restore_success,
+                result.players.size, result.games.size))
+        } catch (e: Exception) {
+            _message.emit(getApplication<Application>().getString(R.string.restore_error, e.message ?: ""))
+        }
+    }
 }

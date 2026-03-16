@@ -28,6 +28,11 @@ import com.carcassonne.companion.viewmodel.ScoringObjectType
 import kotlinx.coroutines.launch
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.platform.LocalContext
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.compose.rememberLauncherForActivityResult
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 // ─── Navigation Routes ───────────────────────────────────────────────────────
 object Routes {
@@ -308,12 +313,21 @@ fun CarcassonneApp(vm: MainViewModel = viewModel()) {
             }
             composable(Routes.SETTINGS) {
                 val context = LocalContext.current
+                val createBackupLauncher = rememberLauncherForActivityResult(
+                    ActivityResultContracts.CreateDocument("application/octet-stream")
+                ) { uri -> uri?.let { vm.exportBackupToUri(context, it) } }
+                val openBackupLauncher = rememberLauncherForActivityResult(
+                    ActivityResultContracts.OpenDocument()
+                ) { uri -> uri?.let { vm.importBackupFromUri(context, it) } }
                 SettingsScreen(
-                    onBackup      = { vm.exportBackup(context) },
-                    onRestoreFile = { file -> vm.importBackup(context, file) },
-                    onClearAll    = { vm.clearAllData() },
-                    isDarkMode    = isDark,
-                    onDarkMode    = { vm.setDarkMode(it) }
+                    onBackup   = {
+                        val dateStr = SimpleDateFormat("dd-MM-yyyy", Locale.US).format(Date())
+                        createBackupLauncher.launch("$dateStr.ccbackup")
+                    },
+                    onRestore  = { openBackupLauncher.launch(arrayOf("*/*")) },
+                    onClearAll = { vm.clearAllData() },
+                    isDarkMode = isDark,
+                    onDarkMode = { vm.setDarkMode(it) }
                 )
             }
             composable(Routes.NEW_GAME) {
