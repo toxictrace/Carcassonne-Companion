@@ -30,7 +30,7 @@
     <string name="restore_sub">Select a .ccbackup file to restore</string>
     <string name="backup_saved">Backup saved: %s</string>
     <string name="backup_error">Backup error: %s</string>
-    <string name="restore_success">Restored: %d players, %d games</string>
+    <string name="restore_success">Restored: %1$d players, %2$d games</string>
     <string name="restore_error">Restore error: %s</string>
     <string name="restore_pick_title">Select Backup File</string>
     <string name="restore_no_files">No backup files found.\nCreate a backup first.</string>

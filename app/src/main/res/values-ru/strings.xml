@@ -30,7 +30,7 @@
     <string name="restore_sub">Выбрать файл .ccbackup для восстановления</string>
     <string name="backup_saved">Бэкап сохранён: %s</string>
     <string name="backup_error">Ошибка бэкапа: %s</string>
-    <string name="restore_success">Восстановлено: %d игроков, %d партий</string>
+    <string name="restore_success">Восстановлено: %1$d игроков, %2$d партий</string>
     <string name="restore_error">Ошибка восстановления: %s</string>
     <string name="restore_pick_title">Выберите файл бэкапа</string>
     <string name="restore_no_files">Файлы бэкапа не найдены.\nСначала создайте резервную копию.</string>
