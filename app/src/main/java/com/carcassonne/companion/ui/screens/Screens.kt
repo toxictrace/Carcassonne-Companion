@@ -1545,7 +1545,17 @@ fun ComparePlayersSection(
             Column(Modifier.padding(14.dp)) {
                 val trendTextPaint = remember {
                     android.graphics.Paint().apply {
-                        isAntiAlias = true; textSize = 26f; textAlign = android.graphics.Paint.Align.CENTER
+                        isAntiAlias = true; textSize = 34f; textAlign = android.graphics.Paint.Align.CENTER
+                        style = android.graphics.Paint.Style.FILL
+                    }
+                }
+                val trendStrokePaint = remember {
+                    android.graphics.Paint().apply {
+                        isAntiAlias = true; textSize = 34f; textAlign = android.graphics.Paint.Align.CENTER
+                        style = android.graphics.Paint.Style.STROKE
+                        strokeWidth = 5f
+                        color = android.graphics.Color.argb(220, 10, 26, 10)
+                        strokeJoin = android.graphics.Paint.Join.ROUND
                     }
                 }
                 val isDarkTrend = LocalCarcColors.current.isDark
@@ -1557,7 +1567,7 @@ fun ComparePlayersSection(
                     Canvas(modifier = Modifier.fillMaxWidth().height(150.dp)) {
                         val range = (globalMaxT - globalMinT).takeIf { it > 0f } ?: 1f
                         val w = size.width; val h = size.height
-                        val padTop = 24f; val padBottom = 8f
+                        val padTop = 36f; val padBottom = 8f
                         val chartH = h - padTop - padBottom
                         val n = 5
                         val stepX = w / (n - 1).toFloat()
@@ -1592,7 +1602,7 @@ fun ComparePlayersSection(
                         }
                         // Score text labels — smart placement to avoid overlap
                         drawIntoCanvas { cv ->
-                            val minGap = 28f
+                            val minGap = 40f
                             val lblX = mutableListOf<Float>()
                             val lblY = mutableListOf<Float>()
                             val lblText = mutableListOf<String>()
@@ -1624,9 +1634,12 @@ fun ComparePlayersSection(
                                 }
                             }
                             lblX.indices.forEach { i ->
+                                val clampedY = lblY[i].coerceIn(padTop, h - 4f)
+                                // Stroke (dark outline) — draw first, behind the fill
+                                cv.nativeCanvas.drawText(lblText[i], lblX[i], clampedY, trendStrokePaint)
+                                // Fill (player colour)
                                 trendTextPaint.color = lblColor[i]
-                                cv.nativeCanvas.drawText(lblText[i], lblX[i],
-                                    lblY[i].coerceIn(padTop, h - 4f), trendTextPaint)
+                                cv.nativeCanvas.drawText(lblText[i], lblX[i], clampedY, trendTextPaint)
                             }
                         }
                     }
@@ -1852,9 +1865,9 @@ fun RadarChart(
             val yDp = with(density) { lc.y.toDp() }
             Box(
                 modifier = Modifier
-                    .width(72.dp)
+                    .width(100.dp)
                     .wrapContentHeight()
-                    .offset(x = xDp - 36.dp, y = yDp - 14.dp),
+                    .offset(x = xDp - 50.dp, y = yDp - 14.dp),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
@@ -1862,7 +1875,8 @@ fun RadarChart(
                     fontSize = 9.sp,
                     color = CarcText2,
                     textAlign = TextAlign.Center,
-                    lineHeight = 12.sp
+                    lineHeight = 11.sp,
+                    softWrap = false
                 )
             }
         }
@@ -2387,11 +2401,16 @@ fun AddObjectSheet(
             Spacer(Modifier.height(16.dp))
 
             // Tab selector
+            val tabItems = listOf(
+                "🏰" to stringResource(R.string.city_btn),
+                "🛤️" to stringResource(R.string.road_btn),
+                "⛪" to stringResource(R.string.monastery_btn)
+            )
             Row(
                 Modifier.fillMaxWidth().clip(RoundedCornerShape(10.dp)).background(CarcBg3),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                listOf(stringResource(R.string.city_label), stringResource(R.string.road_label), stringResource(R.string.metric_monastery)).forEachIndexed { i, label ->
+                tabItems.forEachIndexed { i, (icon, label) ->
                     val sel = tab == i
                     Box(
                         Modifier.weight(1f).padding(4.dp)
@@ -2399,12 +2418,19 @@ fun AddObjectSheet(
                             .background(if (sel) accent.copy(alpha = 0.2f) else Color.Transparent)
                             .border(if (sel) 1.dp else 0.dp, if (sel) accent else Color.Transparent, RoundedCornerShape(8.dp))
                             .clickable { tab = i }
-                            .padding(vertical = 10.dp),
+                            .padding(vertical = 8.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(label, fontSize = 13.sp,
-                            fontWeight = if (sel) FontWeight.Bold else FontWeight.Normal,
-                            color = if (sel) accent else CarcText3)
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text(icon, fontSize = 18.sp, textAlign = TextAlign.Center,
+                                modifier = Modifier.fillMaxWidth())
+                            Spacer(Modifier.height(2.dp))
+                            Text(label, fontSize = 11.sp,
+                                fontWeight = if (sel) FontWeight.Bold else FontWeight.Normal,
+                                color = if (sel) accent else CarcText3,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.fillMaxWidth())
+                        }
                     }
                 }
             }
