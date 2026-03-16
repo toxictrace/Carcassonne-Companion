@@ -1,5 +1,7 @@
 package com.carcassonne.companion
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -21,6 +23,7 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.*
 import com.carcassonne.companion.data.entity.PlayerEntity
 import com.carcassonne.companion.ui.screens.*
+import com.carcassonne.companion.util.BackupManager
 import com.carcassonne.companion.ui.theme.*
 import com.carcassonne.companion.viewmodel.EndgamePlayerInput
 import com.carcassonne.companion.viewmodel.MainViewModel
@@ -29,6 +32,7 @@ import kotlinx.coroutines.launch
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.platform.LocalContext
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.documentfile.provider.DocumentFile
 import androidx.activity.compose.rememberLauncherForActivityResult
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -313,18 +317,72 @@ fun CarcassonneApp(vm: MainViewModel = viewModel()) {
             }
             composable(Routes.SETTINGS) {
                 val context = LocalContext.current
+                val backupFolderUri by vm.backupFolderUri.collectAsState()
+
+                val folderPickerLauncher = rememberLauncherForActivityResult(
+                    ActivityResultContracts.OpenDocumentTree()
+                ) { uri ->
+                    uri?.let {
+                        context.contentResolver.takePersistableUriPermission(
+                            it,
+                            Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                        )
+                        vm.setBackupFolderUri(it.toString())
+                    }
+                }
                 val createBackupLauncher = rememberLauncherForActivityResult(
                     ActivityResultContracts.CreateDocument("application/octet-stream")
                 ) { uri -> uri?.let { vm.exportBackupToUri(context, it) } }
                 val openBackupLauncher = rememberLauncherForActivityResult(
                     ActivityResultContracts.OpenDocument()
                 ) { uri -> uri?.let { vm.importBackupFromUri(context, it) } }
+
+                val folderDisplayName = remember(backupFolderUri) {
+                    backupFolderUri?.let { uriStr ->
+                        try {
+                            DocumentFile.fromTreeUri(context, Uri.parse(uriStr))?.name
+                        } catch (e: Exception) { null }
+                    }
+                }
+
+                var showRestoreFromFolder by remember { mutableStateOf(false) }
+                val backupFilesInFolder = remember(backupFolderUri, showRestoreFromFolder) {
+                    if (backupFolderUri != null && showRestoreFromFolder) {
+                        try {
+                            BackupManager.listBackupFilesInFolderUri(context, Uri.parse(backupFolderUri!!))
+                        } catch (e: Exception) { emptyList() }
+                    } else emptyList()
+                }
+
+                if (showRestoreFromFolder) {
+                    RestoreFromFolderDialog(
+                        files = backupFilesInFolder,
+                        onSelect = { doc ->
+                            vm.importBackupFromUri(context, doc.uri)
+                            showRestoreFromFolder = false
+                        },
+                        onDismiss = { showRestoreFromFolder = false }
+                    )
+                }
+
                 SettingsScreen(
-                    onBackup   = {
-                        val dateStr = SimpleDateFormat("dd-MM-yyyy", Locale.US).format(Date())
-                        createBackupLauncher.launch("$dateStr.ccbackup")
+                    onBackup = {
+                        if (backupFolderUri != null) {
+                            vm.exportBackupToFolder(context)
+                        } else {
+                            val dateStr = SimpleDateFormat("dd-MM-yyyy", Locale.US).format(Date())
+                            createBackupLauncher.launch("$dateStr.ccbackup")
+                        }
                     },
-                    onRestore  = { openBackupLauncher.launch(arrayOf("*/*")) },
+                    onRestore = {
+                        if (backupFolderUri != null) {
+                            showRestoreFromFolder = true
+                        } else {
+                            openBackupLauncher.launch(arrayOf("*/*"))
+                        }
+                    },
+                    onPickBackupFolder = { folderPickerLauncher.launch(null) },
+                    backupFolderName = folderDisplayName,
                     onClearAll = { vm.clearAllData() },
                     isDarkMode = isDark,
                     onDarkMode = { vm.setDarkMode(it) }

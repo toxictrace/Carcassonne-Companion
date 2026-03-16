@@ -60,4 +60,5 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
     ksp(libs.androidx.room.compiler)
     debugImplementation(libs.androidx.ui.tooling)
+    implementation("androidx.documentfile:documentfile:1.0.1")
 }

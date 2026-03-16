@@ -2,6 +2,7 @@ package com.carcassonne.companion.util
 
 import android.content.Context
 import android.net.Uri
+import androidx.documentfile.provider.DocumentFile
 import com.carcassonne.companion.data.entity.GameEntity
 import com.carcassonne.companion.data.entity.GamePlayerEntity
 import com.carcassonne.companion.data.entity.PlayerEntity
@@ -95,7 +96,6 @@ object BackupManager {
         val dateStr = SimpleDateFormat("dd-MM-yyyy", Locale.US).format(Date())
         val outFile = uniqueFile(backupDir, dateStr)
 
-        // Collect photo files (avoid duplicates)
         val photoFiles: Map<String, File> = buildMap {
             players.forEach { p -> p.avatarPath?.let { File(it) }?.takeIf { it.exists() }?.let { put(it.name, it) } }
             games.forEach { g -> g.photoPath?.let { File(it) }?.takeIf { it.exists() }?.let { put(it.name, it) } }
@@ -136,7 +136,7 @@ object BackupManager {
         return outFile
     }
 
-    // ─── URI-based backup (SAF) ───────────────────────────────────────────────
+    // ─── URI-based backup (SAF single file) ──────────────────────────────────
 
     fun createBackupToUri(
         context: Context,
@@ -174,6 +174,70 @@ object BackupManager {
         val inputStream = context.contentResolver.openInputStream(uri)
             ?: throw IllegalStateException("Cannot open input stream for URI")
         return parseBackupStream(inputStream, photosDir)
+    }
+
+    // ─── SAF folder-based backup ──────────────────────────────────────────────
+
+    /**
+     * Creates a new .ccbackup file inside the SAF tree folder identified by [treeUri].
+     * Returns the name of the created file.
+     */
+    fun createBackupToFolderUri(
+        context: Context,
+        treeUri: Uri,
+        players: List<PlayerEntity>,
+        games: List<GameEntity>,
+        gamePlayers: List<GamePlayerEntity>
+    ): String {
+        val folder = DocumentFile.fromTreeUri(context, treeUri)
+            ?: throw IllegalStateException("Invalid backup folder URI")
+
+        val dateStr = SimpleDateFormat("dd-MM-yyyy_HH-mm", Locale.US).format(Date())
+        val fileName = "$dateStr.$EXTENSION"
+
+        val existing = folder.findFile(fileName)
+        val docFile = if (existing != null && existing.isFile) {
+            existing
+        } else {
+            folder.createFile("application/octet-stream", fileName)
+                ?: throw IllegalStateException("Cannot create backup file in selected folder")
+        }
+
+        val photoFiles: Map<String, File> = buildMap {
+            players.forEach { p -> p.avatarPath?.let { File(it) }?.takeIf { it.exists() }?.let { put(it.name, it) } }
+            games.forEach { g -> g.photoPath?.let { File(it) }?.takeIf { it.exists() }?.let { put(it.name, it) } }
+        }
+        val playerData = players.map { p ->
+            PlayerBackupData(p.id, p.name, p.meepleColor,
+                p.avatarPath?.let { File(it) }?.takeIf { it.exists() }?.name, p.createdAt)
+        }
+        val gameData = games.map { g ->
+            GameBackupData(g.id, g.name, g.date, g.durationSeconds, g.expansions,
+                g.photoPath?.let { File(it) }?.takeIf { it.exists() }?.name)
+        }
+        val gpData = gamePlayers.map { gp ->
+            GamePlayerBackupData(gp.gameId, gp.playerId, gp.meepleColor, gp.finalScore,
+                gp.cityPoints, gp.roadPoints, gp.monasteryPoints, gp.farmPoints, gp.placement)
+        }
+        val payload = BackupPayload(players = playerData, games = gameData, gamePlayers = gpData)
+        val encBytes = xorCrypt(json.encodeToString(payload).toByteArray(Charsets.UTF_8))
+
+        context.contentResolver.openOutputStream(docFile.uri)?.use { os ->
+            writeBackupZip(os, encBytes, photoFiles)
+        } ?: throw IllegalStateException("Cannot open output stream for backup file")
+
+        return docFile.name ?: fileName
+    }
+
+    /**
+     * Lists all .ccbackup files inside the SAF tree folder identified by [treeUri],
+     * sorted newest-first by last modified date.
+     */
+    fun listBackupFilesInFolderUri(context: Context, treeUri: Uri): List<DocumentFile> {
+        val folder = DocumentFile.fromTreeUri(context, treeUri) ?: return emptyList()
+        return folder.listFiles()
+            .filter { it.isFile && it.name?.endsWith(".$EXTENSION", ignoreCase = true) == true }
+            .sortedByDescending { it.lastModified() }
     }
 
     // ─── Shared write helper ──────────────────────────────────────────────────

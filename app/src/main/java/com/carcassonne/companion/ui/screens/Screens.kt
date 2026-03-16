@@ -58,6 +58,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.sqrt
+import androidx.documentfile.provider.DocumentFile
 import com.carcassonne.companion.util.BackupManager
 import java.io.File
 
@@ -1914,7 +1915,74 @@ fun StatsPlayerRow(ps: PlayerStats) {
     }
 }
 
-// ─── Restore Picker Dialog ────────────────────────────────────────────────────
+// ─── Restore From Folder Dialog ─────────────────────────────────────────────────
+  @Composable
+  fun RestoreFromFolderDialog(
+      files: List<DocumentFile>,
+      onSelect: (DocumentFile) -> Unit,
+      onDismiss: () -> Unit
+  ) {
+      var confirmFile by remember { mutableStateOf<DocumentFile?>(null) }
+
+      if (confirmFile != null) {
+          AlertDialog(
+              onDismissRequest = { confirmFile = null },
+              title = { Text(stringResource(R.string.restore_confirm_title)) },
+              text = { Text(stringResource(R.string.restore_confirm_msg, confirmFile!!.name ?: ""), color = CarcText2) },
+              confirmButton = {
+                  TextButton(onClick = { onSelect(confirmFile!!); confirmFile = null; onDismiss() }) {
+                      Text(stringResource(R.string.restore_btn), color = CarcGreen, fontWeight = FontWeight.Bold)
+                  }
+              },
+              dismissButton = {
+                  TextButton(onClick = { confirmFile = null }) { Text(stringResource(R.string.cancel)) }
+              },
+              containerColor = CarcCard2
+          )
+      } else {
+          AlertDialog(
+              onDismissRequest = onDismiss,
+              title = { Text(stringResource(R.string.restore_pick_title)) },
+              text = {
+                  Column {
+                      if (files.isEmpty()) {
+                          Text(stringResource(R.string.restore_no_files_in_folder), color = CarcText2, fontSize = 14.sp)
+                      } else {
+                          Text(stringResource(R.string.backup_folder_files_hint), color = CarcText3, fontSize = 11.sp,
+                              modifier = Modifier.padding(bottom = 12.dp))
+                          files.forEach { doc ->
+                              val modDate = SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.US)
+                                  .format(java.util.Date(doc.lastModified()))
+                              val sizeKb = doc.length() / 1024
+                              Row(
+                                  modifier = Modifier
+                                      .fillMaxWidth()
+                                      .clickable { confirmFile = doc }
+                                      .padding(vertical = 10.dp, horizontal = 4.dp),
+                                  verticalAlignment = Alignment.CenterVertically
+                              ) {
+                                  Text("💾", fontSize = 22.sp)
+                                  Spacer(Modifier.width(12.dp))
+                                  Column(Modifier.weight(1f)) {
+                                      Text(doc.name ?: "", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = CarcText)
+                                      Text("$modDate · $sizeKb KB", fontSize = 11.sp, color = CarcText3)
+                                  }
+                              }
+                              HorizontalDivider(color = CarcText3.copy(alpha = 0.15f))
+                          }
+                      }
+                  }
+              },
+              confirmButton = {},
+              dismissButton = {
+                  TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
+              },
+              containerColor = CarcCard2
+          )
+      }
+  }
+
+  // ─── Restore Picker Dialog ────────────────────────────────────────────────────
 @Composable
 fun RestorePickerDialog(
     files: List<File>,
@@ -1985,6 +2053,8 @@ fun RestorePickerDialog(
 fun SettingsScreen(
     onBackup: () -> Unit,
     onRestore: () -> Unit = {},
+    onPickBackupFolder: () -> Unit = {},
+    backupFolderName: String? = null,
     onClearAll: () -> Unit,
     isDarkMode: Boolean = true,
     onDarkMode: (Boolean) -> Unit = {}
@@ -2081,7 +2151,15 @@ fun SettingsScreen(
             Text(stringResource(R.string.settings_data), fontSize = 11.sp, color = CarcText3, letterSpacing = 1.sp,
                 modifier = Modifier.padding(top = 20.dp, bottom = 4.dp))
         }
-        item { SettingsRow("☁️", stringResource(R.string.backup_data), stringResource(R.string.backup_sub), onClick = onBackup) }
+        item {
+              SettingsRow(
+                  "📁", stringResource(R.string.backup_folder),
+                  backupFolderName ?: stringResource(R.string.backup_folder_default),
+                  onClick = onPickBackupFolder,
+                  trailing = { Text("›", fontSize = 20.sp, color = CarcText2) }
+              )
+          }
+          item { SettingsRow("☁️", stringResource(R.string.backup_data), stringResource(R.string.backup_sub), onClick = onBackup) }
         item { SettingsRow("📥", stringResource(R.string.restore_data), stringResource(R.string.restore_sub), onClick = onRestore) }
         item {
             SettingsRow(

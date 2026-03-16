@@ -305,4 +305,9 @@
     <string name="metagame_roads">🛤️ Дороги</string>
     <string name="metagame_monasteries">⛪ Монастыри</string>
     <string name="metagame_farms">🌾 Поля</string>
-</resources>
+    <!-- Backup folder settings -->
+      <string name="backup_folder">Папка для бэкапа</string>
+      <string name="backup_folder_default">Папка приложения (по умолчанию)</string>
+      <string name="backup_folder_files_hint">Файлы .ccbackup из выбранной папки:</string>
+      <string name="restore_no_files_in_folder">Файлы .ccbackup не найдены в выбранной папке.</string>
+  </resources>

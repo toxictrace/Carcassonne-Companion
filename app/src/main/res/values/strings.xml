@@ -305,4 +305,9 @@
     <string name="metagame_roads">🛤️ Roads</string>
     <string name="metagame_monasteries">⛪ Cloisters</string>
     <string name="metagame_farms">🌾 Farms</string>
-</resources>
+    <!-- Backup folder settings -->
+      <string name="backup_folder">Backup Folder</string>
+      <string name="backup_folder_default">App folder (default)</string>
+      <string name="backup_folder_files_hint">Only .ccbackup files from selected folder:</string>
+      <string name="restore_no_files_in_folder">No .ccbackup files found in the selected folder.</string>
+  </resources>
