@@ -107,6 +107,26 @@ class CarcassonneRepository(
         gameDao.deleteAllGames()
     }
 
+    // ─── Backup helpers ──────────────────────────────────────────
+    suspend fun getAllPlayersOnce() = playerDao.getAllPlayersOnce()
+    suspend fun getAllGamesOnce() = gameDao.getAllGamesOnce()
+    suspend fun getAllGamePlayersOnce() = gamePlayerDao.getAllGamePlayersOnce()
+
+    suspend fun restoreFromBackup(
+        players: List<PlayerEntity>,
+        games: List<GameEntity>,
+        gamePlayers: List<GamePlayerEntity>
+    ) {
+        // Clear existing data
+        gamePlayerDao.deleteAll()
+        gameDao.deleteAllGames()
+        playerDao.deleteAll()
+        // Insert restored data (original IDs preserved)
+        players.forEach { playerDao.insertPlayer(it) }
+        games.forEach { gameDao.insertGame(it) }
+        gamePlayerDao.insertGamePlayers(gamePlayers)
+    }
+
     suspend fun updateGame(
         gameId: Int,
         name: String?,

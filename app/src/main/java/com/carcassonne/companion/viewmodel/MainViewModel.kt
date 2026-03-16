@@ -1,6 +1,7 @@
 package com.carcassonne.companion.viewmodel
 
 import android.app.Application
+import android.content.Context
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.carcassonne.companion.data.CarcassonneDatabase
@@ -9,9 +10,11 @@ import com.carcassonne.companion.data.entity.GamePlayerEntity
 import com.carcassonne.companion.data.entity.PlayerEntity
 import com.carcassonne.companion.data.repository.CarcassonneRepository
 import com.carcassonne.companion.data.repository.PlayerResult
+import com.carcassonne.companion.util.BackupManager
 import kotlinx.coroutines.flow.*
 import com.carcassonne.companion.R
 import kotlinx.coroutines.launch
+import java.io.File
 
 // ─── Scoring object types ────────────────────────────────────────────────────
 enum class ScoringObjectType { CITY, ROAD, MONASTERY, FARM }
@@ -493,5 +496,29 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun clearAllData() = viewModelScope.launch {
         repo.clearAll()
         _message.emit(getApplication<Application>().getString(R.string.records_cleared))
+    }
+
+    // ─── Backup ──────────────────────────────────────────────────
+    fun exportBackup(context: Context) = viewModelScope.launch {
+        try {
+            val players = repo.getAllPlayersOnce()
+            val games = repo.getAllGamesOnce()
+            val gamePlayers = repo.getAllGamePlayersOnce()
+            val file = BackupManager.createBackup(context, players, games, gamePlayers)
+            _message.emit(getApplication<Application>().getString(R.string.backup_saved, file.name))
+        } catch (e: Exception) {
+            _message.emit(getApplication<Application>().getString(R.string.backup_error, e.message ?: ""))
+        }
+    }
+
+    fun importBackup(context: Context, file: File) = viewModelScope.launch {
+        try {
+            val result = BackupManager.restoreBackup(context, file)
+            repo.restoreFromBackup(result.players, result.games, result.gamePlayers)
+            _message.emit(getApplication<Application>().getString(R.string.restore_success,
+                result.players.size, result.games.size))
+        } catch (e: Exception) {
+            _message.emit(getApplication<Application>().getString(R.string.restore_error, e.message ?: ""))
+        }
     }
 }

@@ -27,6 +27,7 @@ import com.carcassonne.companion.viewmodel.MainViewModel
 import com.carcassonne.companion.viewmodel.ScoringObjectType
 import kotlinx.coroutines.launch
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.platform.LocalContext
 
 // ─── Navigation Routes ───────────────────────────────────────────────────────
 object Routes {
@@ -306,12 +307,13 @@ fun CarcassonneApp(vm: MainViewModel = viewModel()) {
                 )
             }
             composable(Routes.SETTINGS) {
+                val context = LocalContext.current
                 SettingsScreen(
-                    onBackup   = { /* TODO: export JSON */ },
-                    onRestore  = { /* TODO: import JSON */ },
-                    onClearAll = { vm.clearAllData() },
-                    isDarkMode = isDark,
-                    onDarkMode = { vm.setDarkMode(it) }
+                    onBackup      = { vm.exportBackup(context) },
+                    onRestoreFile = { file -> vm.importBackup(context, file) },
+                    onClearAll    = { vm.clearAllData() },
+                    isDarkMode    = isDark,
+                    onDarkMode    = { vm.setDarkMode(it) }
                 )
             }
             composable(Routes.NEW_GAME) {

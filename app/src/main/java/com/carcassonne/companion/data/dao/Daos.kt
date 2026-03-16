@@ -25,12 +25,21 @@ interface PlayerDao {
 
     @Query("SELECT COUNT(*) FROM players")
     suspend fun getPlayerCount(): Int
+
+    @Query("SELECT * FROM players ORDER BY name ASC")
+    suspend fun getAllPlayersOnce(): List<PlayerEntity>
+
+    @Query("DELETE FROM players")
+    suspend fun deleteAll()
 }
 
 @Dao
 interface GameDao {
     @Query("SELECT * FROM games ORDER BY date DESC")
     fun getAllGames(): Flow<List<GameEntity>>
+
+    @Query("SELECT * FROM games ORDER BY date DESC")
+    suspend fun getAllGamesOnce(): List<GameEntity>
 
     @Query("SELECT * FROM games WHERE id = :id")
     suspend fun getGameById(id: Int): GameEntity?
@@ -61,6 +70,9 @@ interface GamePlayerDao {
 
     @Query("SELECT * FROM game_players")
     fun getAllGamePlayers(): Flow<List<GamePlayerEntity>>
+
+    @Query("SELECT * FROM game_players")
+    suspend fun getAllGamePlayersOnce(): List<GamePlayerEntity>
 
     @Query("SELECT * FROM game_players WHERE playerId = :playerId ORDER BY gameId DESC")
     fun getGamesForPlayer(playerId: Int): Flow<List<GamePlayerEntity>>
