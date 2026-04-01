@@ -942,7 +942,8 @@ fun StatsScreen(
     onSlotChange: (Int, Int?) -> Unit,
     allGamePlayers: List<com.carcassonne.companion.data.entity.GamePlayerEntity> = emptyList(),
     sectionMask: Int = 0b0011111,
-    onSectionsChange: (Int) -> Unit = {}
+    onSectionsChange: (Int) -> Unit = {},
+    onPlayerClick: (Int) -> Unit = {}
 ) {
     var tab by remember { mutableIntStateOf(0) }
     // selectedSlots driven by VM — persisted across sessions
@@ -1088,7 +1089,7 @@ fun StatsScreen(
                 }
             } else {
                 items(playerStats.take(5)) { ps ->
-                    StatsPlayerRow(ps)
+                    StatsPlayerRow(ps, onPlayerClick)
                     Spacer(Modifier.height(8.dp))
                 }
             }
@@ -1907,9 +1908,10 @@ fun RadarChart(
 }
 
 @Composable
-fun StatsPlayerRow(ps: PlayerStats) {
+fun StatsPlayerRow(ps: PlayerStats, onPlayerClick: (Int) -> Unit = {}) {
     val accent = meepleColor(ps.player.meepleColor)
     Card(
+        modifier = Modifier.clickable { onPlayerClick(ps.player.id) },
         shape = RoundedCornerShape(14.dp),
         colors = CardDefaults.cardColors(containerColor = CarcCard)
     ) {
@@ -3351,7 +3353,8 @@ fun MatchDetailScreen(
     gameId: Int,
     viewModel: MainViewModel,
     players: List<PlayerEntity>,
-    onEdit: () -> Unit = {}
+    onEdit: () -> Unit = {},
+    onPlayerClick: (Int) -> Unit = {}
 ) {
     var gamePlayers by remember { mutableStateOf<List<com.carcassonne.companion.data.entity.GamePlayerEntity>>(emptyList()) }
     var game by remember { mutableStateOf<GameEntity?>(null) }
@@ -3415,6 +3418,7 @@ fun MatchDetailScreen(
                 Text(stringResource(R.string.winner_label), fontSize = 13.sp, color = CarcText3, modifier = Modifier.padding(bottom = 8.dp))
                 val p = players.find { it.id == winner.playerId }
                 Card(
+                    modifier = Modifier.clickable { p?.id?.let { onPlayerClick(it) } },
                     shape = RoundedCornerShape(14.dp),
                     colors = CardDefaults.cardColors(containerColor = CarcGreenDeep.copy(alpha = 0.3f)),
                     border = BorderStroke(1.dp, CarcGreenDeep)
@@ -3449,7 +3453,7 @@ fun MatchDetailScreen(
             Card(
                 shape = RoundedCornerShape(14.dp),
                 colors = CardDefaults.cardColors(containerColor = CarcCard),
-                modifier = Modifier.padding(bottom = 8.dp)
+                modifier = Modifier.padding(bottom = 8.dp).clickable { p?.id?.let { onPlayerClick(it) } }
             ) {
                 Row(modifier = Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
                     RankBadge(gp.placement)

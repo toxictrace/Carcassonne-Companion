@@ -313,7 +313,8 @@ fun CarcassonneApp(vm: MainViewModel = viewModel()) {
                     onSlotChange = { idx, id -> vm.setCompareSlot(idx, id) },
                     allGamePlayers = allGamePlayers,
                     sectionMask = vm.loadCompareSections(),
-                    onSectionsChange = { mask -> vm.saveCompareSections(mask) }
+                    onSectionsChange = { mask -> vm.saveCompareSections(mask) },
+                    onPlayerClick = { navController.navigate(Routes.playerProfile(it)) }
                 )
             }
             composable(Routes.SETTINGS) {
@@ -447,7 +448,8 @@ fun CarcassonneApp(vm: MainViewModel = viewModel()) {
                     gameId = gameId,
                     viewModel = vm,
                     players = players,
-                    onEdit = { navController.navigate(Routes.editGame(gameId)) }
+                    onEdit = { navController.navigate(Routes.editGame(gameId)) },
+                    onPlayerClick = { navController.navigate(Routes.playerProfile(it)) }
                 )
             }
             composable(Routes.PLAYER_PROFILE) { back ->
