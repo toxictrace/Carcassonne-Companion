@@ -264,7 +264,7 @@ fun CarcassonneApp(vm: MainViewModel = viewModel()) {
         NavHost(
             navController = navController,
             startDestination = Routes.DASHBOARD,
-            modifier = Modifier.padding(padding)
+            modifier = Modifier.padding(top = padding.calculateTopPadding())
         ) {
             composable(Routes.DASHBOARD) {
                 DashboardScreen(
