@@ -9,7 +9,6 @@ import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.*
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.foundation.layout.imeNestedScroll
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.shape.*
 import androidx.compose.foundation.text.KeyboardOptions
@@ -437,7 +436,7 @@ fun HistoryScreen(
         )
     }
 
-    Box(Modifier.fillMaxSize().imeNestedScroll()) {
+    Box(Modifier.fillMaxSize()) {
         LazyColumn(
             modifier = Modifier.fillMaxSize().imePadding(),
             contentPadding = PaddingValues(
@@ -727,7 +726,7 @@ fun PlayersScreen(
         )
     }
 
-    Box(Modifier.fillMaxSize().imeNestedScroll()) {
+    Box(Modifier.fillMaxSize()) {
         LazyColumn(
             modifier = Modifier.fillMaxSize().imePadding(),
             contentPadding = PaddingValues(
