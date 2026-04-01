@@ -436,120 +436,125 @@ fun HistoryScreen(
         )
     }
 
-    Box(Modifier.fillMaxSize()) {
-        LazyColumn(
-            modifier = Modifier.fillMaxSize().imePadding(),
-            contentPadding = PaddingValues(
-                start = 16.dp, end = 16.dp, top = 16.dp,
-                bottom = if (selecting) 96.dp else 72.dp
-            ),
-            verticalArrangement = Arrangement.spacedBy(10.dp),
-            flingBehavior = ScrollableDefaults.flingBehavior()
-        ) {
-            item {
-                OutlinedTextField(
-                    value = query,
-                    onValueChange = { query = it },
-                    modifier = Modifier.fillMaxWidth(),
-                    placeholder = { Text(stringResource(R.string.search_games), color = CarcText3) },
-                    leadingIcon = { Icon(Icons.Default.Search, null, tint = CarcText3) },
-                    trailingIcon = {
-                        if (selecting) {
-                            TextButton(onClick = { selected = emptySet() }) {
-                                Text(stringResource(R.string.cancel), color = CarcText3, fontSize = 13.sp)
-                            }
-                        } else {
-                            IconButton(onClick = onToggleSort) {
-                                Text(if (sortNewestFirst) "↓" else "↑", fontSize = 18.sp, color = CarcGreen)
-                            }
-                        }
-                    },
-                    shape = RoundedCornerShape(50.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = CarcGreenDeep,
-                        unfocusedBorderColor = CarcBorder,
-                        focusedTextColor = CarcText,
-                        unfocusedTextColor = CarcText,
-                        cursorColor = CarcGreen,
-                        focusedContainerColor = CarcCard,
-                        unfocusedContainerColor = CarcCard
-                    )
-                )
-            }
-
-            if (selecting) {
-                item {
-                    Text(
-                        stringResource(R.string.selected_info, selected.size),
-                        fontSize = 11.sp, color = CarcGreen, letterSpacing = 1.sp,
-                        modifier = Modifier.padding(top = 4.dp)
-                    )
-                }
-            }
-
-            if (filtered.isEmpty()) {
-                item {
-                    Box(Modifier.fillMaxWidth().padding(40.dp), Alignment.Center) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text("📜", fontSize = 48.sp)
-                            Spacer(Modifier.height(12.dp))
-                            Text(stringResource(R.string.no_games_found), color = CarcText2, fontWeight = FontWeight.SemiBold)
-                        }
+    Column(Modifier.fillMaxSize().imePadding()) {
+        // Поле поиска — фиксированное, не скроллируется
+        OutlinedTextField(
+            value = query,
+            onValueChange = { query = it },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
+                .padding(top = 16.dp, bottom = 8.dp),
+            placeholder = { Text(stringResource(R.string.search_games), color = CarcText3) },
+            leadingIcon = { Icon(Icons.Default.Search, null, tint = CarcText3) },
+            trailingIcon = {
+                if (selecting) {
+                    TextButton(onClick = { selected = emptySet() }) {
+                        Text(stringResource(R.string.cancel), color = CarcText3, fontSize = 13.sp)
+                    }
+                } else {
+                    IconButton(onClick = onToggleSort) {
+                        Text(if (sortNewestFirst) "↓" else "↑", fontSize = 18.sp, color = CarcGreen)
                     }
                 }
-            } else {
-                items(filtered, key = { it.id }) { game ->
-                    val gps = allGamePlayers.filter { it.gameId == game.id }
-                    val isSelected = game.id in selected
-                    SelectableHistoryCard(
-                        game = game,
-                        gamePlayers = gps,
-                        players = players,
-                        isSelected = isSelected,
-                        selecting = selecting,
-                        onClick = {
-                            if (selecting) {
-                                if (isSelected) selected = selected - game.id else selected = selected + game.id
-                            } else {
-                                onGameClick(game.id)
+            },
+            shape = RoundedCornerShape(50.dp),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = CarcGreenDeep,
+                unfocusedBorderColor = CarcBorder,
+                focusedTextColor = CarcText,
+                unfocusedTextColor = CarcText,
+                cursorColor = CarcGreen,
+                focusedContainerColor = CarcCard,
+                unfocusedContainerColor = CarcCard
+            )
+        )
+
+        Box(Modifier.weight(1f)) {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(
+                    start = 16.dp, end = 16.dp, top = 4.dp,
+                    bottom = if (selecting) 96.dp else 72.dp
+                ),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                if (selecting) {
+                    item {
+                        Text(
+                            stringResource(R.string.selected_info, selected.size),
+                            fontSize = 11.sp, color = CarcGreen, letterSpacing = 1.sp,
+                            modifier = Modifier.padding(top = 4.dp)
+                        )
+                    }
+                }
+
+                if (filtered.isEmpty()) {
+                    item {
+                        Box(Modifier.fillMaxWidth().padding(40.dp), Alignment.Center) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text("📜", fontSize = 48.sp)
+                                Spacer(Modifier.height(12.dp))
+                                Text(stringResource(R.string.no_games_found), color = CarcText2, fontWeight = FontWeight.SemiBold)
                             }
-                        },
-                        onLongClick = {
-                            if (isSelected) selected = selected - game.id else selected = selected + game.id
-                        },
-                        onEdit = { onEditGame(game.id) }
+                        }
+                    }
+                } else {
+                    items(filtered, key = { it.id }) { game ->
+                        val gps = allGamePlayers.filter { it.gameId == game.id }
+                        val isSelected = game.id in selected
+                        SelectableHistoryCard(
+                            game = game,
+                            gamePlayers = gps,
+                            players = players,
+                            isSelected = isSelected,
+                            selecting = selecting,
+                            onClick = {
+                                if (selecting) {
+                                    if (isSelected) selected = selected - game.id else selected = selected + game.id
+                                } else {
+                                    onGameClick(game.id)
+                                }
+                            },
+                            onLongClick = {
+                                if (isSelected) selected = selected - game.id else selected = selected + game.id
+                            },
+                            onEdit = { onEditGame(game.id) }
+                        )
+                    }
+                }
+
+                item { Spacer(Modifier.height(0.dp)) }
+            }
+
+            // Bottom delete bar
+            androidx.compose.animation.AnimatedVisibility(
+                visible = selecting,
+                modifier = Modifier.align(Alignment.BottomCenter),
+                enter = androidx.compose.animation.slideInVertically { it },
+                exit = androidx.compose.animation.slideOutVertically { it }
+            ) {
+                Box(
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(Color(0xFFEF4444))
+                        .clickable { showConfirm = true }
+                        .padding(vertical = 16.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        stringResource(R.string.delete_n_games, selected.size),
+                        fontWeight = FontWeight.Bold, fontSize = 15.sp, color = Color.White
                     )
                 }
-            }
-        }
-
-        // Bottom delete bar
-        androidx.compose.animation.AnimatedVisibility(
-            visible = selecting,
-            modifier = Modifier.align(Alignment.BottomCenter),
-            enter = androidx.compose.animation.slideInVertically { it },
-            exit = androidx.compose.animation.slideOutVertically { it }
-        ) {
-            Box(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(Color(0xFFEF4444))
-                    .clickable { showConfirm = true }
-                    .padding(vertical = 16.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    stringResource(R.string.delete_n_games, selected.size),
-                    fontWeight = FontWeight.Bold, fontSize = 15.sp, color = Color.White
-                )
             }
         }
     }
 }
 
-@Composable
+
 fun SelectableHistoryCard(
     game: GameEntity,
     gamePlayers: List<com.carcassonne.companion.data.entity.GamePlayerEntity>,
@@ -726,121 +731,127 @@ fun PlayersScreen(
         )
     }
 
-    Box(Modifier.fillMaxSize()) {
-        LazyColumn(
-            modifier = Modifier.fillMaxSize().imePadding(),
-            contentPadding = PaddingValues(
-                start = 16.dp, end = 16.dp, top = 16.dp,
-                bottom = if (selecting) 96.dp else 72.dp
-            ),
-            verticalArrangement = Arrangement.spacedBy(10.dp),
-            flingBehavior = ScrollableDefaults.flingBehavior()
-        ) {
-            item {
-                OutlinedTextField(
-                    value = query,
-                    onValueChange = { query = it },
-                    modifier = Modifier.fillMaxWidth(),
-                    placeholder = { Text(stringResource(R.string.search_players), color = CarcText3) },
-                    leadingIcon = { Icon(Icons.Default.Search, null, tint = CarcText3) },
-                    trailingIcon = {
-                        if (selecting) {
-                            TextButton(onClick = { selected = emptySet() }) {
-                                Text(stringResource(R.string.cancel), color = CarcText3, fontSize = 13.sp)
-                            }
-                        }
-                    },
-                    shape = RoundedCornerShape(50.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = CarcGreenDeep,
-                        unfocusedBorderColor = CarcBorder,
-                        focusedTextColor = CarcText,
-                        unfocusedTextColor = CarcText,
-                        cursorColor = CarcGreen,
-                        focusedContainerColor = CarcCard,
-                        unfocusedContainerColor = CarcCard
-                    )
-                )
-            }
-            item {
-                Text(
-                    if (selecting) stringResource(R.string.selected_info, selected.size)
-                    else stringResource(R.string.players_section),
-                    fontSize = 11.sp,
-                    color = if (selecting) CarcGreen else CarcText3,
-                    letterSpacing = 1.sp,
-                    modifier = Modifier.padding(top = 8.dp)
-                )
-            }
+    Column(Modifier.fillMaxSize().imePadding()) {
+        // Поле поиска — фиксированное, не скроллируется
+        OutlinedTextField(
+            value = query,
+            onValueChange = { query = it },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
+                .padding(top = 16.dp, bottom = 8.dp),
+            placeholder = { Text(stringResource(R.string.search_players), color = CarcText3) },
+            leadingIcon = { Icon(Icons.Default.Search, null, tint = CarcText3) },
+            trailingIcon = {
+                if (selecting) {
+                    TextButton(onClick = { selected = emptySet() }) {
+                        Text(stringResource(R.string.cancel), color = CarcText3, fontSize = 13.sp)
+                    }
+                }
+            },
+            shape = RoundedCornerShape(50.dp),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = CarcGreenDeep,
+                unfocusedBorderColor = CarcBorder,
+                focusedTextColor = CarcText,
+                unfocusedTextColor = CarcText,
+                cursorColor = CarcGreen,
+                focusedContainerColor = CarcCard,
+                unfocusedContainerColor = CarcCard
+            )
+        )
 
-            if (filtered.isEmpty()) {
+        Box(Modifier.weight(1f)) {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(
+                    start = 16.dp, end = 16.dp, top = 4.dp,
+                    bottom = if (selecting) 96.dp else 72.dp
+                ),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
                 item {
-                    Box(Modifier.fillMaxWidth().padding(40.dp), Alignment.Center) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text("👤", fontSize = 48.sp)
-                            Spacer(Modifier.height(12.dp))
-                            Text(stringResource(R.string.no_players), color = CarcText2, fontWeight = FontWeight.SemiBold)
-                            TextButton(onClick = onAddPlayer) {
-                                Text(stringResource(R.string.add_first_player), color = CarcGreen)
+                    Text(
+                        if (selecting) stringResource(R.string.selected_info, selected.size)
+                        else stringResource(R.string.players_section),
+                        fontSize = 11.sp,
+                        color = if (selecting) CarcGreen else CarcText3,
+                        letterSpacing = 1.sp,
+                        modifier = Modifier.padding(top = 8.dp)
+                    )
+                }
+
+                if (filtered.isEmpty()) {
+                    item {
+                        Box(Modifier.fillMaxWidth().padding(40.dp), Alignment.Center) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text("👤", fontSize = 48.sp)
+                                Spacer(Modifier.height(12.dp))
+                                Text(stringResource(R.string.no_players), color = CarcText2, fontWeight = FontWeight.SemiBold)
+                                TextButton(onClick = onAddPlayer) {
+                                    Text(stringResource(R.string.add_first_player), color = CarcGreen)
+                                }
                             }
                         }
                     }
-                }
-            } else {
-                items(filtered, key = { it.id }) { player ->
-                    val stats = playerStats.find { it.player.id == player.id }
-                    val isSelected = player.id in selected
-                    SelectablePlayerCard(
-                        player = player,
-                        stats = stats,
-                        isSelected = isSelected,
-                        selecting = selecting,
-                        onClick = {
-                            if (selecting) {
+                } else {
+                    items(filtered, key = { it.id }) { player ->
+                        val stats = playerStats.find { it.player.id == player.id }
+                        val isSelected = player.id in selected
+                        SelectablePlayerCard(
+                            player = player,
+                            stats = stats,
+                            isSelected = isSelected,
+                            selecting = selecting,
+                            onClick = {
+                                if (selecting) {
+                                    if (isSelected) selected = selected - player.id
+                                    else selected = selected + player.id
+                                } else {
+                                    onPlayerClick(player.id)
+                                }
+                            },
+                            onLongClick = {
                                 if (isSelected) selected = selected - player.id
                                 else selected = selected + player.id
-                            } else {
-                                onPlayerClick(player.id)
                             }
-                        },
-                        onLongClick = {
-                            if (isSelected) selected = selected - player.id
-                            else selected = selected + player.id
-                        }
+                        )
+                    }
+                }
+
+                item { Spacer(Modifier.height(0.dp)) }
+            }
+
+            // Bottom delete bar
+            androidx.compose.animation.AnimatedVisibility(
+                visible = selecting,
+                modifier = Modifier.align(Alignment.BottomCenter),
+                enter = androidx.compose.animation.slideInVertically { it },
+                exit = androidx.compose.animation.slideOutVertically { it }
+            ) {
+                Box(
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(Color(0xFFEF4444))
+                        .clickable { showConfirm = true }
+                        .padding(vertical = 16.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        stringResource(R.string.delete_n_players, selected.size),
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 15.sp,
+                        color = Color.White
                     )
                 }
-            }
-        }
-
-        // Bottom delete bar — появляется при выделении
-        androidx.compose.animation.AnimatedVisibility(
-            visible = selecting,
-            modifier = Modifier.align(Alignment.BottomCenter),
-            enter = androidx.compose.animation.slideInVertically { it },
-            exit = androidx.compose.animation.slideOutVertically { it }
-        ) {
-            Box(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(Color(0xFFEF4444))
-                    .clickable { showConfirm = true }
-                    .padding(vertical = 16.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    stringResource(R.string.delete_n_players, selected.size),
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 15.sp,
-                    color = Color.White
-                )
             }
         }
     }
 }
 
-@Composable
+
 fun SelectablePlayerCard(
     player: PlayerEntity,
     stats: PlayerStats?,
