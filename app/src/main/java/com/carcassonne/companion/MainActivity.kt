@@ -21,6 +21,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.*
+import androidx.compose.animation.*
+import androidx.compose.animation.core.*
 import com.carcassonne.companion.data.entity.PlayerEntity
 import com.carcassonne.companion.ui.screens.*
 import com.carcassonne.companion.util.BackupManager
@@ -264,7 +266,31 @@ fun CarcassonneApp(vm: MainViewModel = viewModel()) {
         NavHost(
             navController = navController,
             startDestination = Routes.DASHBOARD,
-            modifier = Modifier.padding(top = padding.calculateTopPadding())
+            modifier = Modifier.padding(top = padding.calculateTopPadding()),
+            enterTransition = {
+                slideInHorizontally(
+                    initialOffsetX = { it },
+                    animationSpec = tween(300, easing = EaseOutCubic)
+                )
+            },
+            exitTransition = {
+                slideOutHorizontally(
+                    targetOffsetX = { -it / 3 },
+                    animationSpec = tween(300, easing = EaseOutCubic)
+                ) + fadeOut(tween(300))
+            },
+            popEnterTransition = {
+                slideInHorizontally(
+                    initialOffsetX = { -it / 3 },
+                    animationSpec = tween(300, easing = EaseOutCubic)
+                ) + fadeIn(tween(300))
+            },
+            popExitTransition = {
+                slideOutHorizontally(
+                    targetOffsetX = { it },
+                    animationSpec = tween(300, easing = EaseOutCubic)
+                )
+            }
         ) {
             composable(Routes.DASHBOARD) {
                 DashboardScreen(

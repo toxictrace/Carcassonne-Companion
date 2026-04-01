@@ -5,7 +5,6 @@ package com.carcassonne.companion.ui.screens
 import androidx.compose.animation.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.*
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -240,7 +239,6 @@ fun DashboardScreen(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(0.dp),
-        flingBehavior = ScrollableDefaults.flingBehavior()
     ) {
         item {
             Text(
@@ -1027,7 +1025,6 @@ fun StatsScreen(
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(16.dp),
-        flingBehavior = ScrollableDefaults.flingBehavior()
     ) {
         item {
             Row(
@@ -2134,7 +2131,6 @@ fun SettingsScreen(
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(16.dp),
-        flingBehavior = ScrollableDefaults.flingBehavior()
     ) {
         item {
             Text(stringResource(R.string.settings_appearance), fontSize = 11.sp, color = CarcText3, letterSpacing = 1.sp,
@@ -2404,7 +2400,6 @@ fun NewGameScreen(
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(16.dp),
-        flingBehavior = ScrollableDefaults.flingBehavior()
     ) {
         item {
             SectionHeader(stringResource(R.string.select_players), stringResource(R.string.add_new), onAddPlayer)
@@ -2833,7 +2828,6 @@ fun LiveGameScreen(
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(start = 14.dp, end = 14.dp, top = 12.dp, bottom = 100.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp),
-            flingBehavior = ScrollableDefaults.flingBehavior()
         ) {
             item {
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween,
@@ -3109,7 +3103,6 @@ fun EndgameScreen(
         Modifier.fillMaxSize(),
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
-        flingBehavior = ScrollableDefaults.flingBehavior()
     ) {
         // Phase tabs
         item {
@@ -3375,7 +3368,6 @@ fun MatchDetailScreen(
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(16.dp),
-        flingBehavior = ScrollableDefaults.flingBehavior()
     ) {
         item {
             GamePhotoBox(
@@ -3536,7 +3528,6 @@ fun PlayerProfileScreen(playerId: Int, viewModel: MainViewModel, onEdit: () -> U
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(16.dp),
-        flingBehavior = ScrollableDefaults.flingBehavior()
     ) {
         item {
             Column(
@@ -3697,7 +3688,6 @@ fun EditPlayerScreen(
         contentPadding = PaddingValues(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(16.dp),
-        flingBehavior = ScrollableDefaults.flingBehavior()
     ) {
         item {
             Text(stringResource(R.string.section_avatar), fontSize = 11.sp, color = CarcText3, letterSpacing = 1.sp,
@@ -3856,7 +3846,6 @@ fun EditGameScreen(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
-        flingBehavior = ScrollableDefaults.flingBehavior()
     ) {
         item {
             Text(stringResource(R.string.game_info_section), fontSize = 11.sp, color = CarcText3, letterSpacing = 1.sp)
