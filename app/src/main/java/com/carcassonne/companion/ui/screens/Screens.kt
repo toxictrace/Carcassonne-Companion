@@ -555,6 +555,7 @@ fun HistoryScreen(
 }
 
 
+@Composable
 fun SelectableHistoryCard(
     game: GameEntity,
     gamePlayers: List<com.carcassonne.companion.data.entity.GamePlayerEntity>,
@@ -852,6 +853,7 @@ fun PlayersScreen(
 }
 
 
+@Composable
 fun SelectablePlayerCard(
     player: PlayerEntity,
     stats: PlayerStats?,
