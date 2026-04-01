@@ -122,7 +122,7 @@ fun GamePhotoBox(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .height(if (bitmap != null) 200.dp else 100.dp)
+            .then(if (bitmap != null) Modifier else Modifier.height(100.dp))
             .clip(RoundedCornerShape(14.dp))
             .background(CarcBg3)
             .then(if (editable) Modifier.clickable { showSheet = true } else Modifier),
@@ -132,8 +132,8 @@ fun GamePhotoBox(
             androidx.compose.foundation.Image(
                 bitmap = bitmap,
                 contentDescription = "Game photo",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize()
+                contentScale = ContentScale.Fit,
+                modifier = Modifier.fillMaxWidth()
             )
             // Полупрозрачный оверлей снизу если editable
             if (editable) {
