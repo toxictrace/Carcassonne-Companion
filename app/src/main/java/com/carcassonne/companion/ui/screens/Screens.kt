@@ -534,20 +534,20 @@ fun HistoryScreen(
 
         // Bottom delete bar
         if (selecting) {
-            Box(
-                Modifier
+            Spacer(Modifier.height(8.dp))
+            Button(
+                onClick = { showConfirm = true },
+                modifier = Modifier
                     .fillMaxWidth()
-                    .navigationBarsPadding()
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(Color(0xFFEF4444))
-                    .clickable { showConfirm = true }
-                    .padding(vertical = 16.dp),
-                contentAlignment = Alignment.Center
+                    .padding(horizontal = 16.dp)
+                    .navigationBarsPadding(),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFEF4444)),
+                shape = RoundedCornerShape(16.dp)
             ) {
                 Text(
                     stringResource(R.string.delete_n_games, selected.size),
-                    fontWeight = FontWeight.Bold, fontSize = 15.sp, color = Color.White
+                    fontWeight = FontWeight.Bold, fontSize = 15.sp, color = Color.White,
+                    modifier = Modifier.padding(vertical = 8.dp)
                 )
             }
         }
@@ -829,22 +829,20 @@ fun PlayersScreen(
 
         // Bottom delete bar
         if (selecting) {
-            Box(
-                Modifier
+            Spacer(Modifier.height(8.dp))
+            Button(
+                onClick = { showConfirm = true },
+                modifier = Modifier
                     .fillMaxWidth()
-                    .navigationBarsPadding()
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(Color(0xFFEF4444))
-                    .clickable { showConfirm = true }
-                    .padding(vertical = 16.dp),
-                contentAlignment = Alignment.Center
+                    .padding(horizontal = 16.dp)
+                    .navigationBarsPadding(),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFEF4444)),
+                shape = RoundedCornerShape(16.dp)
             ) {
                 Text(
                     stringResource(R.string.delete_n_players, selected.size),
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 15.sp,
-                    color = Color.White
+                    fontWeight = FontWeight.Bold, fontSize = 15.sp, color = Color.White,
+                    modifier = Modifier.padding(vertical = 8.dp)
                 )
             }
         }
