@@ -276,13 +276,11 @@ fun CarcassonneApp(vm: MainViewModel = viewModel()) {
                 val fromIdx = tabRoutes.indexOf(fromRoute)
                 val toIdx = tabRoutes.indexOf(toRoute)
                 when {
-                    // Переход между вкладками — по направлению
                     fromIdx >= 0 && toIdx >= 0 -> {
                         val dir = if (toIdx > fromIdx) 1 else -1
-                        slideInHorizontally(tween(280, easing = EaseOutCubic)) { it * dir }
+                        slideInHorizontally(tween(220, easing = EaseOutCubic)) { it * dir }
                     }
-                    // Переход вглубь (детали, профиль) — вправо
-                    else -> slideInHorizontally(tween(300, easing = EaseOutCubic)) { it }
+                    else -> slideInHorizontally(tween(220, easing = EaseOutCubic)) { it }
                 }
             },
             exitTransition = {
@@ -293,19 +291,16 @@ fun CarcassonneApp(vm: MainViewModel = viewModel()) {
                 when {
                     fromIdx >= 0 && toIdx >= 0 -> {
                         val dir = if (toIdx > fromIdx) -1 else 1
-                        slideOutHorizontally(tween(280, easing = EaseOutCubic)) { it * dir / 3 } +
-                        fadeOut(tween(280))
+                        slideOutHorizontally(tween(220, easing = EaseOutCubic)) { it * dir / 3 }
                     }
-                    else -> slideOutHorizontally(tween(300, easing = EaseOutCubic)) { -it / 3 } +
-                            fadeOut(tween(300))
+                    else -> slideOutHorizontally(tween(220, easing = EaseOutCubic)) { -it / 3 }
                 }
             },
             popEnterTransition = {
-                slideInHorizontally(tween(300, easing = EaseOutCubic)) { -it / 3 } +
-                fadeIn(tween(300))
+                slideInHorizontally(tween(220, easing = EaseOutCubic)) { -it / 3 }
             },
             popExitTransition = {
-                slideOutHorizontally(tween(300, easing = EaseOutCubic)) { it }
+                slideOutHorizontally(tween(220, easing = EaseOutCubic)) { it }
             }
         ) {
             composable(Routes.DASHBOARD) {

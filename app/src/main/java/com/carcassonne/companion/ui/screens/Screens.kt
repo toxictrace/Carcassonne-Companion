@@ -80,10 +80,12 @@ fun GamePhotoBox(
     var showSheet by remember { mutableStateOf(false) }
     var tempCameraUri by remember { mutableStateOf<android.net.Uri?>(null) }
 
-    val bitmap = remember(currentPath) {
-        if (currentPath != null && java.io.File(currentPath!!).exists()) {
-            BitmapFactory.decodeFile(currentPath!!)?.asImageBitmap()
-        } else null
+    val bitmap by produceState<androidx.compose.ui.graphics.ImageBitmap?>(null, currentPath) {
+        value = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+            if (currentPath != null && java.io.File(currentPath!!).exists())
+                BitmapFactory.decodeFile(currentPath!!)?.asImageBitmap()
+            else null
+        }
     }
 
     val galleryLauncher = rememberLauncherForActivityResult(
@@ -337,14 +339,16 @@ fun DashboardGameRow(
                         .background(CarcBg3),
                     contentAlignment = Alignment.Center
                 ) {
-                    val bmp = remember(game.photoPath) {
-                        if (game.photoPath != null && java.io.File(game.photoPath).exists())
-                            BitmapFactory.decodeFile(game.photoPath)?.asImageBitmap()
-                        else null
+                    val bmp by produceState<androidx.compose.ui.graphics.ImageBitmap?>(null, game.photoPath) {
+                        value = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                            if (game.photoPath != null && java.io.File(game.photoPath).exists())
+                                BitmapFactory.decodeFile(game.photoPath)?.asImageBitmap()
+                            else null
+                        }
                     }
                     if (bmp != null) {
                         androidx.compose.foundation.Image(
-                            bitmap = bmp, contentDescription = null,
+                            bitmap = bmp!!, contentDescription = null,
                             contentScale = ContentScale.Crop,
                             modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(8.dp))
                         )
@@ -629,14 +633,16 @@ fun HistoryGameCard(
                         .background(CarcBg3),
                     contentAlignment = Alignment.Center
                 ) {
-                    val bmp = remember(game.photoPath) {
-                        if (game.photoPath != null && java.io.File(game.photoPath).exists())
-                            BitmapFactory.decodeFile(game.photoPath)?.asImageBitmap()
-                        else null
+                    val bmp by produceState<androidx.compose.ui.graphics.ImageBitmap?>(null, game.photoPath) {
+                        value = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                            if (game.photoPath != null && java.io.File(game.photoPath).exists())
+                                BitmapFactory.decodeFile(game.photoPath)?.asImageBitmap()
+                            else null
+                        }
                     }
                     if (bmp != null) {
                         androidx.compose.foundation.Image(
-                            bitmap = bmp, contentDescription = null,
+                            bitmap = bmp!!, contentDescription = null,
                             contentScale = ContentScale.Crop,
                             modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(8.dp))
                         )
