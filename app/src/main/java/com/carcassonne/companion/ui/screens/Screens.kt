@@ -533,11 +533,7 @@ fun HistoryScreen(
         }
 
         // Bottom delete bar
-        androidx.compose.animation.AnimatedVisibility(
-            visible = selecting,
-            enter = androidx.compose.animation.slideInVertically { it },
-            exit = androidx.compose.animation.slideOutVertically { it }
-        ) {
+        if (selecting) {
             Box(
                 Modifier
                     .fillMaxWidth()
@@ -831,11 +827,7 @@ fun PlayersScreen(
         }
 
         // Bottom delete bar
-        androidx.compose.animation.AnimatedVisibility(
-            visible = selecting,
-            enter = androidx.compose.animation.slideInVertically { it },
-            exit = androidx.compose.animation.slideOutVertically { it }
-        ) {
+        if (selecting) {
             Box(
                 Modifier
                     .fillMaxWidth()
