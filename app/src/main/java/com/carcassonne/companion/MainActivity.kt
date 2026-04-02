@@ -263,33 +263,49 @@ fun CarcassonneApp(vm: MainViewModel = viewModel()) {
             }
         }
     ) { padding ->
+        val tabRoutes = listOf(Routes.DASHBOARD, Routes.HISTORY, Routes.PLAYERS, Routes.STATS, Routes.SETTINGS)
+        var prevTabIndex by remember { mutableIntStateOf(0) }
+
         NavHost(
             navController = navController,
             startDestination = Routes.DASHBOARD,
             modifier = Modifier.padding(top = padding.calculateTopPadding()),
             enterTransition = {
-                slideInHorizontally(
-                    initialOffsetX = { it },
-                    animationSpec = tween(300, easing = EaseOutCubic)
-                )
+                val fromRoute = initialState.destination.route
+                val toRoute = targetState.destination.route
+                val fromIdx = tabRoutes.indexOf(fromRoute)
+                val toIdx = tabRoutes.indexOf(toRoute)
+                when {
+                    // Переход между вкладками — по направлению
+                    fromIdx >= 0 && toIdx >= 0 -> {
+                        val dir = if (toIdx > fromIdx) 1 else -1
+                        slideInHorizontally(tween(280, easing = EaseOutCubic)) { it * dir }
+                    }
+                    // Переход вглубь (детали, профиль) — вправо
+                    else -> slideInHorizontally(tween(300, easing = EaseOutCubic)) { it }
+                }
             },
             exitTransition = {
-                slideOutHorizontally(
-                    targetOffsetX = { -it / 3 },
-                    animationSpec = tween(300, easing = EaseOutCubic)
-                ) + fadeOut(tween(300))
+                val fromRoute = initialState.destination.route
+                val toRoute = targetState.destination.route
+                val fromIdx = tabRoutes.indexOf(fromRoute)
+                val toIdx = tabRoutes.indexOf(toRoute)
+                when {
+                    fromIdx >= 0 && toIdx >= 0 -> {
+                        val dir = if (toIdx > fromIdx) -1 else 1
+                        slideOutHorizontally(tween(280, easing = EaseOutCubic)) { it * dir / 3 } +
+                        fadeOut(tween(280))
+                    }
+                    else -> slideOutHorizontally(tween(300, easing = EaseOutCubic)) { -it / 3 } +
+                            fadeOut(tween(300))
+                }
             },
             popEnterTransition = {
-                slideInHorizontally(
-                    initialOffsetX = { -it / 3 },
-                    animationSpec = tween(300, easing = EaseOutCubic)
-                ) + fadeIn(tween(300))
+                slideInHorizontally(tween(300, easing = EaseOutCubic)) { -it / 3 } +
+                fadeIn(tween(300))
             },
             popExitTransition = {
-                slideOutHorizontally(
-                    targetOffsetX = { it },
-                    animationSpec = tween(300, easing = EaseOutCubic)
-                )
+                slideOutHorizontally(tween(300, easing = EaseOutCubic)) { it }
             }
         ) {
             composable(Routes.DASHBOARD) {
