@@ -204,7 +204,7 @@ fun CarcassonneApp(vm: MainViewModel = viewModel()) {
                                     currentRoute.startsWith("edit_game")    -> stringResource(R.string.edit_game)
                                     currentRoute.startsWith("edit_player")  -> stringResource(R.string.edit_profile)
                                     currentRoute == Routes.ENDGAME          -> stringResource(R.string.final_scoring)
-                                    else -> "Profile"
+                                    else -> stringResource(R.string.player_profile_title)
                                 },
                                 fontWeight = FontWeight.Bold, color = CarcText
                             )
@@ -270,38 +270,10 @@ fun CarcassonneApp(vm: MainViewModel = viewModel()) {
             navController = navController,
             startDestination = Routes.DASHBOARD,
             modifier = Modifier.padding(top = padding.calculateTopPadding()),
-            enterTransition = {
-                val fromRoute = initialState.destination.route
-                val toRoute = targetState.destination.route
-                val fromIdx = tabRoutes.indexOf(fromRoute)
-                val toIdx = tabRoutes.indexOf(toRoute)
-                when {
-                    fromIdx >= 0 && toIdx >= 0 -> {
-                        val dir = if (toIdx > fromIdx) 1 else -1
-                        slideInHorizontally(tween(220, easing = EaseOutCubic)) { it * dir }
-                    }
-                    else -> slideInHorizontally(tween(220, easing = EaseOutCubic)) { it }
-                }
-            },
-            exitTransition = {
-                val fromRoute = initialState.destination.route
-                val toRoute = targetState.destination.route
-                val fromIdx = tabRoutes.indexOf(fromRoute)
-                val toIdx = tabRoutes.indexOf(toRoute)
-                when {
-                    fromIdx >= 0 && toIdx >= 0 -> {
-                        val dir = if (toIdx > fromIdx) -1 else 1
-                        slideOutHorizontally(tween(220, easing = EaseOutCubic)) { it * dir / 3 }
-                    }
-                    else -> slideOutHorizontally(tween(220, easing = EaseOutCubic)) { -it / 3 }
-                }
-            },
-            popEnterTransition = {
-                slideInHorizontally(tween(220, easing = EaseOutCubic)) { -it / 3 }
-            },
-            popExitTransition = {
-                slideOutHorizontally(tween(220, easing = EaseOutCubic)) { it }
-            }
+            enterTransition = { fadeIn(tween(200)) },
+            exitTransition = { fadeOut(tween(200)) },
+            popEnterTransition = { fadeIn(tween(200)) },
+            popExitTransition = { fadeOut(tween(200)) }
         ) {
             composable(Routes.DASHBOARD) {
                 DashboardScreen(

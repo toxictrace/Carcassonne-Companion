@@ -4,6 +4,7 @@
     <string name="nav_dashboard">Dashboard</string>
     <string name="nav_history">History</string>
     <string name="nav_players">Players</string>
+    <string name="player_profile_title">Player Profile</string>
     <string name="nav_stats">Stats</string>
     <string name="nav_settings">Settings</string>
     <string name="ok">OK</string>

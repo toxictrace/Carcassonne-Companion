@@ -4,6 +4,7 @@
     <string name="nav_dashboard">Главная</string>
     <string name="nav_history">История</string>
     <string name="nav_players">Игроки</string>
+    <string name="player_profile_title">Профиль игрока</string>
     <string name="nav_stats">Стат.</string>
     <string name="nav_settings">Настройки</string>
     <string name="ok">ОК</string>
