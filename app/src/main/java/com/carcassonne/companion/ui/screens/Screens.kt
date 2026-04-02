@@ -530,29 +530,28 @@ fun HistoryScreen(
 
                 item { Spacer(Modifier.height(0.dp)) }
             }
+        }
 
-            // Bottom delete bar
-            androidx.compose.animation.AnimatedVisibility(
-                visible = selecting,
-                modifier = Modifier.align(Alignment.BottomCenter),
-                enter = androidx.compose.animation.slideInVertically { it },
-                exit = androidx.compose.animation.slideOutVertically { it }
+        // Bottom delete bar
+        androidx.compose.animation.AnimatedVisibility(
+            visible = selecting,
+            enter = androidx.compose.animation.slideInVertically { it },
+            exit = androidx.compose.animation.slideOutVertically { it }
+        ) {
+            Box(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(Color(0xFFEF4444))
+                    .clickable { showConfirm = true }
+                    .padding(vertical = 16.dp),
+                contentAlignment = Alignment.Center
             ) {
-                Box(
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp)
-                        .clip(RoundedCornerShape(16.dp))
-                        .background(Color(0xFFEF4444))
-                        .clickable { showConfirm = true }
-                        .padding(vertical = 16.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        stringResource(R.string.delete_n_games, selected.size),
-                        fontWeight = FontWeight.Bold, fontSize = 15.sp, color = Color.White
-                    )
-                }
+                Text(
+                    stringResource(R.string.delete_n_games, selected.size),
+                    fontWeight = FontWeight.Bold, fontSize = 15.sp, color = Color.White
+                )
             }
         }
     }
@@ -829,31 +828,30 @@ fun PlayersScreen(
 
                 item { Spacer(Modifier.height(0.dp)) }
             }
+        }
 
-            // Bottom delete bar
-            androidx.compose.animation.AnimatedVisibility(
-                visible = selecting,
-                modifier = Modifier.align(Alignment.BottomCenter),
-                enter = androidx.compose.animation.slideInVertically { it },
-                exit = androidx.compose.animation.slideOutVertically { it }
+        // Bottom delete bar
+        androidx.compose.animation.AnimatedVisibility(
+            visible = selecting,
+            enter = androidx.compose.animation.slideInVertically { it },
+            exit = androidx.compose.animation.slideOutVertically { it }
+        ) {
+            Box(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(Color(0xFFEF4444))
+                    .clickable { showConfirm = true }
+                    .padding(vertical = 16.dp),
+                contentAlignment = Alignment.Center
             ) {
-                Box(
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp)
-                        .clip(RoundedCornerShape(16.dp))
-                        .background(Color(0xFFEF4444))
-                        .clickable { showConfirm = true }
-                        .padding(vertical = 16.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        stringResource(R.string.delete_n_players, selected.size),
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 15.sp,
-                        color = Color.White
-                    )
-                }
+                Text(
+                    stringResource(R.string.delete_n_players, selected.size),
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 15.sp,
+                    color = Color.White
+                )
             }
         }
     }
