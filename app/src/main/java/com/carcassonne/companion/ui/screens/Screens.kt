@@ -440,7 +440,11 @@ fun HistoryScreen(
         )
     }
 
-    Column(Modifier.fillMaxSize().imePadding()) {
+    Column(
+        Modifier.fillMaxSize().windowInsetsPadding(
+            WindowInsets.navigationBars.union(WindowInsets.ime)
+        )
+    ) {
         // Поле поиска — фиксированное, не скроллируется
         OutlinedTextField(
             value = query,
@@ -733,7 +737,11 @@ fun PlayersScreen(
         )
     }
 
-    Column(Modifier.fillMaxSize().imePadding()) {
+    Column(
+        Modifier.fillMaxSize().windowInsetsPadding(
+            WindowInsets.navigationBars.union(WindowInsets.ime)
+        )
+    ) {
         // Поле поиска — фиксированное, не скроллируется
         OutlinedTextField(
             value = query,
