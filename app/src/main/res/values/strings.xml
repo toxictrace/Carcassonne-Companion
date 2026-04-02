@@ -310,4 +310,6 @@
       <string name="backup_folder_default">App folder (default)</string>
       <string name="backup_folder_files_hint">Only .ccbackup files from selected folder:</string>
       <string name="restore_no_files_in_folder">No .ccbackup files found in the selected folder.</string>
-  </resources>
+      <string name="notes_label">Notes</string>
+    <string name="notes_placeholder">Add a note about the game…</string>
+</resources>

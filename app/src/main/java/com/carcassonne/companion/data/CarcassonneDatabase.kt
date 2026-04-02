@@ -25,9 +25,15 @@ val MIGRATION_2_3 = object : Migration(2, 3) {
     }
 }
 
+val MIGRATION_3_4 = object : Migration(3, 4) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("ALTER TABLE games ADD COLUMN notes TEXT")
+    }
+}
+
 @Database(
     entities = [PlayerEntity::class, GameEntity::class, GamePlayerEntity::class],
-    version = 3,
+    version = 4,
     exportSchema = false
 )
 abstract class CarcassonneDatabase : RoomDatabase() {
@@ -45,7 +51,7 @@ abstract class CarcassonneDatabase : RoomDatabase() {
                     CarcassonneDatabase::class.java,
                     "carcassonne_db"
                 )
-                .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
+                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
                 .build().also { INSTANCE = it }
             }
         }

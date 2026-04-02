@@ -310,4 +310,6 @@
       <string name="backup_folder_default">Папка приложения (по умолчанию)</string>
       <string name="backup_folder_files_hint">Файлы .ccbackup из выбранной папки:</string>
       <string name="restore_no_files_in_folder">Файлы .ccbackup не найдены в выбранной папке.</string>
-  </resources>
+      <string name="notes_label">Примечание</string>
+    <string name="notes_placeholder">Заметка об этой партии…</string>
+</resources>

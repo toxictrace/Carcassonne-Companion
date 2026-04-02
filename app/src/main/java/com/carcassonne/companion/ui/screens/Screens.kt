@@ -3088,7 +3088,7 @@ fun ScoreInputField(label: String, value: String, onValue: (String) -> Unit, mod
 fun EndgameScreen(
     liveGame: LiveGameState,
     onApply: (Map<Int, EndgamePlayerInput>) -> Unit,
-    onSave: (String) -> Unit,
+    onSave: (String, String?) -> Unit,
     onBack: () -> Unit,
     pendingPhotoPath: String? = null,
     onSetPhoto: (String?) -> Unit = {}
@@ -3100,6 +3100,7 @@ fun EndgameScreen(
         }
     }
     var gameName by remember { mutableStateOf("") }
+    var gameNotes by remember { mutableStateOf("") }
     var phase by remember { mutableStateOf(0) } // 0=incomplete 1=farms 2=confirm
 
     val totalWithEndgame = { pid: Int ->
@@ -3296,6 +3297,20 @@ fun EndgameScreen(
                             focusedTextColor = CarcText, unfocusedTextColor = CarcText, cursorColor = CarcGreen
                         )
                     )
+                    Spacer(Modifier.height(8.dp))
+                    OutlinedTextField(
+                        value = gameNotes,
+                        onValueChange = { if (it.length <= 150) gameNotes = it },
+                        label = { Text(stringResource(R.string.notes_label), color = CarcText3) },
+                        placeholder = { Text(stringResource(R.string.notes_placeholder), color = CarcText3, fontSize = 13.sp) },
+                        modifier = Modifier.fillMaxWidth(),
+                        maxLines = 4,
+                        supportingText = { Text("${gameNotes.length}/150", color = CarcText3, fontSize = 11.sp) },
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = CarcGreenDeep, unfocusedBorderColor = CarcBorder,
+                            focusedTextColor = CarcText, unfocusedTextColor = CarcText, cursorColor = CarcGreen
+                        )
+                    )
                 }
                 item {
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -3310,7 +3325,7 @@ fun EndgameScreen(
                             .clickable {
                                 val finalInputs = inputs.mapValues { it.value.value }
                                 onApply(finalInputs)
-                                onSave(gameName)
+                                onSave(gameName, gameNotes.ifBlank { null })
                             }.padding(vertical = 14.dp),
                             contentAlignment = Alignment.Center) {
                             Text(stringResource(R.string.save_game), color = CarcBg, fontWeight = FontWeight.Bold, fontSize = 15.sp)
@@ -3411,6 +3426,23 @@ fun MatchDetailScreen(
                 }
             }
             Spacer(Modifier.height(16.dp))
+            // Notes — показываем только если есть
+            val notes = game?.notes
+            if (!notes.isNullOrBlank()) {
+                Card(
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(containerColor = CarcCard),
+                    border = BorderStroke(1.dp, CarcBorder),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column(Modifier.padding(12.dp)) {
+                        Text("📝", fontSize = 13.sp, color = CarcText3)
+                        Spacer(Modifier.height(4.dp))
+                        Text(notes, fontSize = 14.sp, color = CarcText, lineHeight = 20.sp)
+                    }
+                }
+                Spacer(Modifier.height(16.dp))
+            }
         }
 
         // Winner
@@ -3773,6 +3805,7 @@ fun EditGameScreen(
     }
 
     var gameName by remember(game) { mutableStateOf(game?.name ?: "") }
+    var gameNotes by remember(game) { mutableStateOf(game?.notes ?: "") }
 
     // DatePicker state
     val initialMs = game?.date ?: System.currentTimeMillis()

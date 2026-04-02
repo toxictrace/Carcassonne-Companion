@@ -439,8 +439,8 @@ fun CarcassonneApp(vm: MainViewModel = viewModel()) {
                         vm.applyEndgame(results)
                         navController.navigate(Routes.LIVE_GAME) { popUpTo(Routes.ENDGAME) { inclusive = true } }
                     },
-                    onSave = { name ->
-                        vm.saveGame(name) { gameId ->
+                    onSave = { name, notes ->
+                        vm.saveGame(name, notes) { gameId ->
                             navController.navigate(Routes.matchDetail(gameId)) {
                                 popUpTo(Routes.DASHBOARD) { inclusive = false }
                             }

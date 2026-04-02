@@ -226,6 +226,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         repo.updateGamePhoto(gameId, path)
     }
 
+    fun updateGameNotes(gameId: Int, notes: String?) = viewModelScope.launch {
+        repo.updateGameNotes(gameId, notes)
+    }
+
     // Pending photo — set before game is saved, applied after saveGame
     private val _pendingGamePhoto = MutableStateFlow<String?>(null)
     val pendingGamePhoto: StateFlow<String?> = _pendingGamePhoto.asStateFlow()
@@ -349,7 +353,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     // ─── Save Game ──────────────────────────────────────────────
-    fun saveGame(gameName: String, onDone: (Int) -> Unit) = viewModelScope.launch {
+    fun saveGame(gameName: String, notes: String? = null, onDone: (Int) -> Unit) = viewModelScope.launch {
         val state = _liveGame.value
         val elapsed = (System.currentTimeMillis() - state.startTimeMs) / 1000L
         val results = state.selectedPlayers.map { p ->
@@ -369,11 +373,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             expansions = state.expansions.toList(),
             playerResults = results
         )
-        // Применяем фото поля если было добавлено
         val photo = _pendingGamePhoto.value
         if (photo != null) {
             repo.updateGamePhoto(gameId, photo)
             _pendingGamePhoto.value = null
+        }
+        if (!notes.isNullOrBlank()) {
+            repo.updateGameNotes(gameId, notes)
         }
         _liveGame.value = LiveGameState()
         _message.emit(getApplication<Application>().getString(R.string.game_saved))

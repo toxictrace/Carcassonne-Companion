@@ -37,6 +37,9 @@ class CarcassonneRepository(
     suspend fun updateGamePhoto(gameId: Int, path: String?) =
         gameDao.updateGamePhoto(gameId, path)
 
+    suspend fun updateGameNotes(gameId: Int, notes: String?) =
+        gameDao.updateGameNotes(gameId, notes)
+
     suspend fun saveGame(
         name: String?,
         durationSeconds: Long?,
