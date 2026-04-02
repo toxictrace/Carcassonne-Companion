@@ -3110,7 +3110,7 @@ fun EndgameScreen(
     }
 
     LazyColumn(
-        Modifier.fillMaxSize(),
+        Modifier.fillMaxSize().imePadding(),
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
@@ -3885,7 +3885,7 @@ fun EditGameScreen(
     }
 
     LazyColumn(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize().imePadding(),
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
@@ -3897,6 +3897,20 @@ fun EditGameScreen(
                 onValueChange = { gameName = it },
                 label = { Text(stringResource(R.string.game_name_label), color = CarcText3) },
                 modifier = Modifier.fillMaxWidth(),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = CarcGreenDeep, unfocusedBorderColor = CarcBorder,
+                    focusedTextColor = CarcText, unfocusedTextColor = CarcText, cursorColor = CarcGreen
+                )
+            )
+            Spacer(Modifier.height(8.dp))
+            OutlinedTextField(
+                value = gameNotes,
+                onValueChange = { if (it.length <= 150) gameNotes = it },
+                label = { Text(stringResource(R.string.notes_label), color = CarcText3) },
+                placeholder = { Text(stringResource(R.string.notes_placeholder), color = CarcText3, fontSize = 13.sp) },
+                modifier = Modifier.fillMaxWidth(),
+                maxLines = 4,
+                supportingText = { Text("${gameNotes.length}/150", color = CarcText3, fontSize = 11.sp) },
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = CarcGreenDeep, unfocusedBorderColor = CarcBorder,
                     focusedTextColor = CarcText, unfocusedTextColor = CarcText, cursorColor = CarcGreen
