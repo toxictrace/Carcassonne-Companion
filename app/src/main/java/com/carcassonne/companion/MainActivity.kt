@@ -269,7 +269,7 @@ fun CarcassonneApp(vm: MainViewModel = viewModel()) {
         NavHost(
             navController = navController,
             startDestination = Routes.DASHBOARD,
-            modifier = Modifier.padding(top = padding.calculateTopPadding()),
+            modifier = Modifier.padding(top = padding.calculateTopPadding(), bottom = padding.calculateBottomPadding()),
             enterTransition = { fadeIn(tween(200)) },
             exitTransition = { fadeOut(tween(200)) },
             popEnterTransition = { fadeIn(tween(200)) },
