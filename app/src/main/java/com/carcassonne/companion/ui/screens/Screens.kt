@@ -440,7 +440,7 @@ fun HistoryScreen(
         )
     }
 
-    Column(Modifier.fillMaxSize().imePadding().navigationBarsPadding()) {
+    Column(Modifier.fillMaxSize().imePadding()) {
         // Поле поиска — фиксированное, не скроллируется
         OutlinedTextField(
             value = query,
@@ -540,7 +540,7 @@ fun HistoryScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)
-                    .navigationBarsPadding(),
+                    .padding(bottom = 80.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFEF4444)),
                 shape = RoundedCornerShape(16.dp)
             ) {
@@ -735,7 +735,7 @@ fun PlayersScreen(
         )
     }
 
-    Column(Modifier.fillMaxSize().imePadding().navigationBarsPadding()) {
+    Column(Modifier.fillMaxSize().imePadding()) {
         // Поле поиска — фиксированное, не скроллируется
         OutlinedTextField(
             value = query,
@@ -835,7 +835,7 @@ fun PlayersScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)
-                    .navigationBarsPadding(),
+                    .padding(bottom = 80.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFEF4444)),
                 shape = RoundedCornerShape(16.dp)
             ) {
