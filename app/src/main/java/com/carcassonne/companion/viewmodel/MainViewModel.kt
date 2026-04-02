@@ -515,9 +515,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         name: String?,
         date: Long,
         playerResults: List<PlayerResult>,
+        notes: String? = null,
         onDone: () -> Unit = {}
     ) = viewModelScope.launch {
         repo.updateGame(gameId, name, date, playerResults)
+        repo.updateGameNotes(gameId, notes)
         _message.emit(getApplication<Application>().getString(R.string.game_updated))
         onDone()
     }

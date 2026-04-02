@@ -4009,6 +4009,7 @@ fun EditGameScreen(
                     name = gameName.ifBlank { null },
                     date = selectedDateMs,
                     playerResults = results,
+                    notes = gameNotes.ifBlank { null },
                     onDone = onDone
                 )
             })
