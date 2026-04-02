@@ -346,9 +346,10 @@ fun DashboardGameRow(
                             else null
                         }
                     }
-                    if (bmp != null) {
+                    val safeBmp = bmp
+                    if (safeBmp != null) {
                         androidx.compose.foundation.Image(
-                            bitmap = bmp!!, contentDescription = null,
+                            bitmap = safeBmp, contentDescription = null,
                             contentScale = ContentScale.Crop,
                             modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(8.dp))
                         )
@@ -640,9 +641,10 @@ fun HistoryGameCard(
                             else null
                         }
                     }
-                    if (bmp != null) {
+                    val safeBmp = bmp
+                    if (safeBmp != null) {
                         androidx.compose.foundation.Image(
-                            bitmap = bmp!!, contentDescription = null,
+                            bitmap = safeBmp, contentDescription = null,
                             contentScale = ContentScale.Crop,
                             modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(8.dp))
                         )
