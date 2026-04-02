@@ -440,7 +440,7 @@ fun HistoryScreen(
         )
     }
 
-    Column(Modifier.fillMaxSize().imePadding()) {
+    Column(Modifier.fillMaxSize().imePadding().navigationBarsPadding()) {
         // Поле поиска — фиксированное, не скроллируется
         OutlinedTextField(
             value = query,
@@ -534,13 +534,11 @@ fun HistoryScreen(
 
         // Bottom delete bar
         if (selecting) {
-            Spacer(Modifier.height(8.dp))
             Button(
                 onClick = { showConfirm = true },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp)
-                    .padding(bottom = 80.dp),
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFEF4444)),
                 shape = RoundedCornerShape(16.dp)
             ) {
@@ -735,7 +733,7 @@ fun PlayersScreen(
         )
     }
 
-    Column(Modifier.fillMaxSize().imePadding()) {
+    Column(Modifier.fillMaxSize().imePadding().navigationBarsPadding()) {
         // Поле поиска — фиксированное, не скроллируется
         OutlinedTextField(
             value = query,
@@ -829,13 +827,11 @@ fun PlayersScreen(
 
         // Bottom delete bar
         if (selecting) {
-            Spacer(Modifier.height(8.dp))
             Button(
                 onClick = { showConfirm = true },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp)
-                    .padding(bottom = 80.dp),
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFEF4444)),
                 shape = RoundedCornerShape(16.dp)
             ) {
