@@ -440,8 +440,7 @@ fun HistoryScreen(
         )
     }
 
-    Column(Modifier.fillMaxSize())
-    ) {
+    Column(Modifier.fillMaxSize()) {
         // Поле поиска — фиксированное, не скроллируется
         OutlinedTextField(
             value = query,
@@ -734,8 +733,7 @@ fun PlayersScreen(
         )
     }
 
-    Column(Modifier.fillMaxSize())
-    ) {
+    Column(Modifier.fillMaxSize()) {
         // Поле поиска — фиксированное, не скроллируется
         OutlinedTextField(
             value = query,
