@@ -537,6 +537,7 @@ fun HistoryScreen(
             Box(
                 Modifier
                     .fillMaxWidth()
+                    .navigationBarsPadding()
                     .padding(horizontal = 16.dp, vertical = 8.dp)
                     .clip(RoundedCornerShape(16.dp))
                     .background(Color(0xFFEF4444))
@@ -831,6 +832,7 @@ fun PlayersScreen(
             Box(
                 Modifier
                     .fillMaxWidth()
+                    .navigationBarsPadding()
                     .padding(horizontal = 16.dp, vertical = 8.dp)
                     .clip(RoundedCornerShape(16.dp))
                     .background(Color(0xFFEF4444))
