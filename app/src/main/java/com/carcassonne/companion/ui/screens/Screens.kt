@@ -129,9 +129,10 @@ fun GamePhotoBox(
             .then(if (editable) Modifier.clickable { showSheet = true } else Modifier),
         contentAlignment = Alignment.Center
     ) {
-        if (bitmap != null) {
+        val safeBitmap = bitmap
+        if (safeBitmap != null) {
             androidx.compose.foundation.Image(
-                bitmap = bitmap,
+                bitmap = safeBitmap,
                 contentDescription = "Game photo",
                 contentScale = ContentScale.Fit,
                 modifier = Modifier.fillMaxWidth()
