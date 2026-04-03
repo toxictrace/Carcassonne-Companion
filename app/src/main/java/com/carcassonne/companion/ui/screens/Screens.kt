@@ -449,13 +449,7 @@ fun HistoryScreen(
         )
     }
 
-    val navBarBottom = with(LocalDensity.current) {
-        WindowInsets.navigationBars.getBottom(this).toDp()
-    }
-    val imeBottom = with(LocalDensity.current) {
-        (WindowInsets.ime.getBottom(this).toDp() - navBarBottom).coerceAtLeast(0.dp)
-    }
-    Column(Modifier.fillMaxSize()) {
+    Column(Modifier.fillMaxSize().navigationBarsPadding().imePadding()) {
         // Поле поиска — фиксированное, не скроллируется
         OutlinedTextField(
             value = query,
@@ -494,7 +488,7 @@ fun HistoryScreen(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(
                     start = 16.dp, end = 16.dp, top = 4.dp,
-                    bottom = if (imeBottom > 0.dp) imeBottom else if (selecting) 96.dp else 72.dp
+                    bottom = if (selecting) 96.dp else 72.dp
                 ),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
@@ -749,13 +743,7 @@ fun PlayersScreen(
         )
     }
 
-    val navBarBottom = with(LocalDensity.current) {
-        WindowInsets.navigationBars.getBottom(this).toDp()
-    }
-    val imeBottom = with(LocalDensity.current) {
-        (WindowInsets.ime.getBottom(this).toDp() - navBarBottom).coerceAtLeast(0.dp)
-    }
-    Column(Modifier.fillMaxSize()) {
+    Column(Modifier.fillMaxSize().navigationBarsPadding().imePadding()) {
         // Поле поиска — фиксированное, не скроллируется
         OutlinedTextField(
             value = query,
@@ -790,7 +778,7 @@ fun PlayersScreen(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(
                     start = 16.dp, end = 16.dp, top = 4.dp,
-                    bottom = if (imeBottom > 0.dp) imeBottom else if (selecting) 96.dp else 72.dp
+                    bottom = if (selecting) 96.dp else 72.dp
                 ),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
