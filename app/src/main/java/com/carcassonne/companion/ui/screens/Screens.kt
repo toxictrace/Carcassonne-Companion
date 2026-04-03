@@ -449,6 +449,7 @@ fun HistoryScreen(
         )
     }
 
+    val imeBottom = with(LocalDensity.current) { WindowInsets.ime.getBottom(this).toDp() }
     Column(Modifier.fillMaxSize().navigationBarsPadding().imePadding()) {
         // Поле поиска — фиксированное, не скроллируется
         OutlinedTextField(
@@ -548,7 +549,7 @@ fun HistoryScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)
-                    .padding(top = 8.dp, bottom = 88.dp),
+                    .padding(top = 8.dp, bottom = if (imeBottom > 0.dp) 8.dp else 88.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFEF4444)),
                 shape = RoundedCornerShape(16.dp)
             ) {
@@ -743,6 +744,7 @@ fun PlayersScreen(
         )
     }
 
+    val imeBottom = with(LocalDensity.current) { WindowInsets.ime.getBottom(this).toDp() }
     Column(Modifier.fillMaxSize().navigationBarsPadding().imePadding()) {
         // Поле поиска — фиксированное, не скроллируется
         OutlinedTextField(
@@ -842,7 +844,7 @@ fun PlayersScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)
-                    .padding(top = 8.dp, bottom = 88.dp),
+                    .padding(top = 8.dp, bottom = if (imeBottom > 0.dp) 8.dp else 88.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFEF4444)),
                 shape = RoundedCornerShape(16.dp)
             ) {
