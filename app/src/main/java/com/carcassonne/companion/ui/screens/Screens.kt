@@ -904,7 +904,7 @@ fun SelectablePlayerCard(
                     WinRateBar(stats.winRate)
                 }
             }
-            if (!selecting && stats != null && stats.gamesPlayed > 0) {
+            if (stats != null && stats.gamesPlayed > 0) {
                 Column(horizontalAlignment = Alignment.End) {
                     Box(
                         modifier = Modifier
