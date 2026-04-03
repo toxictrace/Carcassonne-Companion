@@ -449,6 +449,9 @@ fun HistoryScreen(
         )
     }
 
+    val imeBottom = with(LocalDensity.current) {
+        WindowInsets.ime.getBottom(this).toDp()
+    }
     Column(Modifier.fillMaxSize()) {
         // Поле поиска — фиксированное, не скроллируется
         OutlinedTextField(
@@ -483,9 +486,6 @@ fun HistoryScreen(
             )
         )
 
-        val imeBottom = with(LocalDensity.current) {
-            WindowInsets.ime.getBottom(this).toDp()
-        }
         Box(Modifier.weight(1f)) {
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
@@ -550,7 +550,8 @@ fun HistoryScreen(
                 onClick = { showConfirm = true },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                    .padding(horizontal = 16.dp)
+                    .padding(top = 8.dp, bottom = if (imeBottom > 0.dp) imeBottom + 8.dp else 8.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFEF4444)),
                 shape = RoundedCornerShape(16.dp)
             ) {
@@ -745,6 +746,9 @@ fun PlayersScreen(
         )
     }
 
+    val imeBottom = with(LocalDensity.current) {
+        WindowInsets.ime.getBottom(this).toDp()
+    }
     Column(Modifier.fillMaxSize()) {
         // Поле поиска — фиксированное, не скроллируется
         OutlinedTextField(
@@ -775,9 +779,6 @@ fun PlayersScreen(
             )
         )
 
-        val imeBottom = with(LocalDensity.current) {
-            WindowInsets.ime.getBottom(this).toDp()
-        }
         Box(Modifier.weight(1f)) {
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
@@ -846,7 +847,8 @@ fun PlayersScreen(
                 onClick = { showConfirm = true },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                    .padding(horizontal = 16.dp)
+                    .padding(top = 8.dp, bottom = if (imeBottom > 0.dp) imeBottom + 8.dp else 8.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFEF4444)),
                 shape = RoundedCornerShape(16.dp)
             ) {
