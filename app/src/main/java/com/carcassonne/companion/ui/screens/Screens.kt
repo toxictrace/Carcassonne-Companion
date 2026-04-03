@@ -9,8 +9,10 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.*
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.safeDrawing
@@ -445,7 +447,7 @@ fun HistoryScreen(
         )
     }
 
-    Column(Modifier.fillMaxSize()) {
+    Column(Modifier.fillMaxSize().consumeWindowInsets(WindowInsets.navigationBars).imePadding()) {
         // Поле поиска — фиксированное, не скроллируется
         OutlinedTextField(
             value = query,
@@ -481,7 +483,7 @@ fun HistoryScreen(
 
         Box(Modifier.weight(1f)) {
             LazyColumn(
-                modifier = Modifier.fillMaxSize().imePadding(),
+                modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(
                     start = 16.dp, end = 16.dp, top = 4.dp,
                     bottom = if (selecting) 96.dp else 72.dp
@@ -738,7 +740,7 @@ fun PlayersScreen(
         )
     }
 
-    Column(Modifier.fillMaxSize()) {
+    Column(Modifier.fillMaxSize().consumeWindowInsets(WindowInsets.navigationBars).imePadding()) {
         // Поле поиска — фиксированное, не скроллируется
         OutlinedTextField(
             value = query,
@@ -770,7 +772,7 @@ fun PlayersScreen(
 
         Box(Modifier.weight(1f)) {
             LazyColumn(
-                modifier = Modifier.fillMaxSize().imePadding(),
+                modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(
                     start = 16.dp, end = 16.dp, top = 4.dp,
                     bottom = if (selecting) 96.dp else 72.dp
