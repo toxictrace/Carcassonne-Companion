@@ -449,8 +449,11 @@ fun HistoryScreen(
         )
     }
 
+    val navBarBottom = with(LocalDensity.current) {
+        WindowInsets.navigationBars.getBottom(this).toDp()
+    }
     val imeBottom = with(LocalDensity.current) {
-        WindowInsets.ime.getBottom(this).toDp()
+        (WindowInsets.ime.getBottom(this).toDp() - navBarBottom).coerceAtLeast(0.dp)
     }
     Column(Modifier.fillMaxSize()) {
         // Поле поиска — фиксированное, не скроллируется
@@ -746,8 +749,11 @@ fun PlayersScreen(
         )
     }
 
+    val navBarBottom = with(LocalDensity.current) {
+        WindowInsets.navigationBars.getBottom(this).toDp()
+    }
     val imeBottom = with(LocalDensity.current) {
-        WindowInsets.ime.getBottom(this).toDp()
+        (WindowInsets.ime.getBottom(this).toDp() - navBarBottom).coerceAtLeast(0.dp)
     }
     Column(Modifier.fillMaxSize()) {
         // Поле поиска — фиксированное, не скроллируется
