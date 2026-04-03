@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.*
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.ime
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.navigationBars
@@ -481,12 +483,15 @@ fun HistoryScreen(
             )
         )
 
+        val imeBottom = with(LocalDensity.current) {
+            WindowInsets.ime.getBottom(this).toDp()
+        }
         Box(Modifier.weight(1f)) {
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(
                     start = 16.dp, end = 16.dp, top = 4.dp,
-                    bottom = if (selecting) 96.dp else 72.dp
+                    bottom = if (imeBottom > 0.dp) imeBottom else if (selecting) 96.dp else 72.dp
                 ),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
@@ -770,12 +775,15 @@ fun PlayersScreen(
             )
         )
 
+        val imeBottom = with(LocalDensity.current) {
+            WindowInsets.ime.getBottom(this).toDp()
+        }
         Box(Modifier.weight(1f)) {
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(
                     start = 16.dp, end = 16.dp, top = 4.dp,
-                    bottom = if (selecting) 96.dp else 72.dp
+                    bottom = if (imeBottom > 0.dp) imeBottom else if (selecting) 96.dp else 72.dp
                 ),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {

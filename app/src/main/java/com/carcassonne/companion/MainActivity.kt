@@ -76,6 +76,7 @@ val mainRoutes = bottomNavItems.map { it.route }
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
         setContent {
             val vm: MainViewModel = viewModel()
             val isDark by vm.isDarkMode.collectAsState()
@@ -267,7 +268,7 @@ fun CarcassonneApp(vm: MainViewModel = viewModel()) {
         NavHost(
             navController = navController,
             startDestination = Routes.DASHBOARD,
-            modifier = Modifier.padding(padding),
+            modifier = Modifier.padding(top = padding.calculateTopPadding(), bottom = padding.calculateBottomPadding()),
             enterTransition = { fadeIn(tween(200)) },
             exitTransition = { fadeOut(tween(200)) },
             popEnterTransition = { fadeIn(tween(200)) },
