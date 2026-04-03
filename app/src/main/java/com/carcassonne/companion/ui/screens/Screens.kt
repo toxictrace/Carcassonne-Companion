@@ -445,7 +445,7 @@ fun HistoryScreen(
         )
     }
 
-    Column(Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Bottom))) {
+    Column(Modifier.fillMaxSize()) {
         // Поле поиска — фиксированное, не скроллируется
         OutlinedTextField(
             value = query,
@@ -481,7 +481,7 @@ fun HistoryScreen(
 
         Box(Modifier.weight(1f)) {
             LazyColumn(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier.fillMaxSize().imePadding(),
                 contentPadding = PaddingValues(
                     start = 16.dp, end = 16.dp, top = 4.dp,
                     bottom = if (selecting) 96.dp else 72.dp
@@ -738,7 +738,7 @@ fun PlayersScreen(
         )
     }
 
-    Column(Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Bottom))) {
+    Column(Modifier.fillMaxSize()) {
         // Поле поиска — фиксированное, не скроллируется
         OutlinedTextField(
             value = query,
@@ -770,7 +770,7 @@ fun PlayersScreen(
 
         Box(Modifier.weight(1f)) {
             LazyColumn(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier.fillMaxSize().imePadding(),
                 contentPadding = PaddingValues(
                     start = 16.dp, end = 16.dp, top = 4.dp,
                     bottom = if (selecting) 96.dp else 72.dp
