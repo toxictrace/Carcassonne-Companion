@@ -1985,7 +1985,7 @@ fun StatsPlayerRow(ps: PlayerStats, onPlayerClick: (Int) -> Unit = {}) {
                               modifier = Modifier.padding(bottom = 12.dp))
                           files.forEach { doc ->
                               val modDate = SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.US).format(java.util.Date(doc.lastModified()))
-                              val sizeKb = doc.length() / 1024
+                              val displayName = doc.name?.substringBeforeLast(".") ?: ""
                               Row(
                                   modifier = Modifier.fillMaxWidth().clickable { confirmFile = doc }.padding(vertical = 10.dp, horizontal = 4.dp),
                                   verticalAlignment = Alignment.CenterVertically
@@ -1993,8 +1993,8 @@ fun StatsPlayerRow(ps: PlayerStats, onPlayerClick: (Int) -> Unit = {}) {
                                   Text("💾", fontSize = 22.sp)
                                   Spacer(Modifier.width(12.dp))
                                   Column(Modifier.weight(1f)) {
-                                      Text(doc.name ?: "", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = CarcText)
-                                      Text("$modDate · $sizeKb KB", fontSize = 11.sp, color = CarcText3)
+                                      Text(displayName, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = CarcText)
+                                      Text(modDate, fontSize = 11.sp, color = CarcText3)
                                   }
                               }
                               HorizontalDivider(color = CarcText3.copy(alpha = 0.15f))
