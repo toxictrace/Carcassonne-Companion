@@ -19,10 +19,15 @@ import java.util.*
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
+import javax.crypto.Cipher
+import javax.crypto.SecretKeyFactory
+import javax.crypto.spec.GCMParameterSpec
+import javax.crypto.spec.PBEKeySpec
+import javax.crypto.spec.SecretKeySpec
 
 @Serializable
 data class BackupPayload(
-    val version: Int = 1,
+    val version: Int = 2,
     val players: List<PlayerBackupData>,
     val games: List<GameBackupData>,
     val gamePlayers: List<GamePlayerBackupData>
@@ -44,7 +49,8 @@ data class GameBackupData(
     val date: Long,
     val durationSeconds: Long?,
     val expansions: String,
-    val photoFile: String?
+    val photoFile: String?,
+    val notes: String? = null
 )
 
 @Serializable
@@ -63,10 +69,41 @@ data class GamePlayerBackupData(
 object BackupManager {
 
     const val EXTENSION = "ccbackup"
-    private const val DATA_ENTRY = "data.enc"
-    private const val PHOTOS_PREFIX = "photos/"
-    private val XOR_KEY = "CarcassonneBackup2024".toByteArray(Charsets.UTF_8)
+    private const val DATA_ENTRY = "d"
+    private const val PHOTOS_PREFIX = "p/"
+    private const val SALT = "CarcSalt20242025"
+    private const val PASSWORD = "CarcassonneCompanion#2024"
+    private const val GCM_TAG_LENGTH = 128
+    private const val IV_LENGTH = 12
+    private const val KEY_LENGTH = 256
+    private const val ITERATIONS = 65536
+
     private val json = Json { ignoreUnknownKeys = true; encodeDefaults = true }
+
+    private fun deriveKey(): SecretKeySpec {
+        val factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256")
+        val spec = PBEKeySpec(PASSWORD.toCharArray(), SALT.toByteArray(), ITERATIONS, KEY_LENGTH)
+        val tmp = factory.generateSecret(spec)
+        return SecretKeySpec(tmp.encoded, "AES")
+    }
+
+    private fun encrypt(data: ByteArray): ByteArray {
+        val key = deriveKey()
+        val iv = ByteArray(IV_LENGTH).also { java.security.SecureRandom().nextBytes(it) }
+        val cipher = Cipher.getInstance("AES/GCM/NoPadding")
+        cipher.init(Cipher.ENCRYPT_MODE, key, GCMParameterSpec(GCM_TAG_LENGTH, iv))
+        val encrypted = cipher.doFinal(data)
+        return iv + encrypted
+    }
+
+    private fun decrypt(data: ByteArray): ByteArray {
+        val key = deriveKey()
+        val iv = data.copyOfRange(0, IV_LENGTH)
+        val encrypted = data.copyOfRange(IV_LENGTH, data.size)
+        val cipher = Cipher.getInstance("AES/GCM/NoPadding")
+        cipher.init(Cipher.DECRYPT_MODE, key, GCMParameterSpec(GCM_TAG_LENGTH, iv))
+        return cipher.doFinal(encrypted)
+    }
 
     fun getBackupDir(context: Context): File =
         (context.getExternalFilesDir("backups") ?: File(context.filesDir, "backups"))
@@ -87,30 +124,7 @@ object BackupManager {
         val backupDir = getBackupDir(context)
         val dateStr = SimpleDateFormat("dd-MM-yyyy", Locale.US).format(Date())
         val outFile = uniqueFile(backupDir, dateStr)
-        val photoFiles: Map<String, File> = buildMap {
-            players.forEach { p -> p.avatarPath?.let { File(it) }?.takeIf { it.exists() }?.let { put(it.name, it) } }
-            games.forEach { g -> g.photoPath?.let { File(it) }?.takeIf { it.exists() }?.let { put(it.name, it) } }
-        }
-        val playerData = players.map { p ->
-            PlayerBackupData(p.id, p.name, p.meepleColor, p.avatarPath?.let { File(it) }?.takeIf { it.exists() }?.name, p.createdAt)
-        }
-        val gameData = games.map { g ->
-            GameBackupData(g.id, g.name, g.date, g.durationSeconds, g.expansions, g.photoPath?.let { File(it) }?.takeIf { it.exists() }?.name)
-        }
-        val gpData = gamePlayers.map { gp ->
-            GamePlayerBackupData(gp.gameId, gp.playerId, gp.meepleColor, gp.finalScore, gp.cityPoints, gp.roadPoints, gp.monasteryPoints, gp.farmPoints, gp.placement)
-        }
-        val payload = BackupPayload(players = playerData, games = gameData, gamePlayers = gpData)
-        val encBytes = xorCrypt(json.encodeToString(payload).toByteArray(Charsets.UTF_8))
-        FileOutputStream(outFile).use { fos ->
-            ZipOutputStream(fos).use { zos ->
-                zos.putNextEntry(ZipEntry(DATA_ENTRY)); zos.write(encBytes); zos.closeEntry()
-                photoFiles.forEach { (name, file) ->
-                    zos.putNextEntry(ZipEntry("$PHOTOS_PREFIX$name"))
-                    FileInputStream(file).use { it.copyTo(zos) }; zos.closeEntry()
-                }
-            }
-        }
+        FileOutputStream(outFile).use { writeBackupZip(it, players, games, gamePlayers) }
         return outFile
     }
 
@@ -118,24 +132,9 @@ object BackupManager {
         context: Context, uri: Uri,
         players: List<PlayerEntity>, games: List<GameEntity>, gamePlayers: List<GamePlayerEntity>
     ) {
-        val photoFiles: Map<String, File> = buildMap {
-            players.forEach { p -> p.avatarPath?.let { File(it) }?.takeIf { it.exists() }?.let { put(it.name, it) } }
-            games.forEach { g -> g.photoPath?.let { File(it) }?.takeIf { it.exists() }?.let { put(it.name, it) } }
-        }
-        val playerData = players.map { p -> PlayerBackupData(p.id, p.name, p.meepleColor, p.avatarPath?.let { File(it) }?.takeIf { it.exists() }?.name, p.createdAt) }
-        val gameData = games.map { g -> GameBackupData(g.id, g.name, g.date, g.durationSeconds, g.expansions, g.photoPath?.let { File(it) }?.takeIf { it.exists() }?.name) }
-        val gpData = gamePlayers.map { gp -> GamePlayerBackupData(gp.gameId, gp.playerId, gp.meepleColor, gp.finalScore, gp.cityPoints, gp.roadPoints, gp.monasteryPoints, gp.farmPoints, gp.placement) }
-        val payload = BackupPayload(players = playerData, games = gameData, gamePlayers = gpData)
-        val encBytes = xorCrypt(json.encodeToString(payload).toByteArray(Charsets.UTF_8))
-        context.contentResolver.openOutputStream(uri)?.use { writeBackupZip(it, encBytes, photoFiles) }
-            ?: throw IllegalStateException("Cannot open output stream for URI")
-    }
-
-    fun restoreBackupFromUri(context: Context, uri: Uri): RestoreResult {
-        val photosDir = File(context.filesDir, "photos").also { it.mkdirs() }
-        val inputStream = context.contentResolver.openInputStream(uri)
-            ?: throw IllegalStateException("Cannot open input stream for URI")
-        return parseBackupStream(inputStream, photosDir)
+        context.contentResolver.openOutputStream(uri)?.use {
+            writeBackupZip(it, players, games, gamePlayers)
+        } ?: throw IllegalStateException("Cannot open output stream for URI")
     }
 
     fun createBackupToFolderUri(
@@ -150,18 +149,22 @@ object BackupManager {
         val docFile = if (existing != null && existing.isFile) existing
         else folder.createFile("application/octet-stream", fileName)
             ?: throw IllegalStateException("Cannot create backup file in selected folder")
-        val photoFiles: Map<String, File> = buildMap {
-            players.forEach { p -> p.avatarPath?.let { File(it) }?.takeIf { it.exists() }?.let { put(it.name, it) } }
-            games.forEach { g -> g.photoPath?.let { File(it) }?.takeIf { it.exists() }?.let { put(it.name, it) } }
-        }
-        val playerData = players.map { p -> PlayerBackupData(p.id, p.name, p.meepleColor, p.avatarPath?.let { File(it) }?.takeIf { it.exists() }?.name, p.createdAt) }
-        val gameData = games.map { g -> GameBackupData(g.id, g.name, g.date, g.durationSeconds, g.expansions, g.photoPath?.let { File(it) }?.takeIf { it.exists() }?.name) }
-        val gpData = gamePlayers.map { gp -> GamePlayerBackupData(gp.gameId, gp.playerId, gp.meepleColor, gp.finalScore, gp.cityPoints, gp.roadPoints, gp.monasteryPoints, gp.farmPoints, gp.placement) }
-        val payload = BackupPayload(players = playerData, games = gameData, gamePlayers = gpData)
-        val encBytes = xorCrypt(json.encodeToString(payload).toByteArray(Charsets.UTF_8))
-        context.contentResolver.openOutputStream(docFile.uri)?.use { writeBackupZip(it, encBytes, photoFiles) }
-            ?: throw IllegalStateException("Cannot open output stream for backup file")
+        context.contentResolver.openOutputStream(docFile.uri)?.use {
+            writeBackupZip(it, players, games, gamePlayers)
+        } ?: throw IllegalStateException("Cannot open output stream for backup file")
         return docFile.name ?: fileName
+    }
+
+    fun restoreBackupFromUri(context: Context, uri: Uri): RestoreResult {
+        val photosDir = File(context.filesDir, "photos").also { it.mkdirs() }
+        val inputStream = context.contentResolver.openInputStream(uri)
+            ?: throw IllegalStateException("Cannot open input stream for URI")
+        return parseBackupStream(inputStream, photosDir)
+    }
+
+    fun restoreBackup(context: Context, file: File): RestoreResult {
+        val photosDir = File(context.filesDir, "photos").also { it.mkdirs() }
+        return parseBackupStream(FileInputStream(file), photosDir)
     }
 
     fun listBackupFilesInFolderUri(context: Context, treeUri: Uri): List<DocumentFile> {
@@ -171,12 +174,55 @@ object BackupManager {
             .sortedByDescending { it.lastModified() }
     }
 
-    private fun writeBackupZip(out: OutputStream, encData: ByteArray, photoFiles: Map<String, File>) {
+    private fun buildPayload(
+        players: List<PlayerEntity>,
+        games: List<GameEntity>,
+        gamePlayers: List<GamePlayerEntity>
+    ): BackupPayload {
+        val playerData = players.map { p ->
+            PlayerBackupData(p.id, p.name, p.meepleColor,
+                p.avatarPath?.let { File(it) }?.takeIf { it.exists() }?.name, p.createdAt)
+        }
+        val gameData = games.map { g ->
+            GameBackupData(g.id, g.name, g.date, g.durationSeconds, g.expansions,
+                g.photoPath?.let { File(it) }?.takeIf { it.exists() }?.name, g.notes)
+        }
+        val gpData = gamePlayers.map { gp ->
+            GamePlayerBackupData(gp.gameId, gp.playerId, gp.meepleColor, gp.finalScore,
+                gp.cityPoints, gp.roadPoints, gp.monasteryPoints, gp.farmPoints, gp.placement)
+        }
+        return BackupPayload(players = playerData, games = gameData, gamePlayers = gpData)
+    }
+
+    private fun collectPhotoFiles(
+        players: List<PlayerEntity>,
+        games: List<GameEntity>
+    ): Map<String, File> = buildMap {
+        players.forEach { p ->
+            p.avatarPath?.let { File(it) }?.takeIf { it.exists() }?.let { put(it.name, it) }
+        }
+        games.forEach { g ->
+            g.photoPath?.let { File(it) }?.takeIf { it.exists() }?.let { put(it.name, it) }
+        }
+    }
+
+    private fun writeBackupZip(
+        out: OutputStream,
+        players: List<PlayerEntity>,
+        games: List<GameEntity>,
+        gamePlayers: List<GamePlayerEntity>
+    ) {
+        val payload = buildPayload(players, games, gamePlayers)
+        val encData = encrypt(json.encodeToString(payload).toByteArray(Charsets.UTF_8))
+        val photoFiles = collectPhotoFiles(players, games)
         ZipOutputStream(out).use { zos ->
-            zos.putNextEntry(ZipEntry(DATA_ENTRY)); zos.write(encData); zos.closeEntry()
+            zos.putNextEntry(ZipEntry(DATA_ENTRY))
+            zos.write(encData)
+            zos.closeEntry()
             photoFiles.forEach { (name, file) ->
                 zos.putNextEntry(ZipEntry("$PHOTOS_PREFIX$name"))
-                FileInputStream(file).use { it.copyTo(zos) }; zos.closeEntry()
+                zos.write(encrypt(file.readBytes()))
+                zos.closeEntry()
             }
         }
     }
@@ -187,58 +233,48 @@ object BackupManager {
             var entry = zis.nextEntry
             while (entry != null) {
                 when {
-                    entry.name == DATA_ENTRY -> payload = json.decodeFromString(String(xorCrypt(zis.readBytes()), Charsets.UTF_8))
+                    entry.name == DATA_ENTRY -> {
+                        val decrypted = decrypt(zis.readBytes())
+                        payload = json.decodeFromString(String(decrypted, Charsets.UTF_8))
+                    }
                     entry.name.startsWith(PHOTOS_PREFIX) -> {
                         val fname = entry.name.removePrefix(PHOTOS_PREFIX)
-                        if (fname.isNotEmpty()) FileOutputStream(File(photosDir, fname)).use { zis.copyTo(it) }
-                    }
-                }
-                zis.closeEntry(); entry = zis.nextEntry
-            }
-        }
-        val p = payload ?: throw IllegalStateException("Corrupt or invalid backup file")
-        return RestoreResult(
-            p.players.map { PlayerEntity(it.id, it.name, it.meepleColor, it.avatarFile?.let { f -> File(photosDir, f).absolutePath }, it.createdAt) },
-            p.games.map { GameEntity(it.id, it.name, it.date, it.durationSeconds, it.expansions, it.photoFile?.let { f -> File(photosDir, f).absolutePath }) },
-            p.gamePlayers.map { GamePlayerEntity(it.gameId, it.playerId, it.meepleColor, it.finalScore, it.cityPoints, it.roadPoints, it.monasteryPoints, it.farmPoints, it.placement) }
-        )
-    }
-
-    data class RestoreResult(val players: List<PlayerEntity>, val games: List<GameEntity>, val gamePlayers: List<GamePlayerEntity>)
-
-    fun restoreBackup(context: Context, file: File): RestoreResult {
-        val photosDir = File(context.filesDir, "photos").also { it.mkdirs() }
-        var payload: BackupPayload? = null
-        FileInputStream(file).use { fis ->
-            ZipInputStream(fis).use { zis ->
-                var entry = zis.nextEntry
-                while (entry != null) {
-                    when {
-                        entry.name == DATA_ENTRY -> payload = json.decodeFromString(String(xorCrypt(zis.readBytes()), Charsets.UTF_8))
-                        entry.name.startsWith(PHOTOS_PREFIX) -> {
-                            val fname = entry.name.removePrefix(PHOTOS_PREFIX)
-                            if (fname.isNotEmpty()) FileOutputStream(File(photosDir, fname)).use { zis.copyTo(it) }
+                        if (fname.isNotEmpty()) {
+                            val bytes = decrypt(zis.readBytes())
+                            FileOutputStream(File(photosDir, fname)).use { it.write(bytes) }
                         }
                     }
-                    zis.closeEntry(); entry = zis.nextEntry
                 }
+                zis.closeEntry()
+                entry = zis.nextEntry
             }
         }
         val p = payload ?: throw IllegalStateException("Corrupt or invalid backup file")
         return RestoreResult(
-            p.players.map { PlayerEntity(it.id, it.name, it.meepleColor, it.avatarFile?.let { f -> File(photosDir, f).absolutePath }, it.createdAt) },
-            p.games.map { GameEntity(it.id, it.name, it.date, it.durationSeconds, it.expansions, it.photoFile?.let { f -> File(photosDir, f).absolutePath }) },
-            p.gamePlayers.map { GamePlayerEntity(it.gameId, it.playerId, it.meepleColor, it.finalScore, it.cityPoints, it.roadPoints, it.monasteryPoints, it.farmPoints, it.placement) }
+            p.players.map { PlayerEntity(it.id, it.name, it.meepleColor,
+                it.avatarFile?.let { f -> File(photosDir, f).absolutePath }, it.createdAt) },
+            p.games.map { GameEntity(it.id, it.name, it.date, it.durationSeconds, it.expansions,
+                it.photoFile?.let { f -> File(photosDir, f).absolutePath }, it.notes) },
+            p.gamePlayers.map { GamePlayerEntity(it.gameId, it.playerId, it.meepleColor,
+                it.finalScore, it.cityPoints, it.roadPoints, it.monasteryPoints,
+                it.farmPoints, it.placement) }
         )
     }
 
-    private fun xorCrypt(data: ByteArray): ByteArray =
-        ByteArray(data.size) { i -> (data[i].toInt() xor XOR_KEY[i % XOR_KEY.size].toInt()).toByte() }
+    data class RestoreResult(
+        val players: List<PlayerEntity>,
+        val games: List<GameEntity>,
+        val gamePlayers: List<GamePlayerEntity>
+    )
 
     private fun uniqueFile(dir: File, dateStr: String): File {
         val base = File(dir, "$dateStr.$EXTENSION")
         if (!base.exists()) return base
         var n = 1
-        while (true) { val c = File(dir, "${dateStr}_$n.$EXTENSION"); if (!c.exists()) return c; n++ }
+        while (true) {
+            val c = File(dir, "${dateStr}_$n.$EXTENSION")
+            if (!c.exists()) return c
+            n++
+        }
     }
 }
