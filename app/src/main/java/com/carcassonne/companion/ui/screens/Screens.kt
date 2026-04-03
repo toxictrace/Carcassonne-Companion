@@ -2,6 +2,7 @@
 
 package com.carcassonne.companion.ui.screens
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.combinedClickable
@@ -431,6 +432,10 @@ fun HistoryScreen(
     val selecting = selected.isNotEmpty()
     var showConfirm by remember { mutableStateOf(false) }
 
+    BackHandler(enabled = selecting) {
+        selected = emptySet()
+    }
+
     if (showConfirm) {
         AlertDialog(
             onDismissRequest = { showConfirm = false },
@@ -721,6 +726,10 @@ fun PlayersScreen(
     var selected by remember { mutableStateOf(setOf<Int>()) }
     val selecting = selected.isNotEmpty()
     var showConfirm by remember { mutableStateOf(false) }
+
+    BackHandler(enabled = selecting) {
+        selected = emptySet()
+    }
 
     if (showConfirm) {
         AlertDialog(
