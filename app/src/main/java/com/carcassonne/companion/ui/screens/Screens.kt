@@ -554,7 +554,7 @@ fun HistoryScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)
-                    .padding(top = 8.dp, bottom = if (imeBottom > 0.dp) imeBottom + 8.dp else 8.dp),
+                    .padding(top = 8.dp, bottom = 8.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFEF4444)),
                 shape = RoundedCornerShape(16.dp)
             ) {
@@ -854,7 +854,7 @@ fun PlayersScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)
-                    .padding(top = 8.dp, bottom = if (imeBottom > 0.dp) imeBottom + 8.dp else 8.dp),
+                    .padding(top = 8.dp, bottom = 8.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFEF4444)),
                 shape = RoundedCornerShape(16.dp)
             ) {
