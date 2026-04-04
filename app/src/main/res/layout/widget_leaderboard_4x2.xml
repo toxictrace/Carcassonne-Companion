@@ -5,15 +5,13 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="#EE111811"
-    android:padding="10dp">
+    android:padding="12dp">
 
-    <!-- Header -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:layout_marginBottom="6dp">
+        android:gravity="center_vertical">
 
         <TextView
             android:id="@+id/widget_title"
@@ -29,11 +27,11 @@
             android:id="@+id/widget_metric_label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:text=""
             android:textColor="#FF9CA3AF"
             android:textSize="10sp"
             android:layout_marginEnd="8dp"/>
 
-        <!-- Gear button -->
         <TextView
             android:id="@+id/widget_gear"
             android:layout_width="28dp"
@@ -41,46 +39,35 @@
             android:text="⚙"
             android:textColor="#FF4ADE80"
             android:textSize="18sp"
-            android:gravity="center"
-            android:padding="2dp"/>
+            android:gravity="center"/>
     </LinearLayout>
 
-    <!-- Thin divider -->
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="0.5dp"
-        android:background="#334ADE80"
-        android:layout_marginBottom="6dp"/>
-
-    <!-- Players row -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:layout_marginTop="8dp">
 
-        <!-- Player 1 -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:orientation="vertical"
-            android:gravity="center"
-            android:padding="4dp">
+            android:gravity="center">
 
             <ImageView
                 android:id="@+id/player1_avatar"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:scaleType="fitCenter"/>
+                android:layout_width="44dp"
+                android:layout_height="44dp"/>
 
             <TextView
                 android:id="@+id/player1_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:text=""
                 android:textColor="#FFE5E7EB"
                 android:textSize="11sp"
-                android:textStyle="bold"
                 android:gravity="center"
                 android:maxLines="1"
                 android:ellipsize="end"
@@ -90,34 +77,31 @@
                 android:id="@+id/player1_stat"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:text=""
                 android:textColor="#FF9CA3AF"
                 android:textSize="10sp"
-                android:gravity="center"
-                android:maxLines="1"/>
+                android:gravity="center"/>
         </LinearLayout>
 
-        <!-- Player 2 -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:orientation="vertical"
-            android:gravity="center"
-            android:padding="4dp">
+            android:gravity="center">
 
             <ImageView
                 android:id="@+id/player2_avatar"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:scaleType="fitCenter"/>
+                android:layout_width="44dp"
+                android:layout_height="44dp"/>
 
             <TextView
                 android:id="@+id/player2_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:text=""
                 android:textColor="#FFE5E7EB"
                 android:textSize="11sp"
-                android:textStyle="bold"
                 android:gravity="center"
                 android:maxLines="1"
                 android:ellipsize="end"
@@ -127,34 +111,31 @@
                 android:id="@+id/player2_stat"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:text=""
                 android:textColor="#FF9CA3AF"
                 android:textSize="10sp"
-                android:gravity="center"
-                android:maxLines="1"/>
+                android:gravity="center"/>
         </LinearLayout>
 
-        <!-- Player 3 -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:orientation="vertical"
-            android:gravity="center"
-            android:padding="4dp">
+            android:gravity="center">
 
             <ImageView
                 android:id="@+id/player3_avatar"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:scaleType="fitCenter"/>
+                android:layout_width="44dp"
+                android:layout_height="44dp"/>
 
             <TextView
                 android:id="@+id/player3_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:text=""
                 android:textColor="#FFE5E7EB"
                 android:textSize="11sp"
-                android:textStyle="bold"
                 android:gravity="center"
                 android:maxLines="1"
                 android:ellipsize="end"
@@ -164,10 +145,10 @@
                 android:id="@+id/player3_stat"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:text=""
                 android:textColor="#FF9CA3AF"
                 android:textSize="10sp"
-                android:gravity="center"
-                android:maxLines="1"/>
+                android:gravity="center"/>
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>
