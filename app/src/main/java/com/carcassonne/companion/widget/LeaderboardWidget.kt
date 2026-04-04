@@ -265,7 +265,18 @@ class LeaderboardWidget : AppWidgetProvider() {
 
 class LeaderboardWidget4x2 : AppWidgetProvider() {
     override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
-        appWidgetIds.forEach { LeaderboardWidget.updateWidget(context, appWidgetManager, it) }
+        android.util.Log.e("CarcWidget4x2", "onUpdate called! ids=${appWidgetIds.toList()}")
+        try {
+            appWidgetIds.forEach { LeaderboardWidget.updateWidget(context, appWidgetManager, it) }
+        } catch (e: Exception) {
+            android.util.Log.e("CarcWidget4x2", "onUpdate crash: ${e.message}", e)
+            // Показать простой fallback
+            appWidgetIds.forEach { id ->
+                val views = RemoteViews(context.packageName, R.layout.widget_leaderboard_4x2)
+                views.setTextViewText(R.id.widget_title, "Ошибка: ${e.message?.take(50)}")
+                appWidgetManager.updateAppWidget(id, views)
+            }
+        }
     }
     override fun onDeleted(context: Context, appWidgetIds: IntArray) {
         appWidgetIds.forEach {
