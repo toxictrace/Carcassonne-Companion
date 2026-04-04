@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FF111811">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="🏆 Настройка виджета"
+            android:textColor="#FFE5E7EB"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="24dp"/>
+
+        <!-- Metric -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Метрика"
+            android:textColor="#FF9CA3AF"
+            android:textSize="12sp"
+            android:layout_marginBottom="6dp"/>
+
+        <Spinner
+            android:id="@+id/spinner_metric"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:background="#FF1A2E1A"
+            android:layout_marginBottom="16dp"/>
+
+        <!-- Period -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Период"
+            android:textColor="#FF9CA3AF"
+            android:textSize="12sp"
+            android:layout_marginBottom="6dp"/>
+
+        <Spinner
+            android:id="@+id/spinner_period"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:background="#FF1A2E1A"
+            android:layout_marginBottom="16dp"/>
+
+        <!-- Update interval -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Обновление"
+            android:textColor="#FF9CA3AF"
+            android:textSize="12sp"
+            android:layout_marginBottom="6dp"/>
+
+        <Spinner
+            android:id="@+id/spinner_update"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:background="#FF1A2E1A"
+            android:layout_marginBottom="16dp"/>
+
+        <!-- Theme -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Тема"
+            android:textColor="#FF9CA3AF"
+            android:textSize="12sp"
+            android:layout_marginBottom="6dp"/>
+
+        <Spinner
+            android:id="@+id/spinner_theme"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:background="#FF1A2E1A"
+            android:layout_marginBottom="32dp"/>
+
+        <Button
+            android:id="@+id/btn_add_widget"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:text="ДОБАВИТЬ ВИДЖЕТ"
+            android:textColor="#FF111811"
+            android:textStyle="bold"
+            android:backgroundTint="#FF4ADE80"/>
+    </LinearLayout>
+</ScrollView>

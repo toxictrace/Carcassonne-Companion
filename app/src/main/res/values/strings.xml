@@ -362,4 +362,29 @@
         <item>Тёмная</item>
         <item>Светлая</item>
     </string-array>
+    <string name="widget_description">Лидерборд Каркассон</string>
+    <string name="widget_metric_winrate">Win Rate</string>
+    <string name="widget_metric_wins">Победы</string>
+    <string name="widget_metric_avg">Среднее очков</string>
+    <string-array name="widget_metrics">
+        <item>Win Rate</item>
+        <item>Победы</item>
+        <item>Среднее очков</item>
+    </string-array>
+    <string-array name="widget_periods">
+        <item>Всё время</item>
+        <item>Месяц</item>
+        <item>Неделя</item>
+    </string-array>
+    <string-array name="widget_updates">
+        <item>30 минут</item>
+        <item>1 час</item>
+        <item>6 часов</item>
+        <item>24 часа</item>
+    </string-array>
+    <string-array name="widget_themes">
+        <item>Как в системе</item>
+        <item>Тёмная</item>
+        <item>Светлая</item>
+    </string-array>
 </resources>
