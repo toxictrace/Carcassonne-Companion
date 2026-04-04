@@ -35,6 +35,41 @@
                 android:resource="@xml/file_provider_paths" />
         </provider>
 
+    
+        <!-- Leaderboard Widget 4x2 -->
+        <receiver
+            android:name=".widget.LeaderboardWidget4x2"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+                <action android:name="com.carcassonne.companion.WIDGET_REFRESH"/>
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/leaderboard_widget_4x2"/>
+        </receiver>
+
+        <!-- Leaderboard Widget 2x3 -->
+        <receiver
+            android:name=".widget.LeaderboardWidget2x3"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+                <action android:name="com.carcassonne.companion.WIDGET_REFRESH"/>
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/leaderboard_widget_2x3"/>
+        </receiver>
+
+        <!-- Widget Config Activity -->
+        <activity
+            android:name=".widget.LeaderboardWidgetConfigActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE"/>
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>
