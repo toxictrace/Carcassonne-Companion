@@ -313,29 +313,38 @@
       <string name="notes_label">Notes</string>
     <string name="notes_placeholder">Add a note about the game…</string>
 
-    <string name="widget_description">Лидерборд Каркассон</string>
+    <string name="widget_description">Carcassonne Leaderboard</string>
     <string name="widget_metric_winrate">Win Rate</string>
-    <string name="widget_metric_wins">Победы</string>
-    <string name="widget_metric_avg">Среднее очков</string>
+    <string name="widget_metric_wins">Wins</string>
+    <string name="widget_metric_avg">Avg Score</string>
+    <string name="widget_title_label">🏆 Leaderboard</string>
+    <string name="widget_settings_title">Widget Settings</string>
+    <string name="widget_btn_save">Save</string>
+    <string name="widget_btn_refresh">Refresh Widget</string>
+    <string name="widget_label_metric">Metric</string>
+    <string name="widget_label_period">Period</string>
+    <string name="widget_label_update">Auto-update</string>
+    <string name="widget_label_theme">Theme</string>
+    <string name="widget_btn_add">Add Widget</string>
     <string-array name="widget_metrics">
         <item>Win Rate</item>
-        <item>Победы</item>
-        <item>Среднее очков</item>
+        <item>Wins</item>
+        <item>Avg Score</item>
     </string-array>
     <string-array name="widget_periods">
-        <item>Всё время</item>
-        <item>Месяц</item>
-        <item>Неделя</item>
+        <item>All time</item>
+        <item>Month</item>
+        <item>Week</item>
     </string-array>
     <string-array name="widget_updates">
-        <item>30 минут</item>
-        <item>1 час</item>
-        <item>6 часов</item>
-        <item>24 часа</item>
+        <item>30 minutes</item>
+        <item>1 hour</item>
+        <item>6 hours</item>
+        <item>24 hours</item>
     </string-array>
     <string-array name="widget_themes">
-        <item>Как в системе</item>
-        <item>Тёмная</item>
-        <item>Светлая</item>
+        <item>System</item>
+        <item>Dark</item>
+        <item>Light</item>
     </string-array>
 </resources>

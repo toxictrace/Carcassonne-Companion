@@ -312,4 +312,39 @@
       <string name="restore_no_files_in_folder">Файлы .ccbackup не найдены в выбранной папке.</string>
       <string name="notes_label">Примечание</string>
     <string name="notes_placeholder">Заметка об этой партии…</string>
+
+    <string name="widget_description">Лидерборд Каркассон</string>
+    <string name="widget_metric_winrate">Процент побед</string>
+    <string name="widget_metric_wins">Победы</string>
+    <string name="widget_metric_avg">Среднее очков</string>
+    <string name="widget_title_label">🏆 Лидерборд</string>
+    <string name="widget_settings_title">Настройки виджета</string>
+    <string name="widget_btn_save">Сохранить</string>
+    <string name="widget_btn_refresh">Обновить виджет</string>
+    <string name="widget_label_metric">Метрика</string>
+    <string name="widget_label_period">Период</string>
+    <string name="widget_label_update">Обновление</string>
+    <string name="widget_label_theme">Тема</string>
+    <string name="widget_btn_add">Добавить виджет</string>
+    <string-array name="widget_metrics">
+        <item>Процент побед</item>
+        <item>Победы</item>
+        <item>Среднее очков</item>
+    </string-array>
+    <string-array name="widget_periods">
+        <item>Всё время</item>
+        <item>Месяц</item>
+        <item>Неделя</item>
+    </string-array>
+    <string-array name="widget_updates">
+        <item>30 минут</item>
+        <item>1 час</item>
+        <item>6 часов</item>
+        <item>24 часа</item>
+    </string-array>
+    <string-array name="widget_themes">
+        <item>Как в системе</item>
+        <item>Тёмная</item>
+        <item>Светлая</item>
+    </string-array>
 </resources>
