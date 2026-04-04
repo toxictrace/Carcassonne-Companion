@@ -489,12 +489,12 @@ fun HistoryScreen(
             )
         )
 
-        Box(Modifier.weight(1f).padding(bottom = 56.dp)) {
+        Box(Modifier.weight(1f)) {
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(
                     start = 16.dp, end = 16.dp, top = 4.dp,
-                    bottom = if (selecting) 96.dp else 16.dp
+                    bottom = if (selecting) 160.dp else 88.dp
                 ),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
@@ -784,12 +784,12 @@ fun PlayersScreen(
             )
         )
 
-        Box(Modifier.weight(1f).padding(bottom = 56.dp)) {
+        Box(Modifier.weight(1f)) {
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(
                     start = 16.dp, end = 16.dp, top = 4.dp,
-                    bottom = if (selecting) 96.dp else 16.dp
+                    bottom = if (selecting) 160.dp else 88.dp
                 ),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
