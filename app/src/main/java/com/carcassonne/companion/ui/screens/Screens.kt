@@ -543,7 +543,7 @@ fun HistoryScreen(
                     }
                 }
 
-                item { Spacer(Modifier.height(0.dp)) }
+                item { Spacer(Modifier.height(88.dp)) }
             }
         }
 
@@ -842,7 +842,7 @@ fun PlayersScreen(
                     }
                 }
 
-                item { Spacer(Modifier.height(0.dp)) }
+                item { Spacer(Modifier.height(88.dp)) }
             }
         }
 
