@@ -226,6 +226,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         repo.updateGamePhoto(gameId, path)
     }
 
+    fun refreshWidgets(context: android.content.Context) {
+        val manager = android.appwidget.AppWidgetManager.getInstance(context)
+        val ids = manager.getAppWidgetIds(
+            android.content.ComponentName(context, com.carcassonne.companion.widget.LeaderboardWidget4x2::class.java)
+        )
+        ids.forEach { com.carcassonne.companion.widget.LeaderboardWidget.updateWidget(context, manager, it) }
+    }
+
     fun updateGameNotes(gameId: Int, notes: String?) = viewModelScope.launch {
         repo.updateGameNotes(gameId, notes)
     }

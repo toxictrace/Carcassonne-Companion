@@ -68,14 +68,14 @@ class LeaderboardWidgetConfigActivity : AppCompatActivity() {
                         putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
                     }
                     setResult(Activity.RESULT_OK, resultValue)
-                    finish()
+                    moveTaskToBack(true)
                 },
                 onRefresh = {
                     val manager = AppWidgetManager.getInstance(this)
                     LeaderboardWidget.updateWidget(this, manager, appWidgetId)
-                    finish()
+                    moveTaskToBack(true)
                 },
-                onDismiss = { finish() }
+                onDismiss = { moveTaskToBack(true) }
             )
         }
     }

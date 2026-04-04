@@ -109,8 +109,11 @@ fun CarcassonneApp(vm: MainViewModel = viewModel()) {
     val showBottomNav = currentRoute in mainRoutes
     val showFab = currentRoute in listOf(Routes.DASHBOARD, Routes.HISTORY, Routes.PLAYERS, Routes.STATS)
 
-    // Show VM messages as snackbars
+    val context = androidx.compose.ui.platform.LocalContext.current
+
+    // Обновлять виджет при каждом запуске приложения
     LaunchedEffect(Unit) {
+        vm.refreshWidgets(context)
         vm.message.collect { msg -> snackbarHostState.showSnackbar(msg) }
     }
 
