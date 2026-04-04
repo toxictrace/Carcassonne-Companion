@@ -243,9 +243,9 @@ class LeaderboardWidget : AppWidgetProvider() {
 
         private fun formatStat(context: Context, entry: LeaderboardEntry, metric: Int): String {
             return when (metric) {
-                WidgetPrefs.METRIC_WINS -> "${entry.wins}В / ${entry.played}И"
+                WidgetPrefs.METRIC_WINS -> "${entry.wins}${context.getString(R.string.widget_wins_short)} / ${entry.played}${context.getString(R.string.widget_games_short)}"
                 WidgetPrefs.METRIC_AVG  -> "⌀ ${entry.avgScore.toInt()}"
-                else                    -> "${(entry.winRate * 100).toInt()}% (${entry.played}И)"
+                else                    -> "${(entry.winRate * 100).toInt()}% (${entry.played}${context.getString(R.string.widget_games_short)})"
             }
         }
 

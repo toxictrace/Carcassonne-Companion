@@ -316,7 +316,7 @@
     <string name="widget_description">Лидерборд Каркассон</string>
     <string name="widget_metric_winrate">Процент побед</string>
     <string name="widget_metric_wins">Победы</string>
-    <string name="widget_metric_avg">Среднее очков</string>
+    <string name="widget_metric_avg">Ср. счёт</string>
     <string name="widget_title_label">🏆 Лидерборд</string>
     <string name="widget_settings_title">Настройки виджета</string>
     <string name="widget_btn_save">Сохранить</string>
@@ -347,4 +347,6 @@
         <item>Тёмная</item>
         <item>Светлая</item>
     </string-array>
+    <string name="widget_wins_short">П</string>
+    <string name="widget_games_short">И</string>
 </resources>

@@ -51,6 +51,10 @@ class LeaderboardWidgetConfigActivity : AppCompatActivity() {
             WidgetPrefs.get(this, appWidgetId)
         else WidgetPrefs()
 
+        // Не показывать в recent apps
+        if (!isEditMode) {
+            setTaskDescription(android.app.ActivityManager.TaskDescription("", null, 0))
+        }
         setContent {
             WidgetConfigScreen(
                 initialPrefs = existingPrefs,

@@ -316,7 +316,7 @@
     <string name="widget_description">Carcassonne Leaderboard</string>
     <string name="widget_metric_winrate">Win Rate</string>
     <string name="widget_metric_wins">Wins</string>
-    <string name="widget_metric_avg">Avg Score</string>
+    <string name="widget_metric_avg">Avg pts</string>
     <string name="widget_title_label">🏆 Leaderboard</string>
     <string name="widget_settings_title">Widget Settings</string>
     <string name="widget_btn_save">Save</string>
@@ -347,4 +347,6 @@
         <item>Dark</item>
         <item>Light</item>
     </string-array>
+    <string name="widget_wins_short">W</string>
+    <string name="widget_games_short">G</string>
 </resources>
