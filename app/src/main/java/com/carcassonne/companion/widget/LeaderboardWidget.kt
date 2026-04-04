@@ -344,8 +344,23 @@ class LeaderboardWidget : AppWidgetProvider() {
     }
 }
 
-class LeaderboardWidget4x2 : LeaderboardWidget()
-class LeaderboardWidget2x3 : LeaderboardWidget()
+class LeaderboardWidget4x2 : AppWidgetProvider() {
+    override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
+        appWidgetIds.forEach { LeaderboardWidget.updateWidget(context, appWidgetManager, it) }
+    }
+    override fun onDeleted(context: Context, appWidgetIds: IntArray) {
+        appWidgetIds.forEach { WidgetPrefs.delete(context, it); WidgetUpdateScheduler.cancel(context, it) }
+    }
+}
+
+class LeaderboardWidget2x3 : AppWidgetProvider() {
+    override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
+        appWidgetIds.forEach { LeaderboardWidget.updateWidget(context, appWidgetManager, it) }
+    }
+    override fun onDeleted(context: Context, appWidgetIds: IntArray) {
+        appWidgetIds.forEach { WidgetPrefs.delete(context, it); WidgetUpdateScheduler.cancel(context, it) }
+    }
+}
 
 data class LeaderboardEntry(
     val playerId: Int,
