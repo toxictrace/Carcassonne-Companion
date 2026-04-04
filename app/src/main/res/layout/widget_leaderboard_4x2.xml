@@ -21,7 +21,9 @@
             android:text="🏆 Лидерборд"
             android:textColor="#FFE5E7EB"
             android:textSize="13sp"
-            android:textStyle="bold"/>
+            android:textStyle="bold"
+            android:maxLines="1"
+            android:ellipsize="end"/>
 
         <TextView
             android:id="@+id/widget_metric_label"
