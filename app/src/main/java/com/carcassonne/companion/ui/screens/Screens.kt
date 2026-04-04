@@ -494,7 +494,7 @@ fun HistoryScreen(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(
                     start = 16.dp, end = 16.dp, top = 4.dp,
-                    bottom = if (selecting) 96.dp else 72.dp
+                    bottom = if (selecting) 96.dp else 88.dp
                 ),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
@@ -789,7 +789,7 @@ fun PlayersScreen(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(
                     start = 16.dp, end = 16.dp, top = 4.dp,
-                    bottom = if (selecting) 96.dp else 72.dp
+                    bottom = if (selecting) 96.dp else 88.dp
                 ),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
