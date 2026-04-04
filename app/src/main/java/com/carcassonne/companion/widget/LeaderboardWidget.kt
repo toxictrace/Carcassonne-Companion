@@ -1,5 +1,6 @@
 package com.carcassonne.companion.widget
 
+import android.util.Log
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
