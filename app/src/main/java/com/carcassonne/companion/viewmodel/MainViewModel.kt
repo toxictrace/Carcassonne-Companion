@@ -228,10 +228,16 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun refreshWidgets(context: android.content.Context) {
         val manager = android.appwidget.AppWidgetManager.getInstance(context)
-        val ids = manager.getAppWidgetIds(
+        // Leaderboard widget
+        val ids1 = manager.getAppWidgetIds(
             android.content.ComponentName(context, com.carcassonne.companion.widget.LeaderboardWidget4x2::class.java)
         )
-        ids.forEach { com.carcassonne.companion.widget.LeaderboardWidget.updateWidget(context, manager, it) }
+        ids1.forEach { com.carcassonne.companion.widget.LeaderboardWidget.updateWidget(context, manager, it) }
+        // Last Battle widget
+        val ids2 = manager.getAppWidgetIds(
+            android.content.ComponentName(context, com.carcassonne.companion.widget.LastBattleWidget::class.java)
+        )
+        ids2.forEach { com.carcassonne.companion.widget.LastBattleWidget.updateWidget(context, manager, it) }
     }
 
     fun updateGameNotes(gameId: Int, notes: String?) = viewModelScope.launch {

@@ -349,4 +349,16 @@
     </string-array>
     <string name="widget_wins_short">П</string>
     <string name="widget_games_short">И</string>
+
+    <string name="widget_battle_description">Последняя битва</string>
+    <string name="widget_battle_settings_title">Настройки виджета</string>
+    <string name="widget_battle_label_game">ПАРТИЯ</string>
+    <string name="widget_battle_game_last">Последняя партия</string>
+    <string name="widget_battle_game_random">Случайная партия</string>
+    <string name="widget_battle_game_specific">Конкретная партия</string>
+    <string name="widget_battle_show_photo">Показывать фото</string>
+    <string name="widget_battle_show_notes">Показывать примечания</string>
+    <string name="widget_battle_pick_game">Выберите партию</string>
+    <string name="widget_battle_default_name">Партия Каркассон</string>
+    <string name="widget_no_games">Нет партий</string>
 </resources>

@@ -349,4 +349,16 @@
     </string-array>
     <string name="widget_wins_short">W</string>
     <string name="widget_games_short">G</string>
+
+    <string name="widget_battle_description">Last Battle</string>
+    <string name="widget_battle_settings_title">Widget Settings</string>
+    <string name="widget_battle_label_game">GAME</string>
+    <string name="widget_battle_game_last">Last game</string>
+    <string name="widget_battle_game_random">Random game</string>
+    <string name="widget_battle_game_specific">Specific game</string>
+    <string name="widget_battle_show_photo">Show photo</string>
+    <string name="widget_battle_show_notes">Show notes</string>
+    <string name="widget_battle_pick_game">Select game</string>
+    <string name="widget_battle_default_name">Carcassonne Game</string>
+    <string name="widget_no_games">No games yet</string>
 </resources>

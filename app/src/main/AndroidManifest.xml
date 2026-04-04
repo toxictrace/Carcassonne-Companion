@@ -59,6 +59,33 @@
                 <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE"/>
             </intent-filter>
         </activity>
+
+        <!-- Last Battle Widget -->
+        <receiver
+            android:name=".widget.LastBattleWidget"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+                <action android:name="com.carcassonne.companion.LAST_BATTLE_REFRESH"/>
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/last_battle_widget"/>
+        </receiver>
+
+        <!-- Last Battle Config Activity -->
+        <activity
+            android:name=".widget.LastBattleConfigActivity"
+            android:exported="true"
+            android:excludeFromRecents="true"
+            android:taskAffinity=""
+            android:theme="@style/Theme.CarcassonneCompanion"/>
+
+        <!-- Share Battle Activity -->
+        <activity
+            android:name=".widget.ShareBattleActivity"
+            android:exported="false"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"/>
     </application>
 
 </manifest>
