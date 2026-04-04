@@ -51,7 +51,8 @@
         <!-- Widget Config Activity -->
         <activity
             android:name=".widget.LeaderboardWidgetConfigActivity"
-            android:exported="true">
+            android:exported="true"
+            android:theme="@style/Theme.CarcassonneCompanion">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE"/>
             </intent-filter>
