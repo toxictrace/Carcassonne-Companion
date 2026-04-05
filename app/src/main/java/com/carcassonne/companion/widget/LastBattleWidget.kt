@@ -195,7 +195,7 @@ class LastBattleWidget : AppWidgetProvider() {
                     views.setTextColor(slot.nameId, if (i == 0) greenColor else textColor)
                     views.setTextColor(slot.scoreId, if (i == 0) greenColor else subColor)
                     // Цветная точка мипла
-                    views.setInt(slot.colorId, "setBackgroundColor", LeaderboardWidget.getMeepleColor(gp.meepleColor))
+                    views.setImageViewBitmap(slot.colorId, makeColorDot(LeaderboardWidget.getMeepleColor(gp.meepleColor), 24))
                 } else {
                     views.setViewVisibility(slot.avatarId, View.GONE)
                     views.setViewVisibility(slot.nameId, View.GONE)
