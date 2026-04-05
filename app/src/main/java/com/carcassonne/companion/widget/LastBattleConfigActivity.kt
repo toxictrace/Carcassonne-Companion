@@ -65,6 +65,11 @@ class LastBattleConfigActivity : AppCompatActivity() {
                     LastBattleWidgetPrefs.save(this, appWidgetId, prefs)
                     val manager = AppWidgetManager.getInstance(this)
                     LastBattleWidget.updateWidget(this, manager, appWidgetId)
+                    if (prefs.gameSelection == LastBattleWidgetPrefs.GAME_RANDOM) {
+                        WidgetUpdateScheduler.schedule(this, appWidgetId + 500, prefs.updateInterval)
+                    } else {
+                        WidgetUpdateScheduler.cancel(this, appWidgetId + 500)
+                    }
                     setResult(Activity.RESULT_OK, Intent().apply {
                         putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
                     })
@@ -100,6 +105,7 @@ fun LastBattleConfigScreen(
     var specificGameId by remember { mutableIntStateOf(initialPrefs.specificGameId) }
     var showPhoto      by remember { mutableStateOf(initialPrefs.showPhoto) }
     var showNotes      by remember { mutableStateOf(initialPrefs.showNotes) }
+    var updateInterval by remember { mutableIntStateOf(initialPrefs.updateInterval) }
     var theme          by remember { mutableIntStateOf(initialPrefs.theme) }
     var games          by remember { mutableStateOf<List<GameEntity>>(emptyList()) }
     var showGamePicker by remember { mutableStateOf(false) }
@@ -225,7 +231,27 @@ fun LastBattleConfigScreen(
             Spacer(Modifier.height(20.dp))
 
             // Show photo toggle
-            Text(stringResource(R.string.widget_battle_label_display), fontSize = 11.sp,
+            // Период обновления — только для случайной партии
+    if (gameSelection == LastBattleWidgetPrefs.GAME_RANDOM) {
+        Spacer(Modifier.height(20.dp))
+        Text(stringResource(R.string.widget_label_update), fontSize = 11.sp,
+            color = CarcText3, letterSpacing = 1.sp, modifier = Modifier.padding(bottom = 8.dp))
+        val updates = stringArrayResource(R.array.widget_updates).toList()
+        val updateValues = listOf(LastBattleWidgetPrefs.UPDATE_30M, LastBattleWidgetPrefs.UPDATE_1H,
+            LastBattleWidgetPrefs.UPDATE_6H, LastBattleWidgetPrefs.UPDATE_24H)
+        SegmentedSelector(
+            options = updates,
+            selectedIndex = updateValues.indexOf(updateInterval).takeIf { it >= 0 } ?: 1,
+            onSelect = { updateInterval = updateValues[it] },
+            cardColor = CarcCard, borderColor = CarcBorder,
+            activeColor = CarcGreen, textColor = CarcText
+        )
+        Spacer(Modifier.height(20.dp))
+    } else {
+        Spacer(Modifier.height(20.dp))
+    }
+
+    Text(stringResource(R.string.widget_battle_label_display), fontSize = 11.sp,
                 color = CarcText3, letterSpacing = 1.sp, modifier = Modifier.padding(bottom = 8.dp))
 
             Row(
@@ -272,7 +298,7 @@ fun LastBattleConfigScreen(
             Spacer(Modifier.height(32.dp))
 
             Button(
-                onClick = { onSave(LastBattleWidgetPrefs(gameSelection, specificGameId, showPhoto, showNotes, theme)) },
+                onClick = { onSave(LastBattleWidgetPrefs(gameSelection, specificGameId, showPhoto, showNotes, theme, updateInterval)) },
                 modifier = Modifier.fillMaxWidth().height(52.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = CarcGreen),
                 shape = RoundedCornerShape(14.dp)

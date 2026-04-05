@@ -25,6 +25,24 @@ object WidgetUpdateScheduler {
         )
     }
 
+    fun scheduleLastBattle(context: Context, widgetId: Int, intervalMinutes: Int) {
+        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        val intent = Intent(context, LastBattleWidget::class.java).apply {
+            action = LastBattleWidget.ACTION_REFRESH
+        }
+        val pi = PendingIntent.getBroadcast(
+            context, widgetId, intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        val intervalMs = intervalMinutes * 60 * 1000L
+        alarmManager.setInexactRepeating(
+            AlarmManager.RTC,
+            System.currentTimeMillis() + intervalMs,
+            intervalMs,
+            pi
+        )
+    }
+
     fun cancel(context: Context, widgetId: Int) {
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val intent = Intent(context, LeaderboardWidget::class.java).apply {

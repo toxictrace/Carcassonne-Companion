@@ -7,11 +7,17 @@ data class LastBattleWidgetPrefs(
     val specificGameId: Int = -1,
     val showPhoto: Boolean = true,
     val showNotes: Boolean = true,
-    val theme: Int = THEME_SYSTEM
+    val theme: Int = THEME_SYSTEM,
+    val updateInterval: Int = UPDATE_1H
 ) {
     companion object {
         const val GAME_LAST     = 0
         const val GAME_RANDOM   = 1
+
+        const val UPDATE_30M = 30
+        const val UPDATE_1H  = 60
+        const val UPDATE_6H  = 360
+        const val UPDATE_24H = 1440
         const val GAME_SPECIFIC = 2
 
         const val THEME_SYSTEM = 0
@@ -25,7 +31,8 @@ data class LastBattleWidgetPrefs(
                 specificGameId = p.getInt("game_id_$widgetId", -1),
                 showPhoto      = p.getBoolean("photo_$widgetId", true),
                 showNotes      = p.getBoolean("notes_$widgetId", true),
-                theme          = p.getInt("theme_$widgetId", THEME_SYSTEM)
+                theme          = p.getInt("theme_$widgetId", THEME_SYSTEM),
+                updateInterval = p.getInt("update_$widgetId", UPDATE_1H)
             )
         }
 
@@ -37,6 +44,7 @@ data class LastBattleWidgetPrefs(
                 .putBoolean("photo_$widgetId", prefs.showPhoto)
                 .putBoolean("notes_$widgetId", prefs.showNotes)
                 .putInt("theme_$widgetId", prefs.theme)
+                .putInt("update_$widgetId", prefs.updateInterval)
                 .apply()
         }
 
@@ -48,6 +56,7 @@ data class LastBattleWidgetPrefs(
                 .remove("photo_$widgetId")
                 .remove("notes_$widgetId")
                 .remove("theme_$widgetId")
+                .remove("update_$widgetId")
                 .apply()
         }
     }
