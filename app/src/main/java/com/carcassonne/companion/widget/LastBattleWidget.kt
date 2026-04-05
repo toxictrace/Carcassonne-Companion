@@ -168,14 +168,14 @@ class LastBattleWidget : AppWidgetProvider() {
             }
 
             // Игроки — до 6
-            data class PlayerSlot(val dotId: Int, val avatarId: Int, val nameId: Int, val scoreId: Int)
+            data class PlayerSlot(val avatarId: Int, val nameId: Int, val scoreId: Int)
             val playerSlots = listOf(
-                PlayerSlot(R.id.p1_dot, R.id.p1_avatar, R.id.p1_name, R.id.p1_score),
-                PlayerSlot(R.id.p2_dot, R.id.p2_avatar, R.id.p2_name, R.id.p2_score),
-                PlayerSlot(R.id.p3_dot, R.id.p3_avatar, R.id.p3_name, R.id.p3_score),
-                PlayerSlot(R.id.p4_dot, R.id.p4_avatar, R.id.p4_name, R.id.p4_score),
-                PlayerSlot(R.id.p5_dot, R.id.p5_avatar, R.id.p5_name, R.id.p5_score),
-                PlayerSlot(R.id.p6_dot, R.id.p6_avatar, R.id.p6_name, R.id.p6_score),
+                PlayerSlot(R.id.p1_avatar, R.id.p1_name, R.id.p1_score),
+                PlayerSlot(R.id.p2_avatar, R.id.p2_name, R.id.p2_score),
+                PlayerSlot(R.id.p3_avatar, R.id.p3_name, R.id.p3_score),
+                PlayerSlot(R.id.p4_avatar, R.id.p4_name, R.id.p4_score),
+                PlayerSlot(R.id.p5_avatar, R.id.p5_name, R.id.p5_score),
+                PlayerSlot(R.id.p6_avatar, R.id.p6_name, R.id.p6_score),
             )
             val medals = listOf("🥇", "🥈", "🥉", "  4.", "  5.", "  6.")
 
@@ -189,7 +189,6 @@ class LastBattleWidget : AppWidgetProvider() {
 
 
                     val mColor = LeaderboardWidget.getMeepleColor(gp.meepleColor)
-                    views.setImageViewBitmap(slot.dotId, makeColorDot(mColor, 16))
                     val avatar = loadAvatar(context, player, gp.meepleColor)
                     views.setImageViewBitmap(slot.avatarId, avatar)
                     views.setTextViewText(slot.nameId, "${medals[i]} ${player?.name ?: "?"}")
