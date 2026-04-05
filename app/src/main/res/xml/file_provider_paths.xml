@@ -2,4 +2,5 @@
 <paths>
     <files-path name="avatars" path="avatars/" />
     <files-path name="game_photos" path="game_photos/" />
+    <cache-path name="shared" path="." />
 </paths>

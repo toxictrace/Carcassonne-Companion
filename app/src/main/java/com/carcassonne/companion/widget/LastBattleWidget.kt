@@ -168,34 +168,39 @@ class LastBattleWidget : AppWidgetProvider() {
             }
 
             // Игроки — до 6
+            data class PlayerSlot(val avatarId: Int, val nameId: Int, val scoreId: Int, val colorId: Int)
             val playerSlots = listOf(
-                Triple(R.id.p1_avatar, R.id.p1_name, R.id.p1_score),
-                Triple(R.id.p2_avatar, R.id.p2_name, R.id.p2_score),
-                Triple(R.id.p3_avatar, R.id.p3_name, R.id.p3_score),
-                Triple(R.id.p4_avatar, R.id.p4_name, R.id.p4_score),
-                Triple(R.id.p5_avatar, R.id.p5_name, R.id.p5_score),
-                Triple(R.id.p6_avatar, R.id.p6_name, R.id.p6_score),
+                PlayerSlot(R.id.p1_avatar, R.id.p1_name, R.id.p1_score, R.id.p1_color),
+                PlayerSlot(R.id.p2_avatar, R.id.p2_name, R.id.p2_score, R.id.p2_color),
+                PlayerSlot(R.id.p3_avatar, R.id.p3_name, R.id.p3_score, R.id.p3_color),
+                PlayerSlot(R.id.p4_avatar, R.id.p4_name, R.id.p4_score, R.id.p4_color),
+                PlayerSlot(R.id.p5_avatar, R.id.p5_name, R.id.p5_score, R.id.p5_color),
+                PlayerSlot(R.id.p6_avatar, R.id.p6_name, R.id.p6_score, R.id.p6_color),
             )
             val medals = listOf("🥇", "🥈", "🥉", "4.", "5.", "6.")
 
-            playerSlots.forEachIndexed { i, (avatarId, nameId, scoreId) ->
+            playerSlots.forEachIndexed { i, slot ->
                 val gp = data.gamePlayers.getOrNull(i)
                 if (gp != null) {
                     val player = data.players.find { it.id == gp.playerId }
-                    views.setViewVisibility(avatarId, View.VISIBLE)
-                    views.setViewVisibility(nameId, View.VISIBLE)
-                    views.setViewVisibility(scoreId, View.VISIBLE)
+                    views.setViewVisibility(slot.avatarId, View.VISIBLE)
+                    views.setViewVisibility(slot.nameId, View.VISIBLE)
+                    views.setViewVisibility(slot.scoreId, View.VISIBLE)
+                    views.setViewVisibility(slot.colorId, View.VISIBLE)
 
                     val avatar = loadAvatar(context, player, gp.meepleColor)
-                    views.setImageViewBitmap(avatarId, avatar)
-                    views.setTextViewText(nameId, "${medals[i]} ${player?.name ?: "?"}")
-                    views.setTextViewText(scoreId, "${gp.finalScore}")
-                    views.setTextColor(nameId, if (i == 0) greenColor else textColor)
-                    views.setTextColor(scoreId, if (i == 0) greenColor else subColor)
+                    views.setImageViewBitmap(slot.avatarId, avatar)
+                    views.setTextViewText(slot.nameId, "${medals[i]} ${player?.name ?: "?"}")
+                    views.setTextViewText(slot.scoreId, "${gp.finalScore}")
+                    views.setTextColor(slot.nameId, if (i == 0) greenColor else textColor)
+                    views.setTextColor(slot.scoreId, if (i == 0) greenColor else subColor)
+                    // Цветная точка мипла
+                    views.setInt(slot.colorId, "setBackgroundColor", LeaderboardWidget.getMeepleColor(gp.meepleColor))
                 } else {
-                    views.setViewVisibility(avatarId, View.GONE)
-                    views.setViewVisibility(nameId, View.GONE)
-                    views.setViewVisibility(scoreId, View.GONE)
+                    views.setViewVisibility(slot.avatarId, View.GONE)
+                    views.setViewVisibility(slot.nameId, View.GONE)
+                    views.setViewVisibility(slot.scoreId, View.GONE)
+                    views.setViewVisibility(slot.colorId, View.GONE)
                 }
             }
 
