@@ -62,7 +62,6 @@
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
             android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="2dp">
             <ImageView android:id="@+id/p1_avatar" android:layout_width="24dp" android:layout_height="24dp" android:layout_marginEnd="4dp"/>
-            <ImageView android:id="@+id/p1_color" android:layout_width="8dp" android:layout_height="8dp" android:layout_marginEnd="4dp"/>
             <TextView android:id="@+id/p1_name" android:layout_width="0dp" android:layout_height="wrap_content"
                 android:layout_weight="1" android:textSize="11sp" android:textColor="#FF4ADE80"
                 android:textStyle="bold" android:maxLines="1" android:ellipsize="end"/>
@@ -73,7 +72,6 @@
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
             android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="2dp">
             <ImageView android:id="@+id/p2_avatar" android:layout_width="24dp" android:layout_height="24dp" android:layout_marginEnd="4dp"/>
-            <ImageView android:id="@+id/p2_color" android:layout_width="8dp" android:layout_height="8dp" android:layout_marginEnd="4dp"/>
             <TextView android:id="@+id/p2_name" android:layout_width="0dp" android:layout_height="wrap_content"
                 android:layout_weight="1" android:textSize="11sp" android:textColor="#FFE5E7EB"
                 android:maxLines="1" android:ellipsize="end"/>
@@ -84,7 +82,6 @@
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
             android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="2dp">
             <ImageView android:id="@+id/p3_avatar" android:layout_width="24dp" android:layout_height="24dp" android:layout_marginEnd="4dp"/>
-            <ImageView android:id="@+id/p3_color" android:layout_width="8dp" android:layout_height="8dp" android:layout_marginEnd="4dp"/>
             <TextView android:id="@+id/p3_name" android:layout_width="0dp" android:layout_height="wrap_content"
                 android:layout_weight="1" android:textSize="11sp" android:textColor="#FFE5E7EB"
                 android:maxLines="1" android:ellipsize="end"/>
@@ -95,7 +92,6 @@
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
             android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="2dp">
             <ImageView android:id="@+id/p4_avatar" android:layout_width="24dp" android:layout_height="24dp" android:layout_marginEnd="4dp"/>
-            <ImageView android:id="@+id/p4_color" android:layout_width="8dp" android:layout_height="8dp" android:layout_marginEnd="4dp"/>
             <TextView android:id="@+id/p4_name" android:layout_width="0dp" android:layout_height="wrap_content"
                 android:layout_weight="1" android:textSize="11sp" android:textColor="#FFE5E7EB"
                 android:maxLines="1" android:ellipsize="end"/>
@@ -106,7 +102,6 @@
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
             android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="2dp">
             <ImageView android:id="@+id/p5_avatar" android:layout_width="24dp" android:layout_height="24dp" android:layout_marginEnd="4dp"/>
-            <ImageView android:id="@+id/p5_color" android:layout_width="8dp" android:layout_height="8dp" android:layout_marginEnd="4dp"/>
             <TextView android:id="@+id/p5_name" android:layout_width="0dp" android:layout_height="wrap_content"
                 android:layout_weight="1" android:textSize="11sp" android:textColor="#FFE5E7EB"
                 android:maxLines="1" android:ellipsize="end"/>
@@ -117,7 +112,6 @@
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
             android:orientation="horizontal" android:gravity="center_vertical">
             <ImageView android:id="@+id/p6_avatar" android:layout_width="24dp" android:layout_height="24dp" android:layout_marginEnd="4dp"/>
-            <ImageView android:id="@+id/p6_color" android:layout_width="8dp" android:layout_height="8dp" android:layout_marginEnd="4dp"/>
             <TextView android:id="@+id/p6_name" android:layout_width="0dp" android:layout_height="wrap_content"
                 android:layout_weight="1" android:textSize="11sp" android:textColor="#FFE5E7EB"
                 android:maxLines="1" android:ellipsize="end"/>

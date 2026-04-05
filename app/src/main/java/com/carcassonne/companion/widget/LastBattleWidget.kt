@@ -168,14 +168,14 @@ class LastBattleWidget : AppWidgetProvider() {
             }
 
             // Игроки — до 6
-            data class PlayerSlot(val avatarId: Int, val nameId: Int, val scoreId: Int, val colorId: Int)
+            data class PlayerSlot(val avatarId: Int, val nameId: Int, val scoreId: Int)
             val playerSlots = listOf(
-                PlayerSlot(R.id.p1_avatar, R.id.p1_name, R.id.p1_score, R.id.p1_color),
-                PlayerSlot(R.id.p2_avatar, R.id.p2_name, R.id.p2_score, R.id.p2_color),
-                PlayerSlot(R.id.p3_avatar, R.id.p3_name, R.id.p3_score, R.id.p3_color),
-                PlayerSlot(R.id.p4_avatar, R.id.p4_name, R.id.p4_score, R.id.p4_color),
-                PlayerSlot(R.id.p5_avatar, R.id.p5_name, R.id.p5_score, R.id.p5_color),
-                PlayerSlot(R.id.p6_avatar, R.id.p6_name, R.id.p6_score, R.id.p6_color),
+                PlayerSlot(R.id.p1_avatar, R.id.p1_name, R.id.p1_score),
+                PlayerSlot(R.id.p2_avatar, R.id.p2_name, R.id.p2_score),
+                PlayerSlot(R.id.p3_avatar, R.id.p3_name, R.id.p3_score),
+                PlayerSlot(R.id.p4_avatar, R.id.p4_name, R.id.p4_score),
+                PlayerSlot(R.id.p5_avatar, R.id.p5_name, R.id.p5_score),
+                PlayerSlot(R.id.p6_avatar, R.id.p6_name, R.id.p6_score),
             )
             val medals = listOf("🥇", "🥈", "🥉", "4.", "5.", "6.")
 
@@ -186,7 +186,7 @@ class LastBattleWidget : AppWidgetProvider() {
                     views.setViewVisibility(slot.avatarId, View.VISIBLE)
                     views.setViewVisibility(slot.nameId, View.VISIBLE)
                     views.setViewVisibility(slot.scoreId, View.VISIBLE)
-                    views.setViewVisibility(slot.colorId, View.VISIBLE)
+
 
                     val avatar = loadAvatar(context, player, gp.meepleColor)
                     views.setImageViewBitmap(slot.avatarId, avatar)
@@ -194,13 +194,12 @@ class LastBattleWidget : AppWidgetProvider() {
                     views.setTextViewText(slot.scoreId, "${gp.finalScore}")
                     views.setTextColor(slot.nameId, if (i == 0) greenColor else textColor)
                     views.setTextColor(slot.scoreId, if (i == 0) greenColor else subColor)
-                    // Цветная точка мипла
-                    views.setImageViewBitmap(slot.colorId, makeColorDot(LeaderboardWidget.getMeepleColor(gp.meepleColor), 24))
+
                 } else {
                     views.setViewVisibility(slot.avatarId, View.GONE)
                     views.setViewVisibility(slot.nameId, View.GONE)
                     views.setViewVisibility(slot.scoreId, View.GONE)
-                    views.setViewVisibility(slot.colorId, View.GONE)
+
                 }
             }
 
