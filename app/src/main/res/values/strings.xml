@@ -359,7 +359,7 @@
     <string name="widget_battle_show_photo">Show photo</string>
     <string name="widget_battle_show_notes">Show notes</string>
     <string name="widget_battle_pick_game">Select game</string>
-    <string name="widget_battle_default_name">Carcassonne Game</string>
+    <string name="widget_battle_default_name">Last Battle</string>
     <string name="widget_no_games">No games yet</string>
     <string name="widget_battle_label_display">DISPLAY</string>
 </resources>
