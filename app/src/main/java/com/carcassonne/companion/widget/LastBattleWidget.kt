@@ -290,7 +290,7 @@ class LastBattleWidget : AppWidgetProvider() {
             paint.color = Color.parseColor("#E5E7EB")
             paint.textSize = 52f
             paint.typeface = Typeface.DEFAULT_BOLD
-            val title = "⚔️ ${data.game.name ?: "Партия Каркассон"}"
+            val title = "⚔️ ${data.game.name ?: context.getString(R.string.widget_battle_default_name)}"
             canvas.drawText(title, 48f, 80f, paint)
 
             // Дата

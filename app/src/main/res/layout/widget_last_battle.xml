@@ -47,8 +47,8 @@
     <ImageView
         android:id="@+id/battle_photo"
         android:layout_width="match_parent"
-        android:layout_height="120dp"
-        android:scaleType="centerCrop"
+        android:layout_height="wrap_content"
+        android:scaleType="fitStart"
         android:layout_marginTop="6dp"/>
 
     <LinearLayout
@@ -135,9 +135,9 @@
         android:id="@+id/battle_share"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="⬆ Поделиться"
+        android:text="󰖢"
         android:textColor="#FF4ADE80"
-        android:textSize="11sp"
+        android:textSize="18sp"
         android:gravity="end"
         android:layout_marginTop="2dp"/>
 
