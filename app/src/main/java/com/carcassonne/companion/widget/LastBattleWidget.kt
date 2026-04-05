@@ -177,7 +177,7 @@ class LastBattleWidget : AppWidgetProvider() {
                 PlayerSlot(R.id.p5_dot, R.id.p5_avatar, R.id.p5_name, R.id.p5_score),
                 PlayerSlot(R.id.p6_dot, R.id.p6_avatar, R.id.p6_name, R.id.p6_score),
             )
-            val medals = listOf("🥇", "🥈", "🥉", "4.", "5.", "6.")
+            val medals = listOf("🥇", "🥈", "🥉", "  4.", "  5.", "  6.")
 
             playerSlots.forEachIndexed { i, slot ->
                 val gp = data.gamePlayers.getOrNull(i)
@@ -319,7 +319,7 @@ class LastBattleWidget : AppWidgetProvider() {
             }
 
             // Игроки
-            val medals = listOf("🥇", "🥈", "🥉", "4.", "5.", "6.")
+            val medals = listOf("🥇", "🥈", "🥉", "  4.", "  5.", "  6.")
             data.gamePlayers.take(6).forEachIndexed { i, gp ->
                 val player = data.players.find { it.id == gp.playerId }
                 val y = 190f + i * 80f
