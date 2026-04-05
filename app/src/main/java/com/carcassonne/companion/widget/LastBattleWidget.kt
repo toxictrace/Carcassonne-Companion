@@ -188,12 +188,14 @@ class LastBattleWidget : AppWidgetProvider() {
                     views.setViewVisibility(slot.scoreId, View.VISIBLE)
 
 
+                    val mColor = LeaderboardWidget.getMeepleColor(gp.meepleColor)
+                    views.setImageViewBitmap(slot.dotId, makeColorDot(mColor, 16))
                     val avatar = loadAvatar(context, player, gp.meepleColor)
                     views.setImageViewBitmap(slot.avatarId, avatar)
                     views.setTextViewText(slot.nameId, "${medals[i]} ${player?.name ?: "?"}")
                     views.setTextViewText(slot.scoreId, "${gp.finalScore}")
-                    views.setTextColor(slot.nameId, if (i == 0) greenColor else textColor)
-                    views.setTextColor(slot.scoreId, if (i == 0) greenColor else subColor)
+                    views.setTextColor(slot.nameId, mColor)
+                    views.setTextColor(slot.scoreId, mColor)
 
                 } else {
                     views.setViewVisibility(slot.avatarId, View.GONE)
