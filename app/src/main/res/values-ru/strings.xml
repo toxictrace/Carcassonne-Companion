@@ -361,4 +361,5 @@
     <string name="widget_battle_pick_game">Выберите партию</string>
     <string name="widget_battle_default_name">Партия Каркассон</string>
     <string name="widget_no_games">Нет партий</string>
+    <string name="widget_battle_label_display">ОТОБРАЖЕНИЕ</string>
 </resources>

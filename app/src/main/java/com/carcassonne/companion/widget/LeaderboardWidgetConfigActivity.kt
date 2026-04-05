@@ -240,7 +240,7 @@ fun WidgetConfigScreen(
 }
 
 @Composable
-private fun SectionLabel(text: String, color: Color) {
+fun SectionLabel(text: String, color: Color) {
     Text(
         text,
         fontSize = 11.sp,
@@ -251,7 +251,7 @@ private fun SectionLabel(text: String, color: Color) {
 }
 
 @Composable
-private fun SegmentedSelector(
+fun SegmentedSelector(
     options: List<String>,
     selectedIndex: Int,
     onSelect: (Int) -> Unit,
