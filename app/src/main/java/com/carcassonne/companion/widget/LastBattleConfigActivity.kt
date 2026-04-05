@@ -68,14 +68,14 @@ class LastBattleConfigActivity : AppCompatActivity() {
                     setResult(Activity.RESULT_OK, Intent().apply {
                         putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
                     })
-                    moveTaskToBack(true)
+                    if (isEditMode) moveTaskToBack(true) else finish()
                 },
                 onRefresh = {
                     val manager = AppWidgetManager.getInstance(this)
                     LastBattleWidget.updateWidget(this, manager, appWidgetId)
-                    moveTaskToBack(true)
+                    finish()
                 },
-                onDismiss = { moveTaskToBack(true) }
+                onDismiss = { finish() }
             )
         }
     }

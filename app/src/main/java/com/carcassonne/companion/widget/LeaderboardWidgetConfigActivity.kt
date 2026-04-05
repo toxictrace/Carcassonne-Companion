@@ -68,7 +68,7 @@ class LeaderboardWidgetConfigActivity : AppCompatActivity() {
                         putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
                     }
                     setResult(Activity.RESULT_OK, resultValue)
-                    moveTaskToBack(true)
+                    if (isEditMode) moveTaskToBack(true) else finish()
                 },
                 onRefresh = {
                     val manager = AppWidgetManager.getInstance(this)
