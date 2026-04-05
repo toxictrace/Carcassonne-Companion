@@ -7,18 +7,20 @@
     android:background="#EE111811"
     android:padding="10dp">
 
+    <!-- Header -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:gravity="center_vertical">
+        android:gravity="center_vertical"
+        android:layout_marginBottom="4dp">
 
         <TextView
             android:id="@+id/battle_title"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="⚔️ Последняя битва"
+            android:text="Последняя битва"
             android:textColor="#FFE5E7EB"
             android:textSize="13sp"
             android:textStyle="bold"
@@ -35,91 +37,124 @@
             android:layout_marginEnd="8dp"/>
 
         <TextView
+            android:id="@+id/battle_share"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="[S]"
+            android:textColor="#FF4ADE80"
+            android:textSize="14sp"
+            android:layout_marginEnd="4dp"/>
+
+        <TextView
             android:id="@+id/battle_gear"
             android:layout_width="28dp"
             android:layout_height="28dp"
-            android:text="⚙"
+            android:text="&#9881;"
             android:textColor="#FF4ADE80"
             android:textSize="18sp"
             android:gravity="center"/>
     </LinearLayout>
 
-    <ImageView
-        android:id="@+id/battle_photo"
+    <View
         android:layout_width="match_parent"
-        android:layout_height="100dp"
-        android:scaleType="fitCenter"
-        android:layout_marginTop="6dp"/>
+        android:layout_height="0.5dp"
+        android:background="#334ADE80"
+        android:layout_marginBottom="4dp"/>
 
+    <!-- Main content: photo left + players right -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:orientation="vertical"
-        android:layout_marginTop="4dp"
-        android:id="@+id/battle_players_container">
+        android:orientation="horizontal">
 
-        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-            android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="2dp">
-            <ImageView android:id="@+id/p1_avatar" android:layout_width="24dp" android:layout_height="24dp" android:layout_marginEnd="4dp"/>
-            <TextView android:id="@+id/p1_name" android:layout_width="0dp" android:layout_height="wrap_content"
-                android:layout_weight="1" android:textSize="11sp" android:textColor="#FF4ADE80"
-                android:textStyle="bold" android:maxLines="1" android:ellipsize="end"/>
-            <TextView android:id="@+id/p1_score" android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:textSize="11sp" android:textColor="#FF4ADE80" android:textStyle="bold"/>
-        </LinearLayout>
+        <!-- Photo left -->
+        <ImageView
+            android:id="@+id/battle_photo"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="2"
+            android:scaleType="centerCrop"
+            android:layout_marginEnd="8dp"/>
 
-        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-            android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="2dp">
-            <ImageView android:id="@+id/p2_avatar" android:layout_width="24dp" android:layout_height="24dp" android:layout_marginEnd="4dp"/>
-            <TextView android:id="@+id/p2_name" android:layout_width="0dp" android:layout_height="wrap_content"
-                android:layout_weight="1" android:textSize="11sp" android:textColor="#FFE5E7EB"
-                android:maxLines="1" android:ellipsize="end"/>
-            <TextView android:id="@+id/p2_score" android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:textSize="11sp" android:textColor="#FF9CA3AF"/>
-        </LinearLayout>
+        <!-- Players right -->
+        <LinearLayout
+            android:id="@+id/battle_players_container"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="3"
+            android:orientation="vertical"
+            android:gravity="center_vertical">
 
-        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-            android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="2dp">
-            <ImageView android:id="@+id/p3_avatar" android:layout_width="24dp" android:layout_height="24dp" android:layout_marginEnd="4dp"/>
-            <TextView android:id="@+id/p3_name" android:layout_width="0dp" android:layout_height="wrap_content"
-                android:layout_weight="1" android:textSize="11sp" android:textColor="#FFE5E7EB"
-                android:maxLines="1" android:ellipsize="end"/>
-            <TextView android:id="@+id/p3_score" android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:textSize="11sp" android:textColor="#FF9CA3AF"/>
-        </LinearLayout>
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="3dp">
+                <ImageView android:id="@+id/p1_dot" android:layout_width="8dp" android:layout_height="8dp" android:layout_marginEnd="4dp"/>
+                <ImageView android:id="@+id/p1_avatar" android:layout_width="22dp" android:layout_height="22dp" android:layout_marginEnd="5dp"/>
+                <TextView android:id="@+id/p1_name" android:layout_width="0dp" android:layout_height="wrap_content"
+                    android:layout_weight="1" android:textSize="11sp" android:textColor="#FF4ADE80"
+                    android:textStyle="bold" android:maxLines="1" android:ellipsize="end"/>
+                <TextView android:id="@+id/p1_score" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:textSize="11sp" android:textColor="#FF4ADE80" android:textStyle="bold"/>
+            </LinearLayout>
 
-        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-            android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="2dp">
-            <ImageView android:id="@+id/p4_avatar" android:layout_width="24dp" android:layout_height="24dp" android:layout_marginEnd="4dp"/>
-            <TextView android:id="@+id/p4_name" android:layout_width="0dp" android:layout_height="wrap_content"
-                android:layout_weight="1" android:textSize="11sp" android:textColor="#FFE5E7EB"
-                android:maxLines="1" android:ellipsize="end"/>
-            <TextView android:id="@+id/p4_score" android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:textSize="11sp" android:textColor="#FF9CA3AF"/>
-        </LinearLayout>
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="3dp">
+                <ImageView android:id="@+id/p2_dot" android:layout_width="8dp" android:layout_height="8dp" android:layout_marginEnd="4dp"/>
+                <ImageView android:id="@+id/p2_avatar" android:layout_width="20dp" android:layout_height="20dp" android:layout_marginEnd="5dp"/>
+                <TextView android:id="@+id/p2_name" android:layout_width="0dp" android:layout_height="wrap_content"
+                    android:layout_weight="1" android:textSize="11sp" android:textColor="#FFE5E7EB"
+                    android:maxLines="1" android:ellipsize="end"/>
+                <TextView android:id="@+id/p2_score" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:textSize="11sp" android:textColor="#FF9CA3AF"/>
+            </LinearLayout>
 
-        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-            android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="2dp">
-            <ImageView android:id="@+id/p5_avatar" android:layout_width="24dp" android:layout_height="24dp" android:layout_marginEnd="4dp"/>
-            <TextView android:id="@+id/p5_name" android:layout_width="0dp" android:layout_height="wrap_content"
-                android:layout_weight="1" android:textSize="11sp" android:textColor="#FFE5E7EB"
-                android:maxLines="1" android:ellipsize="end"/>
-            <TextView android:id="@+id/p5_score" android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:textSize="11sp" android:textColor="#FF9CA3AF"/>
-        </LinearLayout>
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="3dp">
+                <ImageView android:id="@+id/p3_dot" android:layout_width="8dp" android:layout_height="8dp" android:layout_marginEnd="4dp"/>
+                <ImageView android:id="@+id/p3_avatar" android:layout_width="20dp" android:layout_height="20dp" android:layout_marginEnd="5dp"/>
+                <TextView android:id="@+id/p3_name" android:layout_width="0dp" android:layout_height="wrap_content"
+                    android:layout_weight="1" android:textSize="11sp" android:textColor="#FFE5E7EB"
+                    android:maxLines="1" android:ellipsize="end"/>
+                <TextView android:id="@+id/p3_score" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:textSize="11sp" android:textColor="#FF9CA3AF"/>
+            </LinearLayout>
 
-        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-            android:orientation="horizontal" android:gravity="center_vertical">
-            <ImageView android:id="@+id/p6_avatar" android:layout_width="24dp" android:layout_height="24dp" android:layout_marginEnd="4dp"/>
-            <TextView android:id="@+id/p6_name" android:layout_width="0dp" android:layout_height="wrap_content"
-                android:layout_weight="1" android:textSize="11sp" android:textColor="#FFE5E7EB"
-                android:maxLines="1" android:ellipsize="end"/>
-            <TextView android:id="@+id/p6_score" android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:textSize="11sp" android:textColor="#FF9CA3AF"/>
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="3dp">
+                <ImageView android:id="@+id/p4_dot" android:layout_width="8dp" android:layout_height="8dp" android:layout_marginEnd="4dp"/>
+                <ImageView android:id="@+id/p4_avatar" android:layout_width="20dp" android:layout_height="20dp" android:layout_marginEnd="5dp"/>
+                <TextView android:id="@+id/p4_name" android:layout_width="0dp" android:layout_height="wrap_content"
+                    android:layout_weight="1" android:textSize="11sp" android:textColor="#FFE5E7EB"
+                    android:maxLines="1" android:ellipsize="end"/>
+                <TextView android:id="@+id/p4_score" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:textSize="11sp" android:textColor="#FF9CA3AF"/>
+            </LinearLayout>
+
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="3dp">
+                <ImageView android:id="@+id/p5_dot" android:layout_width="8dp" android:layout_height="8dp" android:layout_marginEnd="4dp"/>
+                <ImageView android:id="@+id/p5_avatar" android:layout_width="20dp" android:layout_height="20dp" android:layout_marginEnd="5dp"/>
+                <TextView android:id="@+id/p5_name" android:layout_width="0dp" android:layout_height="wrap_content"
+                    android:layout_weight="1" android:textSize="11sp" android:textColor="#FFE5E7EB"
+                    android:maxLines="1" android:ellipsize="end"/>
+                <TextView android:id="@+id/p5_score" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:textSize="11sp" android:textColor="#FF9CA3AF"/>
+            </LinearLayout>
+
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="horizontal" android:gravity="center_vertical">
+                <ImageView android:id="@+id/p6_dot" android:layout_width="8dp" android:layout_height="8dp" android:layout_marginEnd="4dp"/>
+                <ImageView android:id="@+id/p6_avatar" android:layout_width="20dp" android:layout_height="20dp" android:layout_marginEnd="5dp"/>
+                <TextView android:id="@+id/p6_name" android:layout_width="0dp" android:layout_height="wrap_content"
+                    android:layout_weight="1" android:textSize="11sp" android:textColor="#FFE5E7EB"
+                    android:maxLines="1" android:ellipsize="end"/>
+                <TextView android:id="@+id/p6_score" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:textSize="11sp" android:textColor="#FF9CA3AF"/>
+            </LinearLayout>
         </LinearLayout>
     </LinearLayout>
 
+    <!-- Notes -->
     <TextView
         android:id="@+id/battle_notes"
         android:layout_width="match_parent"
@@ -130,15 +165,5 @@
         android:maxLines="2"
         android:ellipsize="end"
         android:layout_marginTop="4dp"/>
-
-    <TextView
-        android:id="@+id/battle_share"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="󰖢"
-        android:textColor="#FF4ADE80"
-        android:textSize="18sp"
-        android:gravity="end"
-        android:layout_marginTop="2dp"/>
 
 </LinearLayout>
