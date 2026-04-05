@@ -47,8 +47,8 @@
     <ImageView
         android:id="@+id/battle_photo"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:scaleType="fitStart"
+        android:layout_height="100dp"
+        android:scaleType="fitCenter"
         android:layout_marginTop="6dp"/>
 
     <LinearLayout
