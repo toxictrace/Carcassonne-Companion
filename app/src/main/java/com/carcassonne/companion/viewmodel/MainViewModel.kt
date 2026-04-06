@@ -396,6 +396,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             repo.updateGameNotes(gameId, notes)
         }
         _liveGame.value = LiveGameState()
+        refreshWidgets(getApplication())
         _message.emit(getApplication<Application>().getString(R.string.game_saved))
         onDone(gameId)
     }
@@ -534,6 +535,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     ) = viewModelScope.launch {
         repo.updateGame(gameId, name, date, playerResults)
         repo.updateGameNotes(gameId, notes)
+        refreshWidgets(getApplication())
         _message.emit(getApplication<Application>().getString(R.string.game_updated))
         onDone()
     }
