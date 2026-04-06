@@ -355,7 +355,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _liveGame.update { state ->
             val exps = state.expansions.toMutableSet()
             if (exp in exps) exps.remove(exp) else exps.add(exp)
-            state.copy(expansions = exps)
+            val newState = state.copy(expansions = exps)
+            // Если дополнений нет и игроков 6 — убрать последнего
+            val maxPlayers = if (exps.isNotEmpty()) 6 else 5
+            if (newState.selectedPlayers.size > maxPlayers) {
+                newState.copy(selectedPlayers = newState.selectedPlayers.dropLast(1))
+            } else {
+                newState
+            }
         }
     }
 
