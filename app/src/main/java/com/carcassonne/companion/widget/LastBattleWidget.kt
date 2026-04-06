@@ -287,79 +287,91 @@ class LastBattleWidget : AppWidgetProvider() {
             paint.color = Color.parseColor("#4ADE80")
             canvas.drawRect(0f, 0f, w.toFloat(), 8f, paint)
 
-            // Заголовок
-            paint.color = Color.parseColor("#E5E7EB")
-            paint.textSize = 52f
-            paint.typeface = Typeface.DEFAULT_BOLD
-            val title = "⚔️ ${data.game.name ?: context.getString(R.string.widget_battle_default_name)}"
-            canvas.drawText(title, 48f, 80f, paint)
-
-            // Дата
-            paint.color = Color.parseColor("#9CA3AF")
-            paint.textSize = 32f
-            paint.typeface = Typeface.DEFAULT
-            val date = SimpleDateFormat("d MMMM yyyy", Locale.getDefault()).format(Date(data.game.date))
-            canvas.drawText(date, 48f, 128f, paint)
-
-            // Разделитель
-            paint.color = Color.parseColor("#4ADE80")
-            paint.alpha = 60
-            canvas.drawRect(48f, 148f, (w - 48).toFloat(), 150f, paint)
-            paint.alpha = 255
-
-            // Фото если есть
-            var playersStartX = 48f
+            // Фото слева если есть
+            var playersX = 48f
+            val playersW = w - 48f
             if (data.game.photoPath != null && File(data.game.photoPath).exists()) {
                 val photoBmp = BitmapFactory.decodeFile(data.game.photoPath)
                 if (photoBmp != null) {
-                    val photoW = 320; val photoH = 520
-                    val scaled = Bitmap.createScaledBitmap(photoBmp, photoW, photoH, true)
-                    canvas.drawBitmap(scaled, (w - photoW - 48).toFloat(), 170f, null)
-                    playersStartX = 48f
+                    val photoW = (w * 0.38f).toInt()
+                    // Обрезаем центральный квадрат фото
+                    val srcSize = minOf(photoBmp.width, photoBmp.height)
+                    val cropped = Bitmap.createBitmap(photoBmp,
+                        (photoBmp.width - srcSize) / 2, (photoBmp.height - srcSize) / 2,
+                        srcSize, srcSize)
+                    val scaled = Bitmap.createScaledBitmap(cropped, photoW, h - 48, true)
+                    // Скруглённые углы у фото
+                    canvas.drawBitmap(scaled, 24f, 24f, null)
+                    playersX = photoW + 48f
                 }
             }
 
+            val rightW = w - playersX - 24f
+
+            // Заголовок
+            paint.color = Color.parseColor("#E5E7EB")
+            paint.textSize = 42f
+            paint.typeface = Typeface.DEFAULT_BOLD
+            val title = "⚔️ ${data.game.name ?: context.getString(R.string.widget_battle_default_name)}"
+            canvas.drawText(title, playersX, 70f, paint)
+
+            // Дата
+            paint.color = Color.parseColor("#9CA3AF")
+            paint.textSize = 28f
+            paint.typeface = Typeface.DEFAULT
+            val date = SimpleDateFormat("d MMMM yyyy", Locale.getDefault()).format(Date(data.game.date))
+            canvas.drawText(date, playersX, 108f, paint)
+
+            // Разделитель
+            val greenPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                color = Color.parseColor("#4ADE80"); alpha = 80
+            }
+            canvas.drawRect(playersX, 120f, w - 24f, 122f, greenPaint)
+
             // Игроки
             val medals = listOf("🥇", "🥈", "🥉", "  4.", "  5.", "  6.")
+            val rowH = ((h - 160f) / minOf(data.gamePlayers.size, 6)).coerceAtMost(90f)
+
             data.gamePlayers.take(6).forEachIndexed { i, gp ->
                 val player = data.players.find { it.id == gp.playerId }
-                val y = 190f + i * 80f
+                val y = 160f + i * rowH + rowH * 0.65f
+                val meepleColor = LeaderboardWidget.getMeepleColor(gp.meepleColor)
 
                 // Аватар
+                val avatarSize = (rowH * 0.7f).toInt().coerceIn(40, 72)
                 val avatarBmp = if (player?.avatarPath != null && File(player.avatarPath).exists()) {
-                    toCircle(BitmapFactory.decodeFile(player.avatarPath)!!, 56)
-                } else {
-                    makeColorDot(LeaderboardWidget.getMeepleColor(gp.meepleColor), 56)
-                }
-                canvas.drawBitmap(avatarBmp, playersStartX, y - 40f, null)
+                    BitmapFactory.decodeFile(player.avatarPath)?.let { toCircle(it, avatarSize) }
+                } else null
+                val dotBmp = makeColorDot(meepleColor, avatarSize)
+                canvas.drawBitmap(avatarBmp ?: dotBmp, playersX, y - avatarSize * 0.8f, null)
 
-                // Медаль + имя
-                paint.color = if (i == 0) Color.parseColor("#4ADE80") else Color.parseColor("#E5E7EB")
-                paint.textSize = 34f
+                // Имя в цвете мипла
+                paint.color = meepleColor
+                paint.textSize = (rowH * 0.38f).coerceIn(28f, 40f)
                 paint.typeface = if (i == 0) Typeface.DEFAULT_BOLD else Typeface.DEFAULT
-                canvas.drawText("${medals[i]} ${player?.name ?: "?"}", playersStartX + 70f, y, paint)
+                canvas.drawText("${medals[i]} ${player?.name ?: "?"}", playersX + avatarSize + 16f, y, paint)
 
-                // Очки
-                paint.color = if (i == 0) Color.parseColor("#4ADE80") else Color.parseColor("#9CA3AF")
-                paint.textSize = 34f
+                // Очки в цвете мипла
                 paint.textAlign = Paint.Align.RIGHT
-                canvas.drawText("${gp.finalScore} очков", 660f, y, paint)
+                paint.textSize = (rowH * 0.38f).coerceIn(28f, 40f)
+                canvas.drawText("${gp.finalScore}", w - 24f, y, paint)
                 paint.textAlign = Paint.Align.LEFT
             }
 
             // Примечания
             if (!data.game.notes.isNullOrBlank()) {
                 paint.color = Color.parseColor("#9CA3AF")
-                paint.textSize = 26f
-                canvas.drawText("📝 ${data.game.notes.take(80)}", 48f, (h - 60).toFloat(), paint)
+                paint.textSize = 24f
+                paint.typeface = Typeface.DEFAULT
+                canvas.drawText("📝 ${data.game.notes.take(60)}", playersX, (h - 36).toFloat(), paint)
             }
 
             // Watermark
-            paint.color = Color.parseColor("#4ADE80")
-            paint.alpha = 100
-            paint.textSize = 24f
-            paint.textAlign = Paint.Align.RIGHT
-            canvas.drawText("Carcassonne Companion", (w - 48).toFloat(), (h - 24).toFloat(), paint)
+            val wmPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                color = Color.parseColor("#4ADE80"); alpha = 80
+                textSize = 22f; textAlign = Paint.Align.RIGHT
+            }
+            canvas.drawText("Carcassonne Companion", (w - 24).toFloat(), (h - 12).toFloat(), wmPaint)
 
             return bmp
         }
