@@ -294,14 +294,17 @@ class LastBattleWidget : AppWidgetProvider() {
                 val photoBmp = BitmapFactory.decodeFile(data.game.photoPath)
                 if (photoBmp != null) {
                     val photoW = (w * 0.38f).toInt()
-                    // Обрезаем центральный квадрат фото
-                    val srcSize = minOf(photoBmp.width, photoBmp.height)
-                    val cropped = Bitmap.createBitmap(photoBmp,
-                        (photoBmp.width - srcSize) / 2, (photoBmp.height - srcSize) / 2,
-                        srcSize, srcSize)
-                    val scaled = Bitmap.createScaledBitmap(cropped, photoW, h - 48, true)
-                    // Скруглённые углы у фото
-                    canvas.drawBitmap(scaled, 24f, 24f, null)
+                    val photoH = h - 48
+                    // Вписываем пропорционально (fitCenter)
+                    val scaleX = photoW.toFloat() / photoBmp.width
+                    val scaleY = photoH.toFloat() / photoBmp.height
+                    val scale = minOf(scaleX, scaleY)
+                    val dstW = (photoBmp.width * scale).toInt()
+                    val dstH = (photoBmp.height * scale).toInt()
+                    val offsetX = 24f + (photoW - dstW) / 2f
+                    val offsetY = 24f + (photoH - dstH) / 2f
+                    val scaled = Bitmap.createScaledBitmap(photoBmp, dstW, dstH, true)
+                    canvas.drawBitmap(scaled, offsetX, offsetY, null)
                     playersX = photoW + 48f
                 }
             }
