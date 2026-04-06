@@ -2434,8 +2434,10 @@ fun NewGameScreen(
                 }
             }
         } else {
+            val maxPlayers = if (liveGame.expansions.isNotEmpty()) 6 else 5
             items(players) { player ->
                 val isSelected = player.id in selected
+                val isMaxReached = !isSelected && liveGame.selectedPlayers.size >= maxPlayers
                 val assignedColor = liveGame.selectedPlayers.find { it.playerId == player.id }?.meepleColor ?: player.meepleColor
                 // Colors taken by OTHER selected players
                 val takenColors = liveGame.selectedPlayers
@@ -2458,14 +2460,20 @@ fun NewGameScreen(
                             Column(Modifier.weight(1f)) {
                                 Text(player.name, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
                                 Text(
-                                    if (isSelected) stringResource(R.string.tap_to_remove) else stringResource(R.string.tap_to_include),
-                                    fontSize = 12.sp, color = CarcText3
+                                    when {
+                                        isSelected -> stringResource(R.string.tap_to_remove)
+                                        isMaxReached -> stringResource(R.string.max_players_reached, maxPlayers)
+                                        else -> stringResource(R.string.tap_to_include)
+                                    },
+                                    fontSize = 12.sp, color = if (isMaxReached && !isSelected) CarcText3.copy(alpha = 0.5f) else CarcText3
                                 )
                             }
                             Checkbox(
                                 checked = isSelected,
-                                onCheckedChange = { onTogglePlayer(player) },
-                                colors = CheckboxDefaults.colors(checkedColor = CarcGreen, uncheckedColor = CarcText3)
+                                onCheckedChange = { if (!isMaxReached) onTogglePlayer(player) },
+                                enabled = !isMaxReached || isSelected,
+                                colors = CheckboxDefaults.colors(checkedColor = CarcGreen, uncheckedColor = CarcText3,
+                                    disabledUncheckedColor = CarcText3.copy(alpha = 0.3f))
                             )
                         }
                         if (isSelected) {

@@ -362,4 +362,5 @@
     <string name="widget_battle_default_name">Последняя битва</string>
     <string name="widget_no_games">Нет партий</string>
     <string name="widget_battle_label_display">ОТОБРАЖЕНИЕ</string>
+    <string name="max_players_reached">Максимум %d игроков</string>
 </resources>
