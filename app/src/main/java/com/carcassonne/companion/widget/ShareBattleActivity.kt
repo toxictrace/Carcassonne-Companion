@@ -51,11 +51,11 @@ class ShareBattleActivity : Activity() {
                         putExtra(Intent.EXTRA_STREAM, uri)
                         addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                     }
-                    val chooser = Intent.createChooser(shareIntent, "Поделиться результатом").apply {
-                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    }
+                    val chooser = Intent.createChooser(shareIntent, getString(com.carcassonne.companion.R.string.share_game))
                     startActivity(chooser)
-                    finishAndRemoveTask()
+                    overridePendingTransition(0, 0)
+                    finish()
+                    overridePendingTransition(0, 0)
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) { finish() }

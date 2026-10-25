@@ -3457,8 +3457,8 @@ fun MatchDetailScreen(
                                 context.startActivity(
                                     android.content.Intent(context, com.carcassonne.companion.widget.ShareBattleActivity::class.java)
                                         .putExtra("game_id", gameId)
-                                        .addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
                                 )
+                                (context as? android.app.Activity)?.overridePendingTransition(0, 0)
                             }
                             .padding(horizontal = 8.dp, vertical = 8.dp),
                         contentAlignment = Alignment.Center
