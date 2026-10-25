@@ -3430,15 +3430,33 @@ fun MatchDetailScreen(
                     Text(game?.name ?: "Match #$gameId", fontSize = 20.sp, fontWeight = FontWeight.Bold)
                     Text("📅 $date", fontSize = 13.sp, color = CarcText3, modifier = Modifier.padding(top = 4.dp))
                 }
-                Box(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(CarcCard2)
-                        .border(1.dp, CarcBorder, RoundedCornerShape(8.dp))
-                        .clickable { onEdit() }
-                        .padding(horizontal = 12.dp, vertical = 6.dp)
-                ) {
-                    Text(stringResource(R.string.edit_btn), fontSize = 13.sp, color = CarcGreen, fontWeight = FontWeight.SemiBold)
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(CarcCard2)
+                            .border(1.dp, CarcBorder, RoundedCornerShape(8.dp))
+                            .clickable {
+                                context.startActivity(
+                                    android.content.Intent(context, com.carcassonne.companion.widget.ShareBattleActivity::class.java)
+                                        .putExtra("game_id", gameId)
+                                        .addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+                                )
+                            }
+                            .padding(horizontal = 12.dp, vertical = 6.dp)
+                    ) {
+                        Text("Поделиться", fontSize = 13.sp, color = CarcGreen, fontWeight = FontWeight.SemiBold)
+                    }
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(CarcCard2)
+                            .border(1.dp, CarcBorder, RoundedCornerShape(8.dp))
+                            .clickable { onEdit() }
+                            .padding(horizontal = 12.dp, vertical = 6.dp)
+                    ) {
+                        Text(stringResource(R.string.edit_btn), fontSize = 13.sp, color = CarcGreen, fontWeight = FontWeight.SemiBold)
+                    }
                 }
             }
             Spacer(Modifier.height(16.dp))

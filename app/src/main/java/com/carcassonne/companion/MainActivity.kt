@@ -376,7 +376,7 @@ fun CarcassonneApp(vm: MainViewModel = viewModel()) {
                 SettingsScreen(
                     onBackup = {
                         if (backupFolderUri != null) vm.exportBackupToFolder(context)
-                        else { val dateStr = SimpleDateFormat("dd-MM-yyyy", Locale.US).format(Date()); createBackupLauncher.launch("$dateStr.ccbackup") }
+                        else { val dateStr = SimpleDateFormat("dd-MM-yyyy", Locale.US).format(Date()); createBackupLauncher.launch("$dateStr.bin") }
                     },
                     onRestore = {
                         if (backupFolderUri != null) showRestoreFromFolder = true
