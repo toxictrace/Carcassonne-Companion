@@ -248,7 +248,16 @@ fun CarcassonneApp(vm: MainViewModel = viewModel()) {
                                 }
                             },
                             icon = { Icon(item.icon, null) },
-                            label = { Text(stringResource(item.labelRes), fontSize = 10.sp) },
+                            label = {
+                                Text(
+                                    stringResource(item.labelRes),
+                                    fontSize = 9.sp,
+                                    maxLines = 1,
+                                    softWrap = false,
+                                    overflow = androidx.compose.ui.text.style.TextOverflow.Clip,
+                                    letterSpacing = (-0.15).sp
+                                )
+                            },
                             colors = NavigationBarItemDefaults.colors(
                                 selectedIconColor = CarcGreen,
                                 selectedTextColor = CarcGreen,
