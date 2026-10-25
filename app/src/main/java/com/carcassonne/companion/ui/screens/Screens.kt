@@ -2196,25 +2196,6 @@ fun SettingsScreen(
                 trailing = { Text("›", fontSize = 20.sp, color = CarcRed) }
             )
         }
-        item {
-            Text(stringResource(R.string.settings_app_section), fontSize = 11.sp, color = CarcText3, letterSpacing = 1.sp,
-                modifier = Modifier.padding(top = 20.dp, bottom = 4.dp))
-        }
-        item {
-            Card(
-                shape = RoundedCornerShape(14.dp),
-                colors = CardDefaults.cardColors(containerColor = CarcCard),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Column(
-                    modifier = Modifier.padding(20.dp).fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(stringResource(R.string.app_version), color = CarcGreen, fontWeight = FontWeight.Bold, fontSize = 17.sp)
-                    Text(stringResource(R.string.app_built_with), color = CarcText3, fontSize = 12.sp, modifier = Modifier.padding(top = 4.dp))
-                }
-            }
-        }
         item { Spacer(Modifier.height(72.dp)) }
     }
 }
