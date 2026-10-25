@@ -3425,37 +3425,51 @@ fun MatchDetailScreen(
             Spacer(Modifier.height(12.dp))
         }
         item {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Column(Modifier.weight(1f)) {
-                    Text(game?.name ?: "Match #$gameId", fontSize = 20.sp, fontWeight = FontWeight.Bold)
-                    Text("📅 $date", fontSize = 13.sp, color = CarcText3, modifier = Modifier.padding(top = 4.dp))
+            Column(modifier = Modifier.fillMaxWidth()) {
+                Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        game?.name ?: "Match #$gameId",
+                        modifier = Modifier.weight(1f),
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Spacer(Modifier.width(10.dp))
+                    Text("📅 $date", fontSize = 12.sp, color = CarcText3, maxLines = 1, softWrap = false)
                 }
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(CarcCard2)
-                            .border(1.dp, CarcBorder, RoundedCornerShape(8.dp))
-                            .clickable {
-                                context.startActivity(
-                                    android.content.Intent(context, com.carcassonne.companion.widget.ShareBattleActivity::class.java)
-                                        .putExtra("game_id", gameId)
-                                        .addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
-                                )
-                            }
-                            .padding(horizontal = 12.dp, vertical = 6.dp)
-                    ) {
-                        Text("Поделиться", fontSize = 13.sp, color = CarcGreen, fontWeight = FontWeight.SemiBold)
-                    }
-                    Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(CarcCard2)
-                            .border(1.dp, CarcBorder, RoundedCornerShape(8.dp))
-                            .clickable { onEdit() }
-                            .padding(horizontal = 12.dp, vertical = 6.dp)
-                    ) {
-                        Text(stringResource(R.string.edit_btn), fontSize = 13.sp, color = CarcGreen, fontWeight = FontWeight.SemiBold)
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(top = 10.dp),
+                    horizontalArrangement = Arrangement.End,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(CarcCard2)
+                                .border(1.dp, CarcBorder, RoundedCornerShape(8.dp))
+                                .clickable {
+                                    context.startActivity(
+                                        android.content.Intent(context, com.carcassonne.companion.widget.ShareBattleActivity::class.java)
+                                            .putExtra("game_id", gameId)
+                                            .addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+                                    )
+                                }
+                                .padding(horizontal = 12.dp, vertical = 6.dp)
+                        ) {
+                            Text("Поделиться", fontSize = 13.sp, color = CarcGreen, fontWeight = FontWeight.SemiBold)
+                        }
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(CarcCard2)
+                                .border(1.dp, CarcBorder, RoundedCornerShape(8.dp))
+                                .clickable { onEdit() }
+                                .padding(horizontal = 12.dp, vertical = 6.dp)
+                        ) {
+                            Text(stringResource(R.string.edit_btn), fontSize = 13.sp, color = CarcGreen, fontWeight = FontWeight.SemiBold)
+                        }
                     }
                 }
             }

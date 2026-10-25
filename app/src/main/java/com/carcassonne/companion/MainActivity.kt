@@ -132,7 +132,16 @@ fun CarcassonneApp(vm: MainViewModel = viewModel()) {
 
     Scaffold(
         containerColor = CarcBg,
-        snackbarHost = { SnackbarHost(snackbarHostState) },
+        snackbarHost = {
+            SnackbarHost(snackbarHostState) { snackbarData ->
+                Snackbar(
+                    snackbarData = snackbarData,
+                    containerColor = CarcCard2,
+                    contentColor = CarcText,
+                    actionColor = CarcGreen
+                )
+            }
+        },
         topBar = {
             when (currentRoute) {
                 Routes.DASHBOARD -> TopAppBar(
@@ -376,7 +385,7 @@ fun CarcassonneApp(vm: MainViewModel = viewModel()) {
                 SettingsScreen(
                     onBackup = {
                         if (backupFolderUri != null) vm.exportBackupToFolder(context)
-                        else { val dateStr = SimpleDateFormat("dd-MM-yyyy", Locale.US).format(Date()); createBackupLauncher.launch("$dateStr.bin") }
+                        else { val dateStr = SimpleDateFormat("dd-MM-yyyy", Locale.US).format(Date()); createBackupLauncher.launch("$dateStr.ccbackup") }
                     },
                     onRestore = {
                         if (backupFolderUri != null) showRestoreFromFolder = true

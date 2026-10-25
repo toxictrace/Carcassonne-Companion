@@ -73,7 +73,8 @@ data class GamePlayerBackupData(
 )
 
 object BackupManager {
-    const val EXTENSION = "bin"
+    const val EXTENSION = "ccbackup"
+    private val SUPPORTED_EXTENSIONS = setOf(EXTENSION, "bin")
     private val MAGIC = "CCBIN01".toByteArray(Charsets.US_ASCII)
     private const val SALT = "CarcSalt20242025"
     private val PASSWORD = "Carcassonne" + "Companion#2024"
@@ -122,7 +123,7 @@ object BackupManager {
         (context.getExternalFilesDir("backups") ?: File(context.filesDir, "backups")).also { it.mkdirs() }
 
     fun listBackupFiles(context: Context): List<File> =
-        getBackupDir(context).listFiles { f -> f.extension.equals(EXTENSION, ignoreCase = true) }
+        getBackupDir(context).listFiles { f -> f.extension.lowercase(Locale.ROOT) in SUPPORTED_EXTENSIONS }
             ?.sortedByDescending { it.lastModified() } ?: emptyList()
 
     fun createBackup(
@@ -178,7 +179,7 @@ object BackupManager {
     fun listBackupFilesInFolderUri(context: Context, treeUri: Uri): List<DocumentFile> {
         val folder = DocumentFile.fromTreeUri(context, treeUri) ?: return emptyList()
         return folder.listFiles()
-            .filter { it.isFile && it.name?.endsWith(".$EXTENSION", ignoreCase = true) == true }
+            .filter { it.isFile && it.name?.substringAfterLast(".", "")?.lowercase(Locale.ROOT) in SUPPORTED_EXTENSIONS }
             .sortedByDescending { it.lastModified() }
     }
 
