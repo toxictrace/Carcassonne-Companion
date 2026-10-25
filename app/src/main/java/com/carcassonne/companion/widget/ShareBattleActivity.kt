@@ -51,7 +51,7 @@ class ShareBattleActivity : Activity() {
                         putExtra(Intent.EXTRA_STREAM, uri)
                         addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                     }
-                    val chooser = Intent.createChooser(shareIntent, null)
+                    val chooser = Intent.createChooser(shareIntent, "")
                     startActivity(chooser)
                     overridePendingTransition(0, 0)
                     finish()
