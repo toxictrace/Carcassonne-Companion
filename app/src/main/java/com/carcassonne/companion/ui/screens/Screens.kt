@@ -3454,11 +3454,58 @@ fun MatchDetailScreen(
                             .background(CarcCard2)
                             .border(1.dp, CarcBorder, RoundedCornerShape(8.dp))
                             .clickable {
-                                context.startActivity(
-                                    android.content.Intent(context, com.carcassonne.companion.widget.ShareBattleActivity::class.java)
-                                        .putExtra("game_id", gameId)
-                                )
-                                (context as? android.app.Activity)?.overridePendingTransition(0, 0)
+                                // Build the share image in the background, then open Android Sharesheet
+                                // directly from this screen to avoid a visible intermediate Activity.
+                                scope.launch {
+                                    try {
+                                        val appContext = context.applicationContext
+                                        val battleData = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                                            val db = com.carcassonne.companion.data.CarcassonneDatabase.getInstance(appContext)
+                                            val selectedGame = db.gameDao().getGameById(gameId)
+                                            if (selectedGame == null) {
+                                                null
+                                            } else {
+                                                val selectedPlayers = db.gamePlayerDao().getPlayersForGame(gameId)
+                                                    .sortedBy { it.placement }
+                                                val allPlayers = db.playerDao().getAllPlayersOnce()
+                                                com.carcassonne.companion.widget.BattleData(
+                                                    selectedGame,
+                                                    selectedPlayers,
+                                                    allPlayers
+                                                )
+                                            }
+                                        } ?: return@launch
+
+                                        val uri = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                                            val bitmap = com.carcassonne.companion.widget.LastBattleWidget
+                                                .generateShareCard(appContext, battleData)
+                                            val file = File(appContext.cacheDir, "share_battle_${gameId}.png")
+                                            file.outputStream().use { out ->
+                                                bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, out)
+                                            }
+                                            bitmap.recycle()
+                                            FileProvider.getUriForFile(
+                                                appContext,
+                                                "${appContext.packageName}.provider",
+                                                file
+                                            )
+                                        }
+
+                                        val sendIntent = android.content.Intent(android.content.Intent.ACTION_SEND).apply {
+                                            type = "image/png"
+                                            putExtra(android.content.Intent.EXTRA_STREAM, uri)
+                                            clipData = android.content.ClipData.newUri(
+                                                appContext.contentResolver,
+                                                "battle_image",
+                                                uri
+                                            )
+                                            addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                                        }
+                                        context.startActivity(android.content.Intent.createChooser(sendIntent, null))
+                                    } catch (e: Exception) {
+                                        android.util.Log.e("MatchDetailScreen", "Failed to share match $gameId", e)
+                                    }
+                                }
                             }
                             .padding(horizontal = 8.dp, vertical = 8.dp),
                         contentAlignment = Alignment.Center
