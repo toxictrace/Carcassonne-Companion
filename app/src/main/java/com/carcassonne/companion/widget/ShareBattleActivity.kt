@@ -51,7 +51,7 @@ class ShareBattleActivity : Activity() {
                         putExtra(Intent.EXTRA_STREAM, uri)
                         addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                     }
-                    val chooser = Intent.createChooser(shareIntent, getString(com.carcassonne.companion.R.string.share_game))
+                    val chooser = Intent.createChooser(shareIntent, null)
                     startActivity(chooser)
                     overridePendingTransition(0, 0)
                     finish()
