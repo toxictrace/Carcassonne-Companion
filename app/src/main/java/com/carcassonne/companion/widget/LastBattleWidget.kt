@@ -3,6 +3,7 @@ package com.carcassonne.companion.widget
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
+import android.content.ClipData
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -213,18 +214,39 @@ class LastBattleWidget : AppWidgetProvider() {
                 views.setViewVisibility(R.id.battle_notes, View.GONE)
             }
 
-            // Кнопка поделиться
-            val shareIntent = Intent(context, ShareBattleActivity::class.java).apply {
-                putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
-                putExtra("game_id", data.game.id)
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            // Подготовить карточку заранее, чтобы кнопка запускала системный Sharesheet напрямую.
+            // Промежуточная Activity больше не нужна: она вызывала лишний оконный переход.
+            try {
+                val cardBitmap = generateShareCard(context, data)
+                val shareFile = File(context.cacheDir, "share_battle_${appWidgetId}_${data.game.id}.png")
+                shareFile.outputStream().use { out ->
+                    cardBitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
+                }
+                val uri = androidx.core.content.FileProvider.getUriForFile(
+                    context,
+                    "${context.packageName}.provider",
+                    shareFile
+                )
+                val sendIntent = Intent(Intent.ACTION_SEND).apply {
+                    type = "image/png"
+                    putExtra(Intent.EXTRA_STREAM, uri)
+                    clipData = ClipData.newUri(context.contentResolver, "battle_image", uri)
+                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                }
+                val chooser = Intent.createChooser(sendIntent, null).apply {
+                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                }
+                val sharePi = PendingIntent.getActivity(
+                    context, appWidgetId + 3000, chooser,
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                )
+                views.setOnClickPendingIntent(R.id.battle_share, sharePi)
+                views.setViewVisibility(R.id.battle_share, View.VISIBLE)
+                views.setTextColor(R.id.battle_share, greenColor)
+            } catch (e: Exception) {
+                Log.e("LastBattleWidget", "Failed to prepare share card", e)
+                views.setViewVisibility(R.id.battle_share, View.GONE)
             }
-            val sharePi = PendingIntent.getActivity(
-                context, appWidgetId + 3000, shareIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            )
-            views.setOnClickPendingIntent(R.id.battle_share, sharePi)
-            views.setTextColor(R.id.battle_share, greenColor)
 
             return views
         }
