@@ -33,23 +33,25 @@ import kotlinx.coroutines.launch
 fun PlayerProfileScreen(playerId: Int, viewModel: MainViewModel, onEdit: () -> Unit = {}) {
     var stats by remember { mutableStateOf<PlayerStats?>(null) }
     var gameHistory by remember { mutableStateOf<List<com.carcassonne.companion.data.entity.GamePlayerEntity>>(emptyList()) }
-    val scope = rememberCoroutineScope()
+    var historyLoaded by remember { mutableStateOf(false) }
+    val players by viewModel.players.collectAsState()
+    val p = stats?.player ?: players.find { it.id == playerId }
 
     LaunchedEffect(playerId) {
-        scope.launch {
-            stats = viewModel.getPlayerStats(playerId)
-            viewModel.getGamesForPlayer(playerId).collect { gameHistory = it.take(5) }
+        stats = viewModel.getPlayerStats(playerId)
+        viewModel.getGamesForPlayer(playerId).collect {
+            gameHistory = it.take(5)
+            historyLoaded = true
         }
     }
-
-    val p = stats?.player ?: return
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(16.dp),
     ) {
         item {
-            Column(
+            if (p != null) {
+                Column(
                 modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -71,6 +73,14 @@ fun PlayerProfileScreen(playerId: Int, viewModel: MainViewModel, onEdit: () -> U
                         .padding(horizontal = 16.dp, vertical = 8.dp)
                 ) {
                     Text(stringResource(R.string.edit_profile), fontSize = 13.sp, color = CarcGreen, fontWeight = FontWeight.SemiBold)
+                }
+                }
+            } else {
+                Box(
+                    modifier = Modifier.fillMaxWidth().height(180.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(color = CarcGreen)
                 }
             }
         }
@@ -98,7 +108,20 @@ fun PlayerProfileScreen(playerId: Int, viewModel: MainViewModel, onEdit: () -> U
         item {
             Text(stringResource(R.string.perf_history), fontSize = 18.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(bottom = 12.dp))
         }
-        if (gameHistory.isEmpty()) {
+        if (!historyLoaded) {
+            item {
+                Box(
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 20.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(20.dp),
+                        color = CarcGreen,
+                        strokeWidth = 2.dp
+                    )
+                }
+            }
+        } else if (gameHistory.isEmpty()) {
             item { Text(stringResource(R.string.no_games_played), color = CarcText3, modifier = Modifier.padding(vertical = 20.dp)) }
         } else {
             items(gameHistory) { gp ->
