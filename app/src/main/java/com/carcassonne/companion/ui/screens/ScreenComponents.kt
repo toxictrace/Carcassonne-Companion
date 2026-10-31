@@ -473,11 +473,15 @@ fun AddObjectSheet(
                                 Text(stringResource(R.string.cathedral_label), fontSize = 13.sp, fontWeight = FontWeight.Medium)
                                 Text(stringResource(R.string.tiles_x3), fontSize = 11.sp, color = CarcText3)
                             }
-                            Box(Modifier.size(22.dp).clip(RoundedCornerShape(5.dp))
-                                .background(if (cityCathedral) accent else CarcBorder),
-                                contentAlignment = Alignment.Center) {
-                                if (cityCathedral) Text("✓", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = CarcBg)
-                            }
+                            Checkbox(
+                                checked = cityCathedral,
+                                onCheckedChange = { cityCathedral = it },
+                                colors = CheckboxDefaults.colors(
+                                    checkedColor = accent,
+                                    uncheckedColor = CarcText3,
+                                    checkmarkColor = CarcBg
+                                )
+                            )
                         }
                         Spacer(Modifier.height(16.dp))
                     } else {
@@ -542,11 +546,15 @@ fun AddObjectSheet(
                             Text("🍺", fontSize = 18.sp)
                             Text(stringResource(R.string.inn_label), fontSize = 14.sp, fontWeight = FontWeight.Medium,
                                 modifier = Modifier.weight(1f))
-                            Box(Modifier.size(22.dp).clip(RoundedCornerShape(5.dp))
-                                .background(if (roadTavern) accent else CarcBorder),
-                                contentAlignment = Alignment.Center) {
-                                if (roadTavern) Text("✓", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = CarcBg)
-                            }
+                            Checkbox(
+                                checked = roadTavern,
+                                onCheckedChange = { roadTavern = it },
+                                colors = CheckboxDefaults.colors(
+                                    checkedColor = accent,
+                                    uncheckedColor = CarcText3,
+                                    checkmarkColor = CarcBg
+                                )
+                            )
                         }
                         Spacer(Modifier.height(16.dp))
                     }
