@@ -1,5 +1,6 @@
 package com.carcassonne.companion.ui.screens
 
+import androidx.compose.foundation.*
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
