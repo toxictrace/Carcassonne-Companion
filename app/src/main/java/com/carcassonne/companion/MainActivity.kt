@@ -481,7 +481,13 @@ fun CarcassonneApp(vm: MainViewModel = viewModel()) {
                     onPlayerClick = { navController.navigate(Routes.playerProfile(it)) }
                 )
             }
-            composable(Routes.PLAYER_PROFILE) { back ->
+            composable(
+                Routes.PLAYER_PROFILE,
+                enterTransition = { EnterTransition.None },
+                exitTransition = { ExitTransition.None },
+                popEnterTransition = { EnterTransition.None },
+                popExitTransition = { ExitTransition.None }
+            ) { back ->
                 val playerId = back.arguments?.getString("playerId")?.toIntOrNull() ?: return@composable
                 PlayerProfileScreen(
                     playerId = playerId,
