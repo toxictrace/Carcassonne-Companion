@@ -86,74 +86,21 @@ fun StatsScreen(
     // Dialog must be outside LazyColumn to avoid Popup crash
     var pickingSlot by remember { mutableIntStateOf(-1) }
 
-    // ── Player picker dialog — must be OUTSIDE LazyColumn ─────────────────
+    // Player picker dialog stays outside LazyColumn.
     if (pickingSlot >= 0) {
         val slotIdx = pickingSlot
         val currentId = selectedSlots.getOrNull(slotIdx)
         val available = playerStats.filter { candidate ->
             selectedSlots.indices.none { i -> i != slotIdx && selectedSlots[i] == candidate.player.id }
         }
-        AlertDialog(
-            onDismissRequest = { pickingSlot = -1 },
-            containerColor = CarcCard2,
-            title = { Text(stringResource(R.string.select_player), fontWeight = FontWeight.SemiBold) },
-            text = {
-                Column {
-                    if (currentId != null) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clip(RoundedCornerShape(8.dp))
-                                .clickable { onSlotChange(slotIdx, null); pickingSlot = -1 }
-                                .padding(vertical = 10.dp, horizontal = 4.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text("✕", fontSize = 14.sp, color = CarcRed,
-                                modifier = Modifier.width(28.dp), textAlign = TextAlign.Center)
-                            Spacer(Modifier.width(8.dp))
-                            Text(stringResource(R.string.remove_player), fontSize = 14.sp, color = CarcRed)
-                        }
-                        HorizontalDivider(color = CarcBorder, thickness = 0.5.dp,
-                            modifier = Modifier.padding(vertical = 4.dp))
-                    }
-                    available.forEach { candidate ->
-                        val c = slotColors.getOrElse(pickingSlot % 3) { CarcGreen }
-                        val isSelected = candidate.player.id == currentId
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clip(RoundedCornerShape(8.dp))
-                                .background(if (isSelected) c.copy(alpha = 0.12f) else Color.Transparent)
-                                .clickable {
-                                    onSlotChange(slotIdx, candidate.player.id)
-                                    pickingSlot = -1
-                                }
-                                .padding(vertical = 10.dp, horizontal = 4.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            PlayerAvatar(candidate.player.name, candidate.player.meepleColor,
-                                avatarPath = candidate.player.avatarPath, size = 32.dp)
-                            Spacer(Modifier.width(10.dp))
-                            Column(Modifier.weight(1f)) {
-                                Text(candidate.player.name, fontSize = 14.sp,
-                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                                    color = if (isSelected) c else CarcText)
-                                Text(stringResource(R.string.wr_avg, (candidate.winRate * 100).toInt(), candidate.avgScore),
-                                    fontSize = 11.sp, color = CarcText3)
-                            }
-                            if (isSelected) {
-                                Spacer(Modifier.width(6.dp))
-                                Text("✓", fontSize = 14.sp, color = c)
-                            }
-                        }
-                    }
-                }
-            },
-            confirmButton = {
-                TextButton(onClick = { pickingSlot = -1 }) {
-                    Text(stringResource(R.string.cancel), color = CarcText3)
-                }
-            }
+        PlayerPickerDialog(
+            slotIdx = slotIdx,
+            currentId = currentId,
+            availablePlayers = available,
+            slotColor = slotColors.getOrElse(slotIdx % 3) { CarcGreen },
+            onRemovePlayer = { onSlotChange(slotIdx, null); pickingSlot = -1 },
+            onPlayerSelected = { playerId -> onSlotChange(slotIdx, playerId); pickingSlot = -1 },
+            onDismiss = { pickingSlot = -1 }
         )
     }
 
