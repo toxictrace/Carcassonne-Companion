@@ -337,17 +337,16 @@ fun AddObjectSheet(
     var cityTiles by remember { mutableStateOf(2) }
     var cityShields by remember { mutableStateOf(0) }
     var cityCathedral by remember { mutableStateOf(false) }
-    val cityMultiplier = if (cityCathedral) 3 else 2
+    val cityMultiplier = if (hasInns && cityCathedral) 3 else 2
     val cityPts = cityTiles * cityMultiplier + cityShields * cityMultiplier
 
     // Road state
     var roadTiles by remember { mutableStateOf(2) }
     var roadTavern by remember { mutableStateOf(false) }
-    val roadPts = if (roadTavern) roadTiles * 2 else roadTiles
+    val roadPts = if (hasInns && roadTavern) roadTiles * 2 else roadTiles
 
     // Monastery state
-    var monTiles by remember { mutableStateOf(9) }
-    val monPts = monTiles
+    val monPts = 9
 
     // Localized abbreviations (captured for use inside onClick lambdas)
     val tileAbbr = stringResource(R.string.tile_abbr)
@@ -493,7 +492,7 @@ fun AddObjectSheet(
                             .padding(12.dp),
                         verticalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
-                        val tileMult = if (cityCathedral) 3 else 2
+                        val tileMult = if (hasInns && cityCathedral) 3 else 2
                         val tilePts = cityTiles * tileMult
                         val shieldPts = cityShields * tileMult
                         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
@@ -518,7 +517,7 @@ fun AddObjectSheet(
                         val lbl = buildString {
                             append("🏰 ${cityTiles}${tileAbbr}")
                             if (cityShields > 0) append("+${cityShields}🛡")
-                            if (cityCathedral) append("+⛪")
+                            if (hasInns && cityCathedral) append("+⛪")
                         }
                         onScore(ScoringObjectType.CITY, cityPts, lbl)
                         onDismiss()
@@ -552,10 +551,10 @@ fun AddObjectSheet(
                         Spacer(Modifier.height(16.dp))
                     }
                     ObjectScorePreview(stringResource(R.string.road_label), roadPts, accent,
-                        if (roadTavern) "${roadTiles}${tileAbbr} × 2 ($innAbbr)" else "${roadTiles}${tileAbbr} × 1")
+                        if (hasInns && roadTavern) "${roadTiles}${tileAbbr} × 2 ($innAbbr)" else "${roadTiles}${tileAbbr} × 1")
                     Spacer(Modifier.height(14.dp))
                     PrimaryButton(addRoadLabel, accent, onClick = {
-                        val lbl = "🛤️ ${roadTiles}${tileAbbr}" + if (roadTavern) "+🍺" else ""
+                        val lbl = "🛤️ ${roadTiles}${tileAbbr}" + if (hasInns && roadTavern) "+🍺" else ""
                         onScore(ScoringObjectType.ROAD, roadPts, lbl)
                         onDismiss()
                     })
@@ -563,13 +562,11 @@ fun AddObjectSheet(
                 2 -> { // Monastery
                     Text(stringResource(R.string.monastery_complete), fontSize = 13.sp, color = CarcText3)
                     Spacer(Modifier.height(8.dp))
-                    ObjectStepperRow(stringResource(R.string.tiles_mon_label), monTiles, 1, 9, { monTiles = it })
-                    Spacer(Modifier.height(20.dp))
                     ObjectScorePreview(stringResource(R.string.metric_monastery), monPts, accent,
-                        if (monTiles == 9) stringResource(R.string.fully_completed) else stringResource(R.string.incomplete_tiles, monTiles))
+                        stringResource(R.string.fully_completed))
                     Spacer(Modifier.height(16.dp))
                     PrimaryButton(addMonLabel, accent, onClick = {
-                        onScore(ScoringObjectType.MONASTERY, monPts, "⛪ $monTiles/9")
+                        onScore(ScoringObjectType.MONASTERY, monPts, "⛪ 9/9")
                         onDismiss()
                     })
                 }

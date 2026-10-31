@@ -70,7 +70,7 @@
     <string name="finish_btn">🏁 Финиш</string>
     <string name="game_in_progress">Идёт игра</string>
     <string name="shields_label">🛡 Гербы</string>
-    <string name="traders_note">Базовая игра: +2 за каждый, с собором +3</string>
+    <string name="traders_note">Базовая игра: +2 за каждый герб</string>
     <string name="cathedral_label">Собор в городе</string>
     <string name="tiles_x3">Тайлы ×3 вместо ×2</string>
     <string name="total_label">Итого</string>
@@ -226,7 +226,8 @@
     <string name="base_score">База: %d</string>
     <string name="city_tiles_shields">🏰 Тайлы+щиты города</string>
     <string name="road_tiles">🛤️ Тайлы дорог</string>
-    <string name="monastery_tiles">⛪ Тайлы монастыря</string>
+    <string name="monastery_tiles">Окружающие тайлы</string>
+    <string name="incomplete_monastery_present">Незавершённый монастырь</string>
     <string name="completed_cities_adjacent">Завершённых городов рядом</string>
     <string name="pts_from_incomplete">+%d очков от незавершённых</string>
 

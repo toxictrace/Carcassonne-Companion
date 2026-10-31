@@ -16,10 +16,13 @@ data class EndgamePlayerInput(
     val playerId: Int,
     val incompleteCity: Int = 0,    // tiles + shields × 1pt each
     val incompleteRoad: Int = 0,    // tiles × 1pt each
-    val incompleteMonastery: Int = 0, // 1-8 tiles around
+    val incompleteMonastery: Int = 0, // surrounding tiles, 0-8
+    val hasIncompleteMonastery: Boolean = false,
     val farmCities: Int = 0         // completed cities adjacent to farm × 3pt
 ) {
-    fun totalPoints() = incompleteCity + incompleteRoad + incompleteMonastery + farmCities * 3
+    fun totalPoints() = incompleteCity + incompleteRoad +
+        (if (hasIncompleteMonastery) 1 + incompleteMonastery else 0) +
+        farmCities * 3
 }
 
 // ─── Live Game State ────────────────────────────────────────────────────────

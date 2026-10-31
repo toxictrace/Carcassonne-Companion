@@ -65,7 +65,7 @@ internal fun LiveGameState.withEndgameScoring(
                 score = player.score + endgamePoints,
                 cityPoints = player.cityPoints + endgame.incompleteCity,
                 roadPoints = player.roadPoints + endgame.incompleteRoad,
-                monasteryPoints = player.monasteryPoints + endgame.incompleteMonastery,
+                monasteryPoints = player.monasteryPoints + (if (endgame.hasIncompleteMonastery) 1 + endgame.incompleteMonastery else 0),
                 farmPoints = endgame.farmCities * 3
             )
         }

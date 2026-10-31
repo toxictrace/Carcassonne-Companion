@@ -70,7 +70,7 @@
     <string name="finish_btn">🏁 Finish</string>
     <string name="game_in_progress">Game in Progress</string>
     <string name="shields_label">🛡 Coats of arms</string>
-    <string name="traders_note">Base game: +2 each, or +3 with a cathedral</string>
+    <string name="traders_note">Base game: +2 per coat of arms</string>
     <string name="cathedral_label">Cathedral in city</string>
     <string name="tiles_x3">Tiles ×3 instead of ×2</string>
     <string name="total_label">Total</string>
@@ -226,7 +226,8 @@
     <string name="base_score">Base: %d</string>
     <string name="city_tiles_shields">🏰 City tiles+shields</string>
     <string name="road_tiles">🛤️ Road tiles</string>
-    <string name="monastery_tiles">⛪ Cloister tiles</string>
+    <string name="monastery_tiles">Surrounding tiles</string>
+    <string name="incomplete_monastery_present">Unfinished monastery</string>
     <string name="completed_cities_adjacent">Completed cities adjacent</string>
     <string name="pts_from_incomplete">+%d pts from incomplete</string>
 

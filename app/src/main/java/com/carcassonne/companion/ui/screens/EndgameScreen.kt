@@ -108,11 +108,30 @@ fun EndgameScreen(
                                 inp.value = inp.value.copy(incompleteRoad = it)
                             }
                             Spacer(Modifier.height(8.dp))
-                            EndgameStepperRow(stringResource(R.string.monastery_tiles), inp.value.incompleteMonastery, 0, 8) {
-                                inp.value = inp.value.copy(incompleteMonastery = it)
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Checkbox(
+                                    checked = inp.value.hasIncompleteMonastery,
+                                    onCheckedChange = { checked ->
+                                        inp.value = inp.value.copy(
+                                            hasIncompleteMonastery = checked,
+                                            incompleteMonastery = if (checked) inp.value.incompleteMonastery else 0
+                                        )
+                                    }
+                                )
+                                Text(
+                                    stringResource(R.string.incomplete_monastery_present),
+                                    fontSize = 13.sp,
+                                    color = CarcText2
+                                )
                             }
-                            // Sub-total
-                            val sub = inp.value.incompleteCity + inp.value.incompleteRoad + inp.value.incompleteMonastery
+                            if (inp.value.hasIncompleteMonastery) {
+                                EndgameStepperRow(stringResource(R.string.monastery_tiles), inp.value.incompleteMonastery, 0, 8) {
+                                    inp.value = inp.value.copy(incompleteMonastery = it)
+                                }
+                            }
+                            // Sub-total includes 1 point for the monastery itself.
+                            val monasteryPoints = if (inp.value.hasIncompleteMonastery) 1 + inp.value.incompleteMonastery else 0
+                            val sub = inp.value.incompleteCity + inp.value.incompleteRoad + monasteryPoints
                             if (sub > 0) {
                                 Spacer(Modifier.height(8.dp))
                                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
@@ -209,7 +228,7 @@ fun EndgameScreen(
                             Spacer(Modifier.width(10.dp))
                             Column(Modifier.weight(1f)) {
                                 Text(player.playerName, fontWeight = FontWeight.Bold, color = accent)
-                                Text(stringResource(R.string.base_score_label, player.score) + (if (inp.incompleteCity + inp.incompleteRoad + inp.incompleteMonastery > 0) " " + stringResource(R.string.incomplete_pts_suffix, inp.incompleteCity + inp.incompleteRoad + inp.incompleteMonastery) else "") + (if (inp.farmCities > 0) " " + stringResource(R.string.farms_pts_suffix, inp.farmCities * 3) else ""),
+                                Text(stringResource(R.string.base_score_label, player.score) + (if (inp.incompleteCity + inp.incompleteRoad + (if (inp.hasIncompleteMonastery) 1 + inp.incompleteMonastery else 0) > 0) " " + stringResource(R.string.incomplete_pts_suffix, inp.incompleteCity + inp.incompleteRoad + (if (inp.hasIncompleteMonastery) 1 + inp.incompleteMonastery else 0)) else "") + (if (inp.farmCities > 0) " " + stringResource(R.string.farms_pts_suffix, inp.farmCities * 3) else ""),
                                     fontSize = 11.sp, color = CarcText3)
                             }
                             Text(totalWithEndgame(player.playerId).toString(),
