@@ -90,68 +90,13 @@ fun ComparePlayersSection(
 
     Spacer(Modifier.height(12.dp))
 
-    // ── Section selector ───────────────────────────────────────────────────
-    // sections: index -> (label, enabled)
-    data class CompareSection(val label: String, var enabled: Boolean)
-    val sectionLabels = listOf(
-        stringResource(R.string.section_label_play_style),
-        stringResource(R.string.section_label_results),
-        stringResource(R.string.section_label_score_range),
-        stringResource(R.string.section_label_together),
-        stringResource(R.string.section_label_trend),
-        stringResource(R.string.section_label_score_struct),
-        stringResource(R.string.section_label_metrics)
-    )
-    val sections = remember(sectionMask) {
-        mutableStateListOf(*sectionLabels.mapIndexed { i, label ->
-            CompareSection(label, sectionMask and (1 shl i) != 0)
-        }.toTypedArray())
-    }
+    // Section visibility selector.
     var showSectionPicker by remember { mutableStateOf(false) }
     if (showSectionPicker) {
-        AlertDialog(
-            onDismissRequest = { showSectionPicker = false },
-            containerColor = CarcCard2,
-            title = { Text(stringResource(R.string.show_comparisons), fontWeight = FontWeight.SemiBold) },
-            text = {
-                Column {
-                    sections.forEachIndexed { i, sec ->
-                        Row(
-                            modifier = Modifier.fillMaxWidth()
-                                .clip(RoundedCornerShape(8.dp))
-                                .clickable {
-                                    sections[i] = sec.copy(enabled = !sec.enabled)
-                                    val newMask = sections.foldIndexed(0) { idx, acc, s ->
-                                        if (s.enabled) acc or (1 shl idx) else acc }
-                                    onSectionsChange(newMask)
-                                }
-                                .padding(vertical = 10.dp, horizontal = 4.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Checkbox(
-                                checked = sec.enabled,
-                                onCheckedChange = { v ->
-                                    sections[i] = sec.copy(enabled = v)
-                                    val newMask = sections.foldIndexed(0) { idx, acc, s ->
-                                        if (s.enabled) acc or (1 shl idx) else acc }
-                                    onSectionsChange(newMask)
-                                },
-                                colors = CheckboxDefaults.colors(
-                                    checkedColor = CarcGreen,
-                                    uncheckedColor = CarcBorder
-                                )
-                            )
-                            Spacer(Modifier.width(8.dp))
-                            Text(sec.label, fontSize = 14.sp, color = CarcText)
-                        }
-                    }
-                }
-            },
-            confirmButton = {
-                TextButton(onClick = { showSectionPicker = false }) {
-                    Text(stringResource(R.string.done_btn), color = CarcGreen, fontWeight = FontWeight.Bold)
-                }
-            }
+        CompareSectionPickerDialog(
+            sectionMask = sectionMask,
+            onSectionsChange = onSectionsChange,
+            onDismiss = { showSectionPicker = false }
         )
     }
 
