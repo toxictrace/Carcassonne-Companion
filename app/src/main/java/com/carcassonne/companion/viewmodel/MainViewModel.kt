@@ -187,20 +187,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun adjustScore(playerId: Int, delta: Int) {
-        _liveGame.update { state ->
-            state.copy(
-                selectedPlayers = state.selectedPlayers.map { p ->
-                    if (p.playerId == playerId) {
-                        val event = ScoringEvent(ScoringObjectType.CITY, delta, "+$delta")
-                        p.copy(
-                            score = maxOf(0, p.score + delta),
-                            cityPoints = p.cityPoints + maxOf(0, delta),
-                            events = p.events + event
-                        )
-                    } else p
-                }
-            )
-        }
+        _liveGame.update { it.withScoreAdjustment(playerId, delta) }
     }
 
     /** Adds a completed scoring object (city/road/monastery) during gameplay */
@@ -210,59 +197,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         points: Int,
         label: String
     ) {
-        _liveGame.update { state ->
-            state.copy(
-                selectedPlayers = state.selectedPlayers.map { p ->
-                    if (p.playerId != playerId) return@map p
-                    val event = ScoringEvent(type, points, label)
-                    p.copy(
-                        score = p.score + points,
-                        cityPoints = p.cityPoints + if (type == ScoringObjectType.CITY) points else 0,
-                        roadPoints = p.roadPoints + if (type == ScoringObjectType.ROAD) points else 0,
-                        monasteryPoints = p.monasteryPoints + if (type == ScoringObjectType.MONASTERY) points else 0,
-                        events = p.events + event
-                    )
-                }
-            )
-        }
+        _liveGame.update { it.withScoringObject(playerId, type, points, label) }
     }
 
     /** Remove last scoring event for a player */
     fun undoLastEvent(playerId: Int) {
-        _liveGame.update { state ->
-            state.copy(
-                selectedPlayers = state.selectedPlayers.map { p ->
-                    if (p.playerId != playerId || p.events.isEmpty()) return@map p
-                    val last = p.events.last()
-                    p.copy(
-                        score = maxOf(0, p.score - last.points),
-                        cityPoints = if (last.type == ScoringObjectType.CITY) maxOf(0, p.cityPoints - last.points) else p.cityPoints,
-                        roadPoints = if (last.type == ScoringObjectType.ROAD) maxOf(0, p.roadPoints - last.points) else p.roadPoints,
-                        monasteryPoints = if (last.type == ScoringObjectType.MONASTERY) maxOf(0, p.monasteryPoints - last.points) else p.monasteryPoints,
-                        events = p.events.dropLast(1)
-                    )
-                }
-            )
-        }
+        _liveGame.update { it.withLastScoringEventUndone(playerId) }
     }
 
     /** Apply endgame scoring (incomplete objects + farms) for all players */
     fun applyEndgame(results: Map<Int, EndgamePlayerInput>) {
-        _liveGame.update { state ->
-            state.copy(
-                selectedPlayers = state.selectedPlayers.map { p ->
-                    val eg = results[p.playerId] ?: return@map p
-                    val egPoints = eg.totalPoints()
-                    p.copy(
-                        score = p.score + egPoints,
-                        cityPoints = p.cityPoints + eg.incompleteCity,
-                        roadPoints = p.roadPoints + eg.incompleteRoad,
-                        monasteryPoints = p.monasteryPoints + eg.incompleteMonastery,
-                        farmPoints = eg.farmCities * 3
-                    )
-                }
-            )
-        }
+        _liveGame.update { it.withEndgameScoring(results) }
     }
 
     fun toggleExpansion(exp: String) {
