@@ -131,42 +131,10 @@ fun ComparePlayersSection(
 
     // ── 2: SCORE RANGE ─────────────────────────────────────────────────────
     if (sections[2].enabled) {
-        SectionLabel(stringResource(R.string.section_score_range))
-        Card(shape = RoundedCornerShape(14.dp),
-            colors = CardDefaults.cardColors(containerColor = CarcCard)) {
-            Column(Modifier.padding(14.dp).fillMaxWidth()) {
-                val globalMax = activePlayers.maxOf { it.maxScore }.toFloat().takeIf { it > 0f } ?: 1f
-                activePlayers.forEachIndexed { i, ps ->
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Box(Modifier.size(8.dp).clip(RoundedCornerShape(2.dp)).background(colors[i]))
-                        Spacer(Modifier.width(6.dp))
-                        Text(ps.player.name, fontSize = 11.sp, color = colors[i],
-                            modifier = Modifier.width(70.dp), maxLines = 1, overflow = TextOverflow.Ellipsis)
-                        Spacer(Modifier.width(6.dp))
-                        Box(Modifier.weight(1f).height(18.dp)) {
-                            val maxFrac = (ps.maxScore / globalMax).coerceIn(0f, 1f)
-                            val avgFrac = (ps.avgScore / globalMax).coerceIn(0f, 1f)
-                            // Background range bar (0 → max)
-                            Box(Modifier.fillMaxHeight().fillMaxWidth(maxFrac)
-                                .clip(RoundedCornerShape(4.dp))
-                                .background(colors[i].copy(alpha = 0.2f)))
-                            // Avg bar (0 → avg), brighter
-                            Box(Modifier.fillMaxHeight().fillMaxWidth(avgFrac)
-                                .clip(RoundedCornerShape(4.dp))
-                                .background(colors[i].copy(alpha = 0.7f)))
-                        }
-                        Spacer(Modifier.width(6.dp))
-                        Column(horizontalAlignment = Alignment.End, modifier = Modifier.width(70.dp)) {
-                            Text("▲ ${ps.maxScore}", fontSize = 10.sp, color = CarcGreen, fontWeight = FontWeight.Bold)
-                            Text("● ${ps.avgScore.toInt()}", fontSize = 10.sp, color = colors[i])
-                            Text("▼ ${ps.minScore}", fontSize = 10.sp, color = CarcText3)
-                        }
-                    }
-                    Spacer(Modifier.height(10.dp))
-                }
-            }
-        }
-        Spacer(Modifier.height(14.dp))
+        CompareScoreRangeSection(
+            activePlayers = activePlayers,
+            colors = colors
+        )
     }
 
     // ── 3: TOGETHER ────────────────────────────────────────────────────────
