@@ -90,11 +90,25 @@ fun ComparePlayersSection(
 
     Spacer(Modifier.height(12.dp))
 
-    // Section visibility selector.
+    // Section visibility state is shared with the extracted picker dialog.
+    val sectionLabels = listOf(
+        stringResource(R.string.section_label_play_style),
+        stringResource(R.string.section_label_results),
+        stringResource(R.string.section_label_score_range),
+        stringResource(R.string.section_label_together),
+        stringResource(R.string.section_label_trend),
+        stringResource(R.string.section_label_score_struct),
+        stringResource(R.string.section_label_metrics)
+    )
+    val sections = remember(sectionMask) {
+        mutableStateListOf(*sectionLabels.mapIndexed { index, label ->
+            CompareSection(label, sectionMask and (1 shl index) != 0)
+        }.toTypedArray())
+    }
     var showSectionPicker by remember { mutableStateOf(false) }
     if (showSectionPicker) {
         CompareSectionPickerDialog(
-            sectionMask = sectionMask,
+            sections = sections,
             onSectionsChange = onSectionsChange,
             onDismiss = { showSectionPicker = false }
         )

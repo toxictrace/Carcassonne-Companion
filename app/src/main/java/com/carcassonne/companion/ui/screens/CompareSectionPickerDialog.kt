@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -18,29 +19,14 @@ import com.carcassonne.companion.ui.theme.CarcCard2
 import com.carcassonne.companion.ui.theme.CarcGreen
 import com.carcassonne.companion.ui.theme.CarcText
 
+data class CompareSection(val label: String, val enabled: Boolean)
+
 @Composable
 fun CompareSectionPickerDialog(
-    sectionMask: Int,
+    sections: SnapshotStateList<CompareSection>,
     onSectionsChange: (Int) -> Unit,
     onDismiss: () -> Unit
 ) {
-    data class CompareSection(val label: String, val enabled: Boolean)
-
-    val sectionLabels = listOf(
-        stringResource(R.string.section_label_play_style),
-        stringResource(R.string.section_label_results),
-        stringResource(R.string.section_label_score_range),
-        stringResource(R.string.section_label_together),
-        stringResource(R.string.section_label_trend),
-        stringResource(R.string.section_label_score_struct),
-        stringResource(R.string.section_label_metrics)
-    )
-    val sections = remember(sectionMask, sectionLabels) {
-        mutableStateListOf(*sectionLabels.mapIndexed { index, label ->
-            CompareSection(label, sectionMask and (1 shl index) != 0)
-        }.toTypedArray())
-    }
-
     fun updateSection(index: Int, enabled: Boolean) {
         sections[index] = sections[index].copy(enabled = enabled)
         val newMask = sections.foldIndexed(0) { idx, acc, section ->
