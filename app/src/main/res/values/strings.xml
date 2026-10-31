@@ -144,7 +144,6 @@
     <string name="section_play_style">🕸 PLAY STYLE</string>
     <string name="section_results">🏆 RESULTS</string>
     <string name="section_score_range">📊 SCORE RANGE</string>
-    <string name="achievements">🏅 Achievements</string>
     <string name="perf_history">📈 Performance History</string>
     <string name="player_added">%s added!</string>
     <string name="enter_player_name">Enter a player name</string>
@@ -243,16 +242,6 @@
     <string name="stat_games">Games</string>
     <string name="stat_win_rate">Win Rate</string>
     <string name="stat_avg_score">Avg Score</string>
-    <string name="ach_first_win">First Win</string>
-    <string name="ach_explorer">Explorer</string>
-    <string name="ach_social">Social</string>
-    <string name="ach_star_player">Star Player</string>
-    <string name="ach_veteran">Veteran</string>
-    <string name="level_1">LEVEL 1 BEGINNER</string>
-    <string name="level_2">LEVEL 2 INTERMEDIATE</string>
-    <string name="level_3">LEVEL 3 ADVANCED</string>
-    <string name="level_4">LEVEL 4 EXPERT</string>
-    <string name="level_5">LEVEL 5 GRANDMASTER</string>
     <string name="place_first">1st Place</string>
     <string name="place_n">%d Place</string>
 

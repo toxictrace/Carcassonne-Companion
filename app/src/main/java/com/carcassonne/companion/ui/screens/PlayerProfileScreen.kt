@@ -1,13 +1,10 @@
 package com.carcassonne.companion.ui.screens
 
-import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.border
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.*
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -58,11 +55,6 @@ fun PlayerProfileScreen(playerId: Int, viewModel: MainViewModel, onEdit: () -> U
                 PlayerAvatar(p.name, p.meepleColor, 88.dp, avatarPath = p.avatarPath)
                 Spacer(Modifier.height(12.dp))
                 Text(p.name, fontSize = 22.sp, fontWeight = FontWeight.Bold)
-                Text(
-                    stringResource(getLevelTitle(stats?.gamesPlayed ?: 0)),
-                    fontSize = 12.sp, color = CarcGreen, letterSpacing = 1.sp,
-                    modifier = Modifier.padding(top = 4.dp)
-                )
                 Spacer(Modifier.height(12.dp))
                 Box(
                     modifier = Modifier
@@ -89,19 +81,6 @@ fun PlayerProfileScreen(playerId: Int, viewModel: MainViewModel, onEdit: () -> U
                 SimpleStatCard(stringResource(R.string.stat_games), (stats?.gamesPlayed ?: 0).toString(), Modifier.weight(1f))
                 SimpleStatCard(stringResource(R.string.stat_win_rate), "${((stats?.winRate ?: 0f) * 100).toInt()}%", Modifier.weight(1f))
                 SimpleStatCard(stringResource(R.string.stat_avg_score), (stats?.avgScore ?: 0f).toInt().toString(), Modifier.weight(1f))
-            }
-            Spacer(Modifier.height(20.dp))
-        }
-        item {
-            Text(stringResource(R.string.achievements), fontSize = 18.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(bottom = 12.dp))
-        }
-        item {
-            Row(horizontalArrangement = Arrangement.spacedBy(14.dp), modifier = Modifier.horizontalScroll(rememberScrollState())) {
-                AchievementItem("🏰", stringResource(R.string.ach_first_win), (stats?.wins ?: 0) >= 1)
-                AchievementItem("🗺️", stringResource(R.string.ach_explorer), (stats?.gamesPlayed ?: 0) >= 5)
-                AchievementItem("👥", stringResource(R.string.ach_social), (stats?.gamesPlayed ?: 0) >= 3)
-                AchievementItem("⭐", stringResource(R.string.ach_star_player), (stats?.wins ?: 0) >= 5)
-                AchievementItem("🎯", stringResource(R.string.ach_veteran), (stats?.gamesPlayed ?: 0) >= 20)
             }
             Spacer(Modifier.height(20.dp))
         }
@@ -167,34 +146,6 @@ fun SimpleStatCard(label: String, value: String, modifier: Modifier = Modifier) 
             Text(value, fontSize = 24.sp, fontWeight = FontWeight.Bold)
         }
     }
-}
-
-@Composable
-fun AchievementItem(icon: String, name: String, unlocked: Boolean) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.width(70.dp)) {
-        Box(
-            modifier = Modifier
-                .size(60.dp)
-                .clip(CircleShape)
-                .background(if (unlocked) CarcGreen.copy(alpha = 0.15f) else CarcBg3)
-                .border(2.dp, if (unlocked) CarcGreen else CarcBorder, CircleShape)
-                .then(if (!unlocked) Modifier else Modifier),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(icon, fontSize = 26.sp, color = if (unlocked) Color.Unspecified else CarcText3.copy(alpha = 0.4f))
-        }
-        Spacer(Modifier.height(6.dp))
-        Text(name, fontSize = 10.sp, color = CarcText2, textAlign = TextAlign.Center, lineHeight = 13.sp)
-    }
-}
-
-@androidx.annotation.StringRes
-fun getLevelTitle(games: Int): Int = when {
-    games >= 100 -> R.string.level_5
-    games >= 50  -> R.string.level_4
-    games >= 20  -> R.string.level_3
-    games >= 5   -> R.string.level_2
-    else         -> R.string.level_1
 }
 
 fun placeSuffix(n: Int) = when (n) { 1 -> "st"; 2 -> "nd"; 3 -> "rd"; else -> "th" }

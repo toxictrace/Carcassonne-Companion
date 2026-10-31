@@ -144,7 +144,6 @@
     <string name="section_play_style">🕸 СТИЛЬ ИГРЫ</string>
     <string name="section_results">🏆 РЕЗУЛЬТАТЫ</string>
     <string name="section_score_range">📊 ДИАПАЗОН ОЧКОВ</string>
-    <string name="achievements">🏅 Достижения</string>
     <string name="perf_history">📈 История результатов</string>
     <string name="player_added">%s добавлен!</string>
     <string name="enter_player_name">Введите имя игрока</string>
@@ -243,16 +242,6 @@
     <string name="stat_games">Партий</string>
     <string name="stat_win_rate">Победы</string>
     <string name="stat_avg_score">Средний счёт</string>
-    <string name="ach_first_win">Первая победа</string>
-    <string name="ach_explorer">Исследователь</string>
-    <string name="ach_social">Общительный</string>
-    <string name="ach_star_player">Звезда</string>
-    <string name="ach_veteran">Ветеран</string>
-    <string name="level_1">УРОВЕНЬ 1 НОВИЧОК</string>
-    <string name="level_2">УРОВЕНЬ 2 УЧЕНИК</string>
-    <string name="level_3">УРОВЕНЬ 3 БЫВАЛЫЙ</string>
-    <string name="level_4">УРОВЕНЬ 4 ЭКСПЕРТ</string>
-    <string name="level_5">УРОВЕНЬ 5 ГРОССМЕЙСТЕР</string>
     <string name="place_first">1-е место</string>
     <string name="place_n">%d-е место</string>
 
