@@ -321,42 +321,6 @@ fun ScoreAdjustButton(
     }
 }
 
-// ─── Settings Row ────────────────────────────────────────────────────────────
-@Composable
-fun SettingsRow(
-    icon: String,
-    title: String,
-    subtitle: String,
-    onClick: () -> Unit,
-    iconBgColor: Color = CarcGreen.copy(alpha = 0.1f),
-    trailing: @Composable (() -> Unit)? = null
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onClick() }
-            .padding(vertical = 14.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Box(
-            modifier = Modifier
-                .size(38.dp)
-                .clip(RoundedCornerShape(10.dp))
-                .background(iconBgColor),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(icon, fontSize = 18.sp)
-        }
-        Spacer(Modifier.width(14.dp))
-        Column(Modifier.weight(1f)) {
-            Text(title, fontSize = 15.sp, fontWeight = FontWeight.Medium, color = CarcText)
-            Text(subtitle, fontSize = 12.sp, color = CarcText3)
-        }
-        trailing?.invoke() ?: Text("›", fontSize = 20.sp, color = CarcText3)
-    }
-    HorizontalDivider(color = CarcBorder, thickness = 0.5.dp)
-}
-
 // ─── Rank Badge ──────────────────────────────────────────────────────────────
 @Composable
 fun RankBadge(rank: Int) {
