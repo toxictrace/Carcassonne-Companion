@@ -5,8 +5,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -49,7 +49,6 @@ fun SettingsScreen(
     }
 
     if (showLanguageDialog) {
-        val ctx = LocalContext.current
         val currentLang = remember {
             val loc = AppCompatDelegate.getApplicationLocales()
             if (!loc.isEmpty) loc[0]?.language ?: Locale.getDefault().language else Locale.getDefault().language
