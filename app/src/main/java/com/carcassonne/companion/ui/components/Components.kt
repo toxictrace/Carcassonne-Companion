@@ -320,23 +320,3 @@ fun ScoreAdjustButton(
         Text(label, color = fg, fontWeight = FontWeight.Bold, fontSize = 17.sp)
     }
 }
-
-// ─── Rank Badge ──────────────────────────────────────────────────────────────
-@Composable
-fun RankBadge(rank: Int) {
-    val (bg, fg) = when (rank) {
-        1 -> CarcYellow to Color.Black
-        2 -> Color(0xFF9CA3AF) to Color.Black
-        3 -> Color(0xFFCD7C2F) to Color.Black
-        else -> CarcBg3 to CarcText2
-    }
-    Box(
-        modifier = Modifier
-            .size(28.dp)
-            .clip(CircleShape)
-            .background(bg),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(rank.toString(), color = fg, fontWeight = FontWeight.Bold, fontSize = 13.sp)
-    }
-}
