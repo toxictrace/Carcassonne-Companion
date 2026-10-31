@@ -24,7 +24,6 @@ fun CompareTogetherSection(
     allGamePlayers: List<GamePlayerEntity>,
     colors: List<Color>
 ) {
-        if (sections[3].enabled && activePlayers.size >= 2) {
             SectionLabel(stringResource(R.string.section_together))
             Card(shape = RoundedCornerShape(14.dp),
                 colors = CardDefaults.cardColors(containerColor = CarcCard)) {
@@ -100,5 +99,3 @@ fun CompareTogetherSection(
             }
             Spacer(Modifier.height(14.dp))
         }
-    
-}
