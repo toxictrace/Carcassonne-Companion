@@ -109,29 +109,10 @@ fun StatsScreen(
         contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 88.dp),
     ) {
         item {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(50.dp))
-                    .background(CarcCard)
-                    .border(1.dp, CarcBorder, RoundedCornerShape(50.dp))
-                    .padding(4.dp)
-            ) {
-                listOf(stringResource(R.string.tab_global_stats), stringResource(R.string.tab_compare_players)).forEachIndexed { i, label ->
-                    Box(
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(36.dp)
-                            .clip(RoundedCornerShape(50.dp))
-                            .background(if (tab == i) CarcGreen else Color.Transparent)
-                            .clickable { tab = i },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(label, fontSize = 13.sp, fontWeight = FontWeight.SemiBold,
-                            color = if (tab == i) CarcBg else CarcText3)
-                    }
-                }
-            }
+            StatsTabSelector(
+                selectedTab = tab,
+                onTabSelected = { tab = it }
+            )
             Spacer(Modifier.height(16.dp))
         }
 
