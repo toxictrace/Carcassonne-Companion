@@ -93,6 +93,7 @@ fun HistoryScreen(
     }
     var selected by remember { mutableStateOf(setOf<Int>()) }
     val selecting = selected.isNotEmpty()
+    var pendingDeleteIds by remember { mutableStateOf(setOf<Int>()) }
     var showConfirm by remember { mutableStateOf(false) }
 
     BackHandler(enabled = selecting) {
@@ -103,16 +104,24 @@ fun HistoryScreen(
         AlertDialog(
             onDismissRequest = { showConfirm = false },
             containerColor = CarcCard2,
-            title = { Text(stringResource(R.string.delete_games_title, selected.size), fontWeight = FontWeight.Bold) },
+            title = { Text(stringResource(R.string.delete_games_title, pendingDeleteIds.size), fontWeight = FontWeight.Bold) },
             text = { Text(stringResource(R.string.cannot_undone), color = CarcText2) },
             confirmButton = {
                 Button(
-                    onClick = { onDeleteGames(selected); selected = emptySet(); showConfirm = false },
+                    onClick = {
+                        onDeleteGames(pendingDeleteIds)
+                        selected = emptySet()
+                        pendingDeleteIds = emptySet()
+                        showConfirm = false
+                    },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFEF4444))
                 ) { Text(stringResource(R.string.delete_btn), fontWeight = FontWeight.Bold, color = Color.White) }
             },
             dismissButton = {
-                TextButton(onClick = { showConfirm = false }) { Text(stringResource(R.string.cancel), color = CarcText3) }
+                TextButton(onClick = {
+                    pendingDeleteIds = emptySet()
+                    showConfirm = false
+                }) { Text(stringResource(R.string.cancel), color = CarcText3) }
             }
         )
     }
@@ -201,7 +210,11 @@ fun HistoryScreen(
                             onLongClick = {
                                 if (isSelected) selected = selected - game.id else selected = selected + game.id
                             },
-                            onEdit = { onEditGame(game.id) }
+                            onEdit = { onEditGame(game.id) },
+                            onDelete = {
+                                pendingDeleteIds = setOf(game.id)
+                                showConfirm = true
+                            }
                         )
                     }
                 }
@@ -213,7 +226,10 @@ fun HistoryScreen(
         // Bottom delete bar
         if (selecting) {
             Button(
-                onClick = { showConfirm = true },
+                onClick = {
+                    pendingDeleteIds = selected
+                    showConfirm = true
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)
@@ -241,7 +257,8 @@ fun SelectableHistoryCard(
     selecting: Boolean,
     onClick: () -> Unit,
     onLongClick: () -> Unit,
-    onEdit: () -> Unit
+    onEdit: () -> Unit,
+    onDelete: () -> Unit
 ) {
     Box(
         Modifier
@@ -256,6 +273,7 @@ fun SelectableHistoryCard(
             onClick = onClick,
             onLongClick = onLongClick,
             onEdit = if (selecting) ({}) else onEdit,
+            onDelete = if (selecting) ({}) else onDelete,
             containerColor = if (isSelected) Color(0xFFEF4444).copy(alpha = 0.10f) else null
         )
         // Чекбокс сверху слева
@@ -285,7 +303,8 @@ fun HistoryGameCard(
     onClick: () -> Unit,
     onLongClick: () -> Unit = {},
     onEdit: () -> Unit = {},
-    containerColor: Color? = null
+    containerColor: Color? = null,
+    onDelete: () -> Unit = {}
 ) {
     val date = remember(game.date) {
         SimpleDateFormat("MMM d, yyyy", Locale.getDefault()).format(Date(game.date))
@@ -333,6 +352,13 @@ fun HistoryGameCard(
                 }
                 IconButton(onClick = onEdit, modifier = Modifier.size(36.dp)) {
                     Text("✎", fontSize = 18.sp, color = CarcText3)
+                }
+                IconButton(onClick = onDelete, modifier = Modifier.size(36.dp)) {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = stringResource(R.string.delete_btn),
+                        tint = Color(0xFFEF4444)
+                    )
                 }
             }
             if (sortedGP.isNotEmpty()) {
