@@ -225,25 +225,5 @@ fun ScoreEditDialog(
     )
 }
 
-@Composable
-fun ScoreInputField(label: String, value: String, onValue: (String) -> Unit, modifier: Modifier = Modifier) {
-    OutlinedTextField(
-        value = value,
-        onValueChange = { onValue(it.filter { c -> c.isDigit() }) },
-        label = { Text(label, fontSize = 12.sp) },
-        modifier = modifier,
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-        singleLine = true,
-        colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = CarcGreenDeep,
-            unfocusedBorderColor = CarcBorder,
-            focusedLabelColor = CarcGreen,
-            unfocusedLabelColor = CarcText3,
-            focusedTextColor = CarcText,
-            unfocusedTextColor = CarcText,
-            cursorColor = CarcGreen
-        )
-    )
-}
 
 // ─── Endgame Screen ───────────────────────────────────────────────────────────
