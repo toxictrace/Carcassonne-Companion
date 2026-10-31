@@ -337,7 +337,8 @@ fun AddObjectSheet(
     var cityTiles by remember { mutableStateOf(2) }
     var cityShields by remember { mutableStateOf(0) }
     var cityCathedral by remember { mutableStateOf(false) }
-    val cityPts = cityTiles * (if (cityCathedral) 3 else 2) + cityShields * 2
+    val cityMultiplier = if (cityCathedral) 3 else 2
+    val cityPts = cityTiles * cityMultiplier + cityShields * cityMultiplier
 
     // Road state
     var roadTiles by remember { mutableStateOf(2) }
@@ -494,14 +495,14 @@ fun AddObjectSheet(
                     ) {
                         val tileMult = if (cityCathedral) 3 else 2
                         val tilePts = cityTiles * tileMult
-                        val shieldPts = cityShields * 2
+                        val shieldPts = cityShields * tileMult
                         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                             Text("🏰 ${cityTiles} $tilesWord × $tileMult", fontSize = 13.sp, color = CarcText2)
                             Text("$tilePts", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
                         }
                         if (cityShields > 0) {
                             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                                Text("🛡 ${cityShields} $shieldsWord × 2", fontSize = 13.sp, color = CarcText2)
+                                Text("🛡 ${cityShields} $shieldsWord × $tileMult", fontSize = 13.sp, color = CarcText2)
                                 Text("$shieldPts", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
                             }
                         }

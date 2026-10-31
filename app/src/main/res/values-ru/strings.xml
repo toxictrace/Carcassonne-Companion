@@ -69,8 +69,8 @@
     <string name="finish_game">🏁  ЗАВЕРШИТЬ ИГРУ</string>
     <string name="finish_btn">🏁 Финиш</string>
     <string name="game_in_progress">Идёт игра</string>
-    <string name="shields_label">🛡 Щиты</string>
-    <string name="traders_note">До 2 на тайл (Купцы и строители)</string>
+    <string name="shields_label">🛡 Гербы</string>
+    <string name="traders_note">Базовая игра: +2 за каждый, с собором +3</string>
     <string name="cathedral_label">Собор в городе</string>
     <string name="tiles_x3">Тайлы ×3 вместо ×2</string>
     <string name="total_label">Итого</string>

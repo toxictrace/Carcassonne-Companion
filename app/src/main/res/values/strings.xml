@@ -69,8 +69,8 @@
     <string name="finish_game">🏁  FINISH GAME</string>
     <string name="finish_btn">🏁 Finish</string>
     <string name="game_in_progress">Game in Progress</string>
-    <string name="shields_label">🛡 Shields</string>
-    <string name="traders_note">Up to 2 per tile (Traders &amp; Builders)</string>
+    <string name="shields_label">🛡 Coats of arms</string>
+    <string name="traders_note">Base game: +2 each, or +3 with a cathedral</string>
     <string name="cathedral_label">Cathedral in city</string>
     <string name="tiles_x3">Tiles ×3 instead of ×2</string>
     <string name="total_label">Total</string>
