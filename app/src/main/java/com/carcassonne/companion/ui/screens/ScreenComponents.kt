@@ -141,20 +141,6 @@ fun RestorePickerDialog(
 
 
 // ─── New Game Screen ──────────────────────────────────────────────────────────
-@Composable
-fun PrimaryButton(label: String, accent: Color = CarcGreen, enabled: Boolean = true, onClick: () -> Unit) {
-    Box(
-        Modifier.fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
-            .background(if (enabled) accent else CarcBg3)
-            .clickable(enabled = enabled, onClick = onClick)
-            .padding(vertical = 14.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(label, fontWeight = FontWeight.Bold, fontSize = 15.sp,
-            color = if (enabled) CarcBg else CarcText3)
-    }
-}
 
 // ─── Live Game Screen ─────────────────────────────────────────────────────────
 @Composable
