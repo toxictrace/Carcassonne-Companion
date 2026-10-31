@@ -1002,36 +1002,6 @@ fun RadarChart(
     }
 }
 
-@Composable
-fun StatsPlayerRow(ps: PlayerStats, onPlayerClick: (Int) -> Unit = {}) {
-    val accent = meepleColor(ps.player.meepleColor)
-    Card(
-        modifier = Modifier.clickable { onPlayerClick(ps.player.id) },
-        shape = RoundedCornerShape(14.dp),
-        colors = CardDefaults.cardColors(containerColor = CarcCard)
-    ) {
-        Row(modifier = Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
-            PlayerAvatar(ps.player.name, ps.player.meepleColor, avatarPath = ps.player.avatarPath)
-            Spacer(Modifier.width(12.dp))
-            Column(Modifier.weight(1f)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(ps.player.name, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
-                }
-                Spacer(Modifier.height(4.dp))
-                Text(stringResource(R.string.wins_losses, ps.wins, ps.gamesPlayed - ps.wins), fontSize = 11.sp, color = CarcText3)
-                Spacer(Modifier.height(4.dp))
-                WinRateBar(ps.winRate)
-            }
-            Spacer(Modifier.width(10.dp))
-            Text(
-                "${(ps.winRate * 100).toInt()}%",
-                fontSize = 14.sp, fontWeight = FontWeight.Bold,
-                color = if (ps.winRate >= 0.5f) CarcGreen else CarcText2
-            )
-        }
-    }
-}
-
 // ─── Restore From Folder Dialog ───────────────────────────────────────────────
   @Composable
   fun RestoreFromFolderDialog(
