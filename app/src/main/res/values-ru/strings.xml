@@ -76,7 +76,7 @@
     <string name="total_label">Итого</string>
     <string name="inn_label">Таверна (×2)</string>
     <string name="monastery_complete">Монастырь завершён = +9</string>
-    <string name="incomplete_note">Незавершённые объекты: 1 очко за тайл/щит</string>
+    <string name="incomplete_note">Незавершённые объекты: 1 очко за тайл/герб</string>
     <string name="farm_scoring">🌾 Подсчёт полей</string>
     <string name="farm_instructions">Считайте завершённые города рядом с полем каждого игрока.</string>
     <string name="farm_formula">Формула: N городов × 3 очка</string>
@@ -224,7 +224,7 @@
     <string name="tab_farms">Поля</string>
     <string name="tab_confirm">Итог</string>
     <string name="base_score">База: %d</string>
-    <string name="city_tiles_shields">🏰 Тайлы+щиты города</string>
+    <string name="city_tiles_shields">🏰 Тайлы + гербы города</string>
     <string name="road_tiles">🛤️ Тайлы дорог</string>
     <string name="monastery_tiles">Окружающие тайлы</string>
     <string name="incomplete_monastery_present">Незавершённый монастырь</string>
@@ -298,7 +298,6 @@
     <string name="tile_abbr">т</string>
     <string name="inn_abbr">таверна</string>
     <string name="tiles_word">тайлов</string>
-    <string name="shields_word">щитов</string>
     <string name="add_city_btn">+%d очк. — Добавить город</string>
     <string name="add_road_btn">+%d очк. — Добавить дорогу</string>
     <string name="add_monastery_btn">+%d очк. — Добавить монастырь</string>
@@ -365,4 +364,10 @@
     <string name="widget_no_games">Нет партий</string>
     <string name="widget_battle_label_display">ОТОБРАЖЕНИЕ</string>
     <string name="max_players_reached">Максимум %d игроков</string>
+    <plurals name="coats_of_arms">
+        <item quantity="one">герб</item>
+        <item quantity="few">герба</item>
+        <item quantity="many">гербов</item>
+        <item quantity="other">герба</item>
+    </plurals>
 </resources>

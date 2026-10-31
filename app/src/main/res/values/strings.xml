@@ -76,7 +76,7 @@
     <string name="total_label">Total</string>
     <string name="inn_label">Inn (×2)</string>
     <string name="monastery_complete">Completed cloister = +9</string>
-    <string name="incomplete_note">Incomplete objects score 1 pt per tile/shield</string>
+    <string name="incomplete_note">Incomplete objects score 1 pt per tile/coat of arms</string>
     <string name="farm_scoring">🌾 Farm Scoring</string>
     <string name="farm_instructions">Count completed cities adjacent to each player\'s farm.</string>
     <string name="farm_formula">Formula: N cities × 3 pts</string>
@@ -224,10 +224,10 @@
     <string name="tab_farms">Farms</string>
     <string name="tab_confirm">Confirm</string>
     <string name="base_score">Base: %d</string>
-    <string name="city_tiles_shields">🏰 City tiles+shields</string>
+    <string name="city_tiles_shields">🏰 City tiles + coats of arms</string>
     <string name="road_tiles">🛤️ Road tiles</string>
     <string name="monastery_tiles">Surrounding tiles</string>
-    <string name="incomplete_monastery_present">Unfinished monastery</string>
+    <string name="incomplete_monastery_present">Unfinished cloister</string>
     <string name="completed_cities_adjacent">Completed cities adjacent</string>
     <string name="pts_from_incomplete">+%d pts from incomplete</string>
 
@@ -298,7 +298,6 @@
     <string name="tile_abbr">t</string>
     <string name="inn_abbr">inn</string>
     <string name="tiles_word">tiles</string>
-    <string name="shields_word">shields</string>
     <string name="add_city_btn">+%d pts — Add City</string>
     <string name="add_road_btn">+%d pts — Add Road</string>
     <string name="add_monastery_btn">+%d pts — Add Cloister</string>
@@ -365,4 +364,8 @@
     <string name="widget_no_games">No games yet</string>
     <string name="widget_battle_label_display">DISPLAY</string>
     <string name="max_players_reached">Max %d players</string>
+    <plurals name="coats_of_arms">
+        <item quantity="one">coat of arms</item>
+        <item quantity="other">coats of arms</item>
+    </plurals>
 </resources>

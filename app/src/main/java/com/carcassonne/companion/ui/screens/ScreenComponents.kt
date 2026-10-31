@@ -32,6 +32,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.*
 import androidx.compose.ui.text.input.KeyboardType
@@ -173,7 +174,7 @@ fun AddObjectSheet(
     val tileAbbr = stringResource(R.string.tile_abbr)
     val innAbbr = stringResource(R.string.inn_abbr)
     val tilesWord = stringResource(R.string.tiles_word)
-    val shieldsWord = stringResource(R.string.shields_word)
+    val coatsOfArmsWord = pluralStringResource(R.plurals.coats_of_arms, cityShields)
     val addCityLabel = stringResource(R.string.add_city_btn, cityPts)
     val addRoadLabel = stringResource(R.string.add_road_btn, roadPts)
     val addMonLabel = stringResource(R.string.add_monastery_btn, monPts)
@@ -326,7 +327,7 @@ fun AddObjectSheet(
                         }
                         if (cityShields > 0) {
                             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                                Text("🛡 ${cityShields} $shieldsWord × $tileMult", fontSize = 13.sp, color = CarcText2)
+                                Text("🛡 ${cityShields} $coatsOfArmsWord × $tileMult", fontSize = 13.sp, color = CarcText2)
                                 Text("$shieldPts", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
                             }
                         }
