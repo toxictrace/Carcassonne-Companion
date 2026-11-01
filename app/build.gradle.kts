@@ -14,8 +14,8 @@ android {
         applicationId = "com.carcassonne.companion"
         minSdk = 26
         targetSdk = 35
-        versionCode = 76
-        versionName = "test75"
+        versionCode = 77
+        versionName = "test76"
     }
 
     buildTypes {
