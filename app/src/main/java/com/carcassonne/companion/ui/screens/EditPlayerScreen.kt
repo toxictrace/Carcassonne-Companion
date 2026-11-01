@@ -10,6 +10,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.carcassonne.companion.data.entity.PlayerEntity
+import com.carcassonne.companion.R
 import com.carcassonne.companion.ui.components.MeepleColorPicker
 import com.carcassonne.companion.ui.theme.*
 
