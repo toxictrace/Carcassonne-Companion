@@ -1,79 +1,28 @@
-@file:OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
-
 package com.carcassonne.companion.ui.screens
 
-import androidx.activity.compose.BackHandler
-import androidx.compose.animation.*
-import androidx.compose.foundation.*
-import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.*
-import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.ime
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.foundation.layout.consumeWindowInsets
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.navigationBars
-import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.foundation.layout.WindowInsetsSides
-import androidx.compose.foundation.layout.only
-import androidx.compose.foundation.layout.safeDrawing
-import androidx.compose.foundation.shape.*
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.*
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
-import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.*
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.*
-import androidx.compose.ui.unit.*
-import com.carcassonne.companion.data.entity.GameEntity
-import com.carcassonne.companion.data.entity.PlayerEntity
-import com.carcassonne.companion.ui.components.*
-import com.carcassonne.companion.ui.theme.*
-import com.carcassonne.companion.viewmodel.GlobalStats
-import com.carcassonne.companion.viewmodel.LiveGameState
-import com.carcassonne.companion.viewmodel.MainViewModel
-import com.carcassonne.companion.viewmodel.PlayerStats
-import com.carcassonne.companion.viewmodel.ScoringObjectType
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.carcassonne.companion.R
-import com.carcassonne.companion.viewmodel.EndgamePlayerInput
-import com.carcassonne.companion.viewmodel.LivePlayerState
-import com.carcassonne.companion.util.ImageUtils
-import android.Manifest
-import android.graphics.BitmapFactory
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.layout.ContentScale
-import androidx.core.content.FileProvider
-import kotlinx.coroutines.launch
+import com.carcassonne.companion.data.entity.PlayerEntity
+import com.carcassonne.companion.ui.components.MeepleColorPicker
+import com.carcassonne.companion.ui.components.PlayerAvatar
+import com.carcassonne.companion.ui.components.PrimaryButton
+import com.carcassonne.companion.ui.theme.*
+import com.carcassonne.companion.viewmodel.MainViewModel
 import java.text.SimpleDateFormat
-import java.util.*
-import androidx.compose.foundation.Canvas
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.drawscope.Fill
-import androidx.compose.ui.graphics.drawscope.Stroke
-import kotlin.math.cos
-import kotlin.math.sin
-import kotlin.math.sqrt
-import androidx.documentfile.provider.DocumentFile
-import com.carcassonne.companion.util.BackupManager
-import java.io.File
+import java.util.Date
+import java.util.Locale
 
-// ─── Edit Player Screen ───────────────────────────────────────────────────────
-// ─── Edit Game Screen ─────────────────────────────────────────────────────────
 @OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
 @Composable
 fun EditGameScreen(
