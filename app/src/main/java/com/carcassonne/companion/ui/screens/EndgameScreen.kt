@@ -186,28 +186,14 @@ fun EndgameScreen(
                 }
                 val sorted = players.sortedByDescending { totalWithEndgame(it.playerId) }
                 items(sorted) { player ->
-                    val accent = meepleColor(player.meepleColor)
                     val inp = inputs[player.playerId]?.value ?: EndgamePlayerInput(player.playerId)
                     val rank = sorted.indexOfFirst { it.playerId == player.playerId } + 1
-                    Card(shape = RoundedCornerShape(14.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = if (rank == 1) CarcGreenDeep.copy(alpha = 0.25f) else CarcCard),
-                        border = BorderStroke(if (rank == 1) 1.5.dp else 1.dp,
-                            if (rank == 1) CarcGreenDeep else accent.copy(alpha = 0.3f))) {
-                        Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
-                            Text(if (rank == 1) "🏆" else "$rank", fontSize = if (rank == 1) 24.sp else 16.sp,
-                                fontWeight = FontWeight.Bold, modifier = Modifier.width(32.dp))
-                            PlayerAvatar(player.playerName, player.meepleColor, 40.dp, avatarPath = player.avatarPath)
-                            Spacer(Modifier.width(10.dp))
-                            Column(Modifier.weight(1f)) {
-                                Text(player.playerName, fontWeight = FontWeight.Bold, color = accent)
-                                Text(stringResource(R.string.base_score_label, player.score) + (if (inp.incompleteCity + inp.incompleteRoad + (if (inp.hasIncompleteMonastery) 1 + inp.incompleteMonastery else 0) > 0) " " + stringResource(R.string.incomplete_pts_suffix, inp.incompleteCity + inp.incompleteRoad + (if (inp.hasIncompleteMonastery) 1 + inp.incompleteMonastery else 0)) else "") + (if (inp.farmCities > 0) " " + stringResource(R.string.farms_pts_suffix, inp.farmCities * 3) else ""),
-                                    fontSize = 11.sp, color = CarcText3)
-                            }
-                            Text(totalWithEndgame(player.playerId).toString(),
-                                fontSize = 32.sp, fontWeight = FontWeight.Black, color = accent)
-                        }
-                    }
+                    EndgameFinalScoreCard(
+                        player = player,
+                        input = inp,
+                        rank = rank,
+                        totalScore = totalWithEndgame(player.playerId)
+                    )
                 }
                 item { Spacer(Modifier.height(4.dp)) }
                 item {
