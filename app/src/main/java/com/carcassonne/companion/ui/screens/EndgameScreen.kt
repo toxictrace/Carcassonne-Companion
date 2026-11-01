@@ -171,19 +171,12 @@ fun EndgameScreen(
                     }
                 }
                 item {
-                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                        Box(Modifier.weight(1f).clip(RoundedCornerShape(10.dp))
-                            .background(CarcBg3).border(1.dp, CarcBorder, RoundedCornerShape(10.dp))
-                            .clickable { phase = 0 }.padding(vertical = 14.dp),
-                            contentAlignment = Alignment.Center) {
-                            Text(stringResource(R.string.back_btn), color = CarcText2, fontWeight = FontWeight.SemiBold)
-                        }
-                        Box(Modifier.weight(2f).clip(RoundedCornerShape(10.dp))
-                            .background(CarcGreen).clickable { phase = 2 }.padding(vertical = 14.dp),
-                            contentAlignment = Alignment.Center) {
-                            Text(stringResource(R.string.next_confirm), color = CarcBg, fontWeight = FontWeight.Bold)
-                        }
-                    }
+                    EndgameNavigationButtons(
+                        backLabel = stringResource(R.string.back_btn),
+                        nextLabel = stringResource(R.string.next_confirm),
+                        onBack = { phase = 0 },
+                        onNext = { phase = 2 }
+                    )
                 }
             }
 
@@ -253,24 +246,17 @@ fun EndgameScreen(
                     )
                 }
                 item {
-                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                        Box(Modifier.weight(1f).clip(RoundedCornerShape(10.dp))
-                            .background(CarcBg3).border(1.dp, CarcBorder, RoundedCornerShape(10.dp))
-                            .clickable { phase = 1 }.padding(vertical = 14.dp),
-                            contentAlignment = Alignment.Center) {
-                            Text(stringResource(R.string.back_btn), color = CarcText2, fontWeight = FontWeight.SemiBold)
-                        }
-                        Box(Modifier.weight(2f).clip(RoundedCornerShape(10.dp))
-                            .background(CarcGreen)
-                            .clickable {
-                                val finalInputs = inputs.mapValues { it.value.value }
-                                onApply(finalInputs)
-                                onSave(gameName, gameNotes.ifBlank { null })
-                            }.padding(vertical = 14.dp),
-                            contentAlignment = Alignment.Center) {
-                            Text(stringResource(R.string.save_game), color = CarcBg, fontWeight = FontWeight.Bold, fontSize = 15.sp)
-                        }
-                    }
+                    EndgameNavigationButtons(
+                        backLabel = stringResource(R.string.back_btn),
+                        nextLabel = stringResource(R.string.save_game),
+                        onBack = { phase = 1 },
+                        onNext = {
+                            val finalInputs = inputs.mapValues { it.value.value }
+                            onApply(finalInputs)
+                            onSave(gameName, gameNotes.ifBlank { null })
+                        },
+                        nextFontSize = 15.sp
+                    )
                 }
                 item { Spacer(Modifier.height(72.dp)) }
             }
