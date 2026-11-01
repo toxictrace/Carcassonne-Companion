@@ -265,33 +265,11 @@ fun MatchDetailScreen(
         // Final Standings
         item { Text(stringResource(R.string.final_standings), fontSize = 18.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(bottom = 10.dp)) }
         items(sorted) { gp ->
-            val p = players.find { it.id == gp.playerId }
-            Card(
-                shape = RoundedCornerShape(14.dp),
-                colors = CardDefaults.cardColors(containerColor = CarcCard),
-                modifier = Modifier.padding(bottom = 8.dp).clickable { p?.id?.let { onPlayerClick(it) } }
-            ) {
-                Row(modifier = Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
-                    RankBadge(gp.placement)
-                    Spacer(Modifier.width(10.dp))
-                    PlayerAvatar(
-                        name = p?.name ?: "?",
-                        color = gp.meepleColor,
-                        size = 40.dp,
-                        avatarPath = p?.avatarPath
-                    )
-                    Spacer(Modifier.width(10.dp))
-                    Column(Modifier.weight(1f)) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(p?.name ?: stringResource(R.string.unknown_player), fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
-                            Spacer(Modifier.width(6.dp))
-                            Box(Modifier.size(8.dp).clip(CircleShape).background(meepleColor(gp.meepleColor)))
-                        }
-                        Text(stringResource(R.string.pts_label, gp.finalScore), fontSize = 12.sp, color = CarcText3)
-                    }
-                    Text(gp.finalScore.toString(), fontSize = 22.sp, fontWeight = FontWeight.Bold)
-                }
-            }
+            MatchFinalStandingRow(
+                gamePlayer = gp,
+                players = players,
+                onPlayerClick = onPlayerClick
+            )
         }
 
         // Points Breakdown — всегда показываем
