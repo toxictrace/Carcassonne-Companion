@@ -298,30 +298,4 @@ fun EndgameScreen(
     }
 }
 
-@Composable
-fun EndgameStepperRow(label: String, value: Int, min: Int, max: Int, onValue: (Int) -> Unit) {
-    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-        Text(label, Modifier.weight(1f), fontSize = 13.sp, color = CarcText2)
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Box(Modifier.size(32.dp).clip(RoundedCornerShape(topStart = 6.dp, bottomStart = 6.dp))
-                .background(CarcBg3).border(1.dp, CarcBorder, RoundedCornerShape(topStart = 6.dp, bottomStart = 6.dp))
-                .clickable { if (value > min) onValue(value - 1) },
-                contentAlignment = Alignment.Center) {
-                Text("−", fontSize = 18.sp, color = if (value > min) CarcText else CarcText3)
-            }
-            Box(Modifier.width(44.dp).height(32.dp).background(CarcBg3)
-                .border(BorderStroke(1.dp, CarcBorder)),
-                contentAlignment = Alignment.Center) {
-                Text(value.toString(), fontSize = 15.sp, fontWeight = FontWeight.Bold)
-            }
-            Box(Modifier.size(32.dp).clip(RoundedCornerShape(topEnd = 6.dp, bottomEnd = 6.dp))
-                .background(CarcBg3).border(1.dp, CarcBorder, RoundedCornerShape(topEnd = 6.dp, bottomEnd = 6.dp))
-                .clickable { if (value < max) onValue(value + 1) },
-                contentAlignment = Alignment.Center) {
-                Text("+", fontSize = 18.sp, color = if (value < max) CarcText else CarcText3)
-            }
-        }
-    }
-}
-
 // ─── Match Detail Screen ──────────────────────────────────────────────────────
