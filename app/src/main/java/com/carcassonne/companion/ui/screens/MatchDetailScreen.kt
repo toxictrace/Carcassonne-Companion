@@ -116,35 +116,10 @@ fun MatchDetailScreen(
             Spacer(Modifier.height(12.dp))
         }
         item {
-            Column(modifier = Modifier.fillMaxWidth()) {
-                Text(
-                    game?.name ?: "Match #$gameId",
-                    modifier = Modifier.fillMaxWidth(),
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-                Text(
-                    "📅 $date",
-                    modifier = Modifier.padding(top = 4.dp),
-                    fontSize = 12.sp,
-                    color = CarcText3,
-                    maxLines = 1,
-                    softWrap = false
-                )
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
-                    horizontalArrangement = Arrangement.spacedBy(10.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .weight(1f)
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(CarcCard2)
-                            .border(1.dp, CarcBorder, RoundedCornerShape(8.dp))
-                            .clickable {
+            MatchHeaderSection(
+                title = game?.name ?: "Match #$gameId",
+                date = date,
+                onShare = {
                                 // Build the share image in the background, then open Android Sharesheet
                                 // directly from this screen to avoid a visible intermediate Activity.
                                 scope.launch {
@@ -197,40 +172,10 @@ fun MatchDetailScreen(
                                         android.util.Log.e("MatchDetailScreen", "Failed to share match $gameId", e)
                                     }
                                 }
-                            }
-                            .padding(horizontal = 8.dp, vertical = 8.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            stringResource(R.string.share_game),
-                            fontSize = 13.sp,
-                            color = CarcGreen,
-                            fontWeight = FontWeight.SemiBold,
-                            maxLines = 1,
-                            softWrap = false
-                        )
-                    }
-                    Box(
-                        modifier = Modifier
-                            .weight(1f)
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(CarcCard2)
-                            .border(1.dp, CarcBorder, RoundedCornerShape(8.dp))
-                            .clickable { onEdit() }
-                            .padding(horizontal = 8.dp, vertical = 8.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            stringResource(R.string.edit_btn),
-                            fontSize = 13.sp,
-                            color = CarcGreen,
-                            fontWeight = FontWeight.SemiBold,
-                            maxLines = 1,
-                            softWrap = false
-                        )
-                    }
-                }
-            }
+                            
+                },
+                onEdit = onEdit
+            )
             Spacer(Modifier.height(16.dp))
             MatchNotesSection(notes = game?.notes)
         }
