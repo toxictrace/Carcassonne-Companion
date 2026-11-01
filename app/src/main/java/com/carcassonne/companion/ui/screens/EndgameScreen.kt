@@ -65,61 +65,12 @@ fun EndgameScreen(
                         fontSize = 13.sp, color = CarcText3)
                 }
                 items(players) { player ->
-                    val accent = meepleColor(player.meepleColor)
                     val inp = inputs[player.playerId]!!
-                    Card(shape = RoundedCornerShape(14.dp),
-                        colors = CardDefaults.cardColors(containerColor = CarcCard),
-                        border = BorderStroke(1.dp, accent.copy(alpha = 0.4f))) {
-                        Column(Modifier.padding(14.dp)) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                PlayerAvatar(player.playerName, player.meepleColor, 36.dp, avatarPath = player.avatarPath)
-                                Spacer(Modifier.width(10.dp))
-                                Text(player.playerName, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = accent)
-                                Spacer(Modifier.weight(1f))
-                                Text(stringResource(R.string.base_score, player.score), fontSize = 13.sp, color = CarcText3)
-                            }
-                            Spacer(Modifier.height(12.dp))
-                            // Incomplete city tiles+shields
-                            EndgameStepperRow(stringResource(R.string.city_tiles_shields), inp.value.incompleteCity, 0, 99) {
-                                inp.value = inp.value.copy(incompleteCity = it)
-                            }
-                            Spacer(Modifier.height(8.dp))
-                            EndgameStepperRow(stringResource(R.string.road_tiles), inp.value.incompleteRoad, 0, 99) {
-                                inp.value = inp.value.copy(incompleteRoad = it)
-                            }
-                            Spacer(Modifier.height(8.dp))
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Checkbox(
-                                    checked = inp.value.hasIncompleteMonastery,
-                                    onCheckedChange = { checked ->
-                                        inp.value = inp.value.copy(
-                                            hasIncompleteMonastery = checked,
-                                            incompleteMonastery = if (checked) inp.value.incompleteMonastery else 0
-                                        )
-                                    }
-                                )
-                                Text(
-                                    stringResource(R.string.incomplete_monastery_present),
-                                    fontSize = 13.sp,
-                                    color = CarcText2
-                                )
-                            }
-                            if (inp.value.hasIncompleteMonastery) {
-                                EndgameStepperRow(stringResource(R.string.monastery_tiles), inp.value.incompleteMonastery, 0, 8) {
-                                    inp.value = inp.value.copy(incompleteMonastery = it)
-                                }
-                            }
-                            // Sub-total includes 1 point for the monastery itself.
-                            val monasteryPoints = if (inp.value.hasIncompleteMonastery) 1 + inp.value.incompleteMonastery else 0
-                            val sub = inp.value.incompleteCity + inp.value.incompleteRoad + monasteryPoints
-                            if (sub > 0) {
-                                Spacer(Modifier.height(8.dp))
-                                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                                    Text(stringResource(R.string.incomplete_pts_suffix, sub), fontSize = 12.sp, color = accent)
-                                }
-                            }
-                        }
-                    }
+                    EndgameIncompletePlayerCard(
+                        player = player,
+                        input = inp.value,
+                        onInputChange = { update -> inp.value = update(inp.value) }
+                    )
                 }
                 item {
                     PrimaryButton(stringResource(R.string.next_farms), onClick = { phase = 1 })
