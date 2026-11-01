@@ -232,23 +232,7 @@ fun MatchDetailScreen(
                 }
             }
             Spacer(Modifier.height(16.dp))
-            // Notes — показываем только если есть
-            val notes = game?.notes
-            if (!notes.isNullOrBlank()) {
-                Card(
-                    shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(containerColor = CarcCard),
-                    border = BorderStroke(1.dp, CarcBorder),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Column(Modifier.padding(12.dp)) {
-                        Text("📝", fontSize = 13.sp, color = CarcText3)
-                        Spacer(Modifier.height(4.dp))
-                        Text(notes, fontSize = 14.sp, color = CarcText, lineHeight = 20.sp)
-                    }
-                }
-                Spacer(Modifier.height(16.dp))
-            }
+            MatchNotesSection(notes = game?.notes)
         }
 
         // Winner
