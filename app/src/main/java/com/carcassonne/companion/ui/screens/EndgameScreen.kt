@@ -108,14 +108,10 @@ fun EndgameScreen(
                 }
                 item { Spacer(Modifier.height(4.dp)) }
                 item {
-                    // Фото поля партии
-                    Text(stringResource(R.string.board_photo_btn), fontSize = 13.sp, color = CarcText3, modifier = Modifier.padding(bottom = 8.dp))
-                    GamePhotoBox(
+                    EndgameBoardPhotoSection(
                         photoPath = pendingPhotoPath,
-                        editable = true,
-                        onPhotoSaved = { path -> onSetPhoto(if (path.isEmpty()) null else path) }
+                        onPhotoSaved = onSetPhoto
                     )
-                    Spacer(Modifier.height(12.dp))
                 }
                 item {
                     EndgameGameDetailsFields(
