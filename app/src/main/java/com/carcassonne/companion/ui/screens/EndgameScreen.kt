@@ -1,26 +1,16 @@
 package com.carcassonne.companion.ui.screens
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.*
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.res.stringResource
 import com.carcassonne.companion.R
-import com.carcassonne.companion.ui.components.PlayerAvatar
-import com.carcassonne.companion.ui.theme.*
+import com.carcassonne.companion.ui.theme.CarcText3
 import com.carcassonne.companion.viewmodel.EndgamePlayerInput
 import com.carcassonne.companion.viewmodel.LiveGameState
 
@@ -128,28 +118,11 @@ fun EndgameScreen(
                     Spacer(Modifier.height(12.dp))
                 }
                 item {
-                    OutlinedTextField(
-                        value = gameName, onValueChange = { gameName = it },
-                        label = { Text(stringResource(R.string.game_name_hint), color = CarcText3) },
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = CarcGreenDeep, unfocusedBorderColor = CarcBorder,
-                            focusedTextColor = CarcText, unfocusedTextColor = CarcText, cursorColor = CarcGreen
-                        )
-                    )
-                    Spacer(Modifier.height(8.dp))
-                    OutlinedTextField(
-                        value = gameNotes,
-                        onValueChange = { if (it.length <= 150) gameNotes = it },
-                        label = { Text(stringResource(R.string.notes_label), color = CarcText3) },
-                        placeholder = { Text(stringResource(R.string.notes_placeholder), color = CarcText3, fontSize = 13.sp) },
-                        modifier = Modifier.fillMaxWidth(),
-                        maxLines = 4,
-                        supportingText = { Text("${gameNotes.length}/150", color = CarcText3, fontSize = 11.sp) },
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = CarcGreenDeep, unfocusedBorderColor = CarcBorder,
-                            focusedTextColor = CarcText, unfocusedTextColor = CarcText, cursorColor = CarcGreen
-                        )
+                    EndgameGameDetailsFields(
+                        gameName = gameName,
+                        onGameNameChange = { gameName = it },
+                        gameNotes = gameNotes,
+                        onGameNotesChange = { if (it.length <= 150) gameNotes = it }
                     )
                 }
                 item {
