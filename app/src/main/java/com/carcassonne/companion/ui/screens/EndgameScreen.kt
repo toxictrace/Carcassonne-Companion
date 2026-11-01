@@ -139,36 +139,14 @@ fun EndgameScreen(
                     }
                 }
                 items(players) { player ->
-                    val accent = meepleColor(player.meepleColor)
-                    val inp = inputs[player.playerId]!!
-                    Card(shape = RoundedCornerShape(14.dp),
-                        colors = CardDefaults.cardColors(containerColor = CarcCard),
-                        border = BorderStroke(1.dp, accent.copy(alpha = 0.4f))) {
-                        Column(Modifier.padding(14.dp)) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                PlayerAvatar(player.playerName, player.meepleColor, 36.dp, avatarPath = player.avatarPath)
-                                Spacer(Modifier.width(10.dp))
-                                Text(player.playerName, fontWeight = FontWeight.Bold, color = accent)
-                            }
-                            Spacer(Modifier.height(12.dp))
-                            EndgameStepperRow(stringResource(R.string.completed_cities_adjacent), inp.value.farmCities, 0, 30) {
-                                inp.value = inp.value.copy(farmCities = it)
-                            }
-                            if (inp.value.farmCities > 0) {
-                                Spacer(Modifier.height(8.dp))
-                                Row(
-                                    Modifier.fillMaxWidth().clip(RoundedCornerShape(8.dp))
-                                        .background(accent.copy(alpha = 0.1f)).padding(10.dp),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Text(stringResource(R.string.farm_cities_pts, inp.value.farmCities), fontSize = 13.sp, color = CarcText2)
-                                    Text("+${inp.value.farmCities * 3}", fontSize = 18.sp,
-                                        fontWeight = FontWeight.Bold, color = accent)
-                                }
-                            }
+                    EndgameFarmPlayerCard(
+                        player = player,
+                        input = inputs[player.playerId]!!.value,
+                        onFarmCitiesChange = { value ->
+                            inputs[player.playerId]!!.value =
+                                inputs[player.playerId]!!.value.copy(farmCities = value)
                         }
-                    }
+                    )
                 }
                 item {
                     EndgameNavigationButtons(
