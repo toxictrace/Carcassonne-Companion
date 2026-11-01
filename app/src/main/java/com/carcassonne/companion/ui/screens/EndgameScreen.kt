@@ -79,15 +79,7 @@ fun EndgameScreen(
 
             1 -> { // Farms
                 item {
-                    Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp))
-                        .background(CarcBg3).padding(14.dp)) {
-                        Text(stringResource(R.string.farm_scoring), fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                        Spacer(Modifier.height(4.dp))
-                        Text(stringResource(R.string.farm_instructions),
-                            fontSize = 13.sp, color = CarcText3)
-                        Text(stringResource(R.string.farm_formula), fontSize = 13.sp, color = CarcGreen,
-                            fontWeight = FontWeight.SemiBold)
-                    }
+                    EndgameFarmInstructionsCard()
                 }
                 items(players) { player ->
                     EndgameFarmPlayerCard(
