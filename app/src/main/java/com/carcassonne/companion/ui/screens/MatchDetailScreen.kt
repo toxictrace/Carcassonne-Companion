@@ -254,34 +254,11 @@ fun MatchDetailScreen(
         // Winner
         sorted.firstOrNull()?.let { winner ->
             item {
-                Text(stringResource(R.string.winner_label), fontSize = 13.sp, color = CarcText3, modifier = Modifier.padding(bottom = 8.dp))
-                val p = players.find { it.id == winner.playerId }
-                Card(
-                    modifier = Modifier.clickable { p?.id?.let { onPlayerClick(it) } },
-                    shape = RoundedCornerShape(14.dp),
-                    colors = CardDefaults.cardColors(containerColor = CarcGreenDeep.copy(alpha = 0.3f)),
-                    border = BorderStroke(1.dp, CarcGreenDeep)
-                ) {
-                    Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-                        PlayerAvatar(
-                            name = p?.name ?: "?",
-                            color = winner.meepleColor,
-                            size = 52.dp,
-                            avatarPath = p?.avatarPath
-                        )
-                        Spacer(Modifier.width(14.dp))
-                        Column(Modifier.weight(1f)) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text(p?.name ?: stringResource(R.string.unknown_player), fontSize = 17.sp, fontWeight = FontWeight.Bold)
-                                Spacer(Modifier.width(8.dp))
-                                Box(Modifier.size(10.dp).clip(CircleShape).background(meepleColor(winner.meepleColor)))
-                            }
-                            Text(stringResource(R.string.pts_mvp, winner.finalScore), fontSize = 13.sp, color = CarcText3)
-                        }
-                        Text(winner.finalScore.toString(), fontSize = 36.sp, fontWeight = FontWeight.Bold, color = CarcGreen)
-                    }
-                }
-                Spacer(Modifier.height(16.dp))
+                MatchWinnerSection(
+                    winner = winner,
+                    players = players,
+                    onPlayerClick = onPlayerClick
+                )
             }
         }
 
