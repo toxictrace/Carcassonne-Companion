@@ -289,31 +289,6 @@ fun AddObjectSheet(
 }
 
 @Composable
-fun ObjectStepperRow(label: String, value: Int, min: Int, max: Int, onValue: (Int) -> Unit) {
-    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-        Text(label, Modifier.weight(1f), fontSize = 15.sp, fontWeight = FontWeight.Medium)
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(0.dp)) {
-            Box(
-                Modifier.size(40.dp).clip(RoundedCornerShape(topStart = 8.dp, bottomStart = 8.dp))
-                    .background(CarcBg3).border(1.dp, CarcBorder, RoundedCornerShape(topStart = 8.dp, bottomStart = 8.dp))
-                    .clickable { if (value > min) onValue(value - 1) },
-                contentAlignment = Alignment.Center
-            ) { Text("−", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = if (value > min) CarcText else CarcText3) }
-            Box(Modifier.width(52.dp).height(40.dp).background(CarcBg3).border(BorderStroke(1.dp, CarcBorder)),
-                contentAlignment = Alignment.Center) {
-                Text(value.toString(), fontSize = 18.sp, fontWeight = FontWeight.Bold)
-            }
-            Box(
-                Modifier.size(40.dp).clip(RoundedCornerShape(topEnd = 8.dp, bottomEnd = 8.dp))
-                    .background(CarcBg3).border(1.dp, CarcBorder, RoundedCornerShape(topEnd = 8.dp, bottomEnd = 8.dp))
-                    .clickable { if (value < max) onValue(value + 1) },
-                contentAlignment = Alignment.Center
-            ) { Text("+", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = if (value < max) CarcText else CarcText3) }
-        }
-    }
-}
-
-@Composable
 fun ObjectScorePreview(title: String, pts: Int, accent: Color, formula: String) {
     Row(
         Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp))
